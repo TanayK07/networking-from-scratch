@@ -22,9 +22,9 @@ function L(num, title, lang, type) {
 
 /* ---------- CONFIG ------------------------------------------------ */
 NFS.CONFIG = {
-  repoOwner: 'Tanayk07',
+  repoOwner: 'Tanay10x',
   repoName: 'networking-from-scratch',
-  repoUrl: 'https://github.com/Tanayk07/networking-from-scratch'
+  repoUrl: 'https://github.com/Tanay10x/networking-from-scratch'
 };
 
 /* ---------- PHASES ------------------------------------------------ */

@@ -47,7 +47,7 @@ See [`docs/prereqs.md`](docs/prereqs.md) for the full breakdown and a setup scri
 ## Quickstart
 
 ```bash
-git clone https://github.com/Tanayk07/networking-from-scratch.git
+git clone https://github.com/Tanay10x/networking-from-scratch.git
 cd networking-from-scratch
 
 # Set up an Ubuntu 24.04 VM with all dependencies (recommended)
@@ -222,7 +222,7 @@ See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the full guide.
 
 This is a curriculum-in-progress. The structure, sample lessons, and three reference implementations (P1.02, P2.06, P3.02) are complete; ~286 lessons are still planned. See the live progress on [the website](https://networking-from-scratch.com).
 
-If you want to help write lessons, the [project board](https://github.com/Tanayk07/networking-from-scratch/projects/1) shows what's claimed and what's open.
+If you want to help write lessons, the [project board](https://github.com/Tanay10x/networking-from-scratch/projects/1) shows what's claimed and what's open.
 
 ---
 
