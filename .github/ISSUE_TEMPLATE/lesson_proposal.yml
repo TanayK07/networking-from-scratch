@@ -1,0 +1,70 @@
+name: Lesson proposal
+description: Propose a new lesson or improvement to an existing one.
+labels: [lesson, enhancement]
+body:
+  - type: dropdown
+    id: phase
+    attributes:
+      label: Phase
+      options:
+        - P1 — Bits & Wires
+        - P2 — Link Layer
+        - P3 — Network Layer
+        - P4 — Transport
+        - P5 — Sockets & I/O
+        - P6 — Application Protocols
+        - P7 — TLS
+        - P8 — Userspace TCP/IP Stack
+        - P9 — Linux Kernel Internals
+        - P10 — eBPF, XDP
+        - P11 — Performance & Observability
+        - P12 — Routing
+        - P13 — Overlays & Containers
+        - P14 — Service Mesh
+        - P15 — DDS & Robotics (Bonus)
+    validations:
+      required: true
+
+  - type: input
+    id: title
+    attributes:
+      label: Lesson title
+      placeholder: HPACK header compression
+    validations:
+      required: true
+
+  - type: dropdown
+    id: language
+    attributes:
+      label: Language
+      options:
+        - C
+        - Python
+        - eBPF
+        - Lua
+    validations:
+      required: true
+
+  - type: textarea
+    id: pitch
+    attributes:
+      label: Why this lesson
+      description: What concrete thing will the learner build, and why does it matter?
+    validations:
+      required: true
+
+  - type: textarea
+    id: outline
+    attributes:
+      label: Outline
+      description: Sketch the 6 sections (Problem, Theory, Math/Spec, Code, Tests, Exercises).
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: claim
+    attributes:
+      label: Claim
+      options:
+        - label: I want to write this lesson myself
+        - label: I'm just proposing — happy for someone else to take it

@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Networking from Scratch</title>
+<meta name="description" content="289 lessons. 15 phases. Build the network stack — Ethernet frames, IP packets, TCP state machines, TLS handshakes, kernel modules, eBPF, DDS — from raw bytes. Once, by hand.">
+<link rel="stylesheet" href="css/style.css">
+<script>
+if(localStorage.getItem('nfs_theme')==='dark'||(!localStorage.getItem('nfs_theme')&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark');
+</script>
+</head>
+<body>
+
+<nav class="topnav">
+  <a href="index.html" class="brand">NETWORKING / FROM SCRATCH</a>
+  <div class="links">
+    <a href="#contents" class="active">Contents</a>
+    <a href="catalog.html">Catalog</a>
+    <a href="roadmap.html">Roadmap</a>
+    <a href="glossary.html">Glossary</a>
+    <a href="https://github.com/Tanayk07/networking-from-scratch" class="gh-link">GitHub <span class="gh-stars" style="display:none"></span></a>
+    <button class="theme-toggle" aria-label="Toggle theme">N</button>
+  </div>
+</nav>
+
+<!-- Hero -->
+<header class="hero">
+  <div class="container">
+    <div class="hero-meta mono">FIG_000 &middot; curriculum v1.0 &middot; 2026</div>
+    <h1 class="hero-title">Networking<br>from Scratch</h1>
+    <p class="hero-tagline">Build the network stack &mdash; bits, frames, packets, TCP, TLS, kernel modules, eBPF, DDS &mdash; from raw bytes, in C and Python. Free, open source, MIT-licensed.</p>
+    <div class="hero-badges">
+      <span class="badge-pill">15 phases</span>
+      <span class="badge-pill">289 lessons</span>
+      <span class="badge-pill">C + Python</span>
+    </div>
+  </div>
+</header>
+
+<div class="ascii-rule"></div>
+
+<!-- How This Works -->
+<section class="container section reveal">
+  <div class="section-grid">
+    <div class="section-label mono">HOW THIS WORKS</div>
+    <div class="section-body">
+      <p class="dropcap">Every lesson starts with a concrete problem, walks through the theory and the relevant RFC, then builds the solution from scratch in C or Python. You write the code, run the tests, and verify against real traffic. No frameworks until you've built a minimal version yourself.</p>
+      <p>The curriculum is ordered but not rigid. Phases 1&ndash;4 build the foundation (bits through TCP). Phases 5&ndash;7 add sockets, application protocols, and TLS. Phase 8 is the capstone: a userspace TCP/IP stack that can curl a real HTTPS site. Phases 9&ndash;14 go deep into the Linux kernel, eBPF, routing, and container networking. Phase 15 is a bonus on DDS and robotics middleware.</p>
+    </div>
+  </div>
+</section>
+
+<div class="ascii-rule"></div>
+
+<!-- Stats -->
+<section class="container section reveal" id="stats-section">
+  <div class="section-grid">
+    <div class="section-label mono">CURRENT PROGRESS</div>
+    <div class="section-body">
+      <div class="stat-block">
+        <div class="stat-row">
+          <span class="stat-label mono">Lessons</span>
+          <div class="stat-bar"><div class="stat-fill" id="bar-lessons"></div></div>
+          <span class="stat-value mono" id="prog-lessons">0 / 305</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label mono">Phases started</span>
+          <div class="stat-bar"><div class="stat-fill" id="bar-phases"></div></div>
+          <span class="stat-value mono" id="prog-phases">0 / 15</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label mono">Languages</span>
+          <div class="stat-bar"><div class="stat-fill" style="width:100%"></div></div>
+          <span class="stat-value mono">C + Python</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="ascii-rule"></div>
+
+<!-- Phase Cards -->
+<section class="container section" id="contents">
+  <div class="section-grid">
+    <div class="section-label mono">TABLE OF CONTENTS</div>
+    <div class="section-body">
+      <div class="legend">
+        <span class="legend-item"><span class="status-sq done"></span> Complete</span>
+        <span class="legend-item"><span class="status-sq inprogress"></span> In progress</span>
+        <span class="legend-item"><span class="status-sq planned"></span> Planned</span>
+        <button class="btn btn-small" onclick="NFS.progress.reset();render();">Reset</button>
+      </div>
+      <div class="phase-grid" id="phase-grid"></div>
+    </div>
+  </div>
+</section>
+
+<div class="ascii-rule"></div>
+
+<!-- Clone Box -->
+<section class="container section reveal">
+  <div class="section-grid">
+    <div class="section-label mono">GET STARTED</div>
+    <div class="section-body">
+      <div class="clone-box">
+        <code id="clone-cmd">git clone https://github.com/Tanayk07/networking-from-scratch.git</code>
+        <button class="btn btn-small copy-btn" onclick="NFS.copyToClipboard(document.getElementById('clone-cmd').textContent, this)">Copy</button>
+      </div>
+      <p class="text-muted" style="margin-top:12px;font-size:0.88rem;">Then run <code>make -C phases/01-bits-and-wires/02-bits-bytes-endianness test</code> to verify your first lesson builds.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeModal()">&times;</button>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<footer>
+  <span><a href="https://github.com/Tanayk07/networking-from-scratch">GitHub</a> &middot; open source &middot; free forever</span>
+  <div class="footer-links">
+    <a href="catalog.html">Catalog</a>
+    <a href="glossary.html">Glossary</a>
+    <a href="https://github.com/Tanayk07/networking-from-scratch/issues/new/choose">Report</a>
+  </div>
+</footer>
+
+<script src="js/data.js"></script>
+<script src="js/progress.js"></script>
+<script src="js/header.js"></script>
+<script src="js/app.js"></script>
+<script>
+function render() {
+  var grid = document.getElementById('phase-grid');
+  var stats = NFS.progress.stats();
+
+  // Update stat bars
+  var lessonPct = stats.totalLessons > 0 ? (stats.totalDone / stats.totalLessons * 100) : 0;
+  var phasePct = stats.totalPhases > 0 ? (stats.phasesStarted / stats.totalPhases * 100) : 0;
+  document.getElementById('bar-lessons').style.width = lessonPct + '%';
+  document.getElementById('bar-phases').style.width = phasePct + '%';
+  document.getElementById('prog-lessons').textContent = stats.totalDone + ' / ' + stats.totalLessons;
+  document.getElementById('prog-phases').textContent = stats.phasesStarted + ' / ' + stats.totalPhases;
+
+  // Render phase cards
+  var html = '';
+  NFS.PHASES.forEach(function(phase, pIdx) {
+    var done = NFS.progress.phaseDone(pIdx);
+    var pct = phase.lessons.length > 0 ? (done / phase.lessons.length * 100) : 0;
+    var statusCls = done === phase.lessons.length && done > 0 ? 'done' : done > 0 ? 'inprogress' : 'planned';
+    var bonusCls = phase.bonus ? ' bonus' : '';
+
+    html += '<div class="phase-card reveal' + bonusCls + '" onclick="openModal(' + pIdx + ')" data-delay="' + (pIdx * 50) + '">' +
+      '<div class="phase-card-head">' +
+        '<span class="phase-card-num">' + phase.id + (phase.bonus ? ' &middot; BONUS' : '') + '</span>' +
+        '<span class="status-sq ' + statusCls + '"></span>' +
+      '</div>' +
+      '<div class="phase-card-title">' + phase.title + '</div>' +
+      '<div class="phase-card-meta mono">' + done + ' / ' + phase.count + ' lessons</div>' +
+      '<div class="phase-card-bar"><div class="phase-card-fill" style="width:' + pct + '%"></div></div>' +
+    '</div>';
+  });
+  grid.innerHTML = html;
+  NFS.scrollReveal();
+}
+
+function openModal(pIdx) {
+  var phase = NFS.PHASES[pIdx];
+  var done = NFS.progress.phaseDone(pIdx);
+  var pct = phase.lessons.length > 0 ? (done / phase.lessons.length * 100) : 0;
+
+  var html = '<div class="modal-header">' +
+    '<span class="modal-phase-num">' + phase.id + '</span>' +
+    '<h2 class="modal-title">' + phase.title + '</h2>' +
+  '</div>' +
+  '<p class="modal-desc">' + phase.desc + '</p>' +
+  '<div class="modal-progress">' +
+    '<div class="modal-progress-bar"><div class="modal-progress-fill" style="width:' + pct + '%"></div></div>' +
+    '<span class="mono" style="font-size:0.8rem">' + done + ' / ' + phase.count + '</span>' +
+  '</div>' +
+  '<ul class="modal-lessons">';
+
+  phase.lessons.forEach(function(l, lIdx) {
+    var isDone = NFS.progress.isDone(pIdx, lIdx);
+    var num = String(lIdx + 1).padStart(2, '0');
+    var langCls = l[1];
+    var langLabel = NFS.LANG_SHORT[l[1]] || l[1].toUpperCase();
+    var typeLabel = NFS.TYPE_LABELS[l[2]] || l[2];
+    var typeCls = l[2];
+
+    html += '<li class="modal-lesson' + (isDone ? ' done' : '') + '">' +
+      '<input type="checkbox" ' + (isDone ? 'checked' : '') + ' onchange="toggleLesson(' + pIdx + ',' + lIdx + ')">' +
+      '<span class="modal-lesson-num mono">' + phase.id + '.' + num + '</span>' +
+      '<a href="' + NFS.lessonUrl(pIdx, lIdx) + '" class="modal-lesson-title">' + l[0] + '</a>' +
+      '<span class="type-tag ' + typeCls + '">' + typeLabel + '</span>' +
+      '<span class="lang-tag ' + langCls + '">' + langLabel + '</span>' +
+    '</li>';
+  });
+
+  html += '</ul>';
+  document.getElementById('modal-body').innerHTML = html;
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  document.body.style.overflow = '';
+  render();
+}
+
+function toggleLesson(pIdx, lIdx) {
+  NFS.progress.toggle(pIdx, lIdx);
+  openModal(pIdx);
+}
+
+render();
+</script>
+
+</body>
+</html>

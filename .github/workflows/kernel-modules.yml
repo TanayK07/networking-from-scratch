@@ -1,0 +1,82 @@
+name: Kernel Modules
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'phases/09-kernel-internals/**'
+      - 'phases/13-overlays-and-containers/**'
+      - '.github/workflows/kernel-modules.yml'
+  pull_request:
+    paths:
+      - 'phases/09-kernel-internals/**'
+      - 'phases/13-overlays-and-containers/**'
+
+jobs:
+  build:
+    name: LKM build (${{ matrix.kernel }})
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        kernel:
+          # Ubuntu 24.04 ships with the 6.8 generic kernel; we test against
+          # whatever headers are available for it. Other LTS kernels (5.15,
+          # 6.6, 6.13/PREEMPT_RT) are tested in the virtme-ng job below.
+          - default
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install kernel headers
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            linux-headers-$(uname -r) \
+            build-essential \
+            kmod \
+            iproute2
+
+      - name: Build every LKM under phases/
+        run: |
+          set -e
+          # Each LKM lesson has its own Makefile that uses Kbuild conventions.
+          # We build but do not load (loading happens in virtme-ng below).
+          for d in phases/09-kernel-internals/*/; do
+            if [ -f "$d/Makefile" ] && grep -q 'obj-m' "$d/Makefile"; then
+              echo "::group::Building $d"
+              make -C "$d" clean
+              make -C "$d"
+              echo "::endgroup::"
+            fi
+          done
+
+  load-test:
+    name: Load LKMs in virtme-ng
+    runs-on: ubuntu-24.04
+    # virtme-ng spins up a transient VM with the host's kernel and our modules.
+    # This catches "module compiles but won't load" regressions.
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install virtme-ng + headers
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y virtme-ng linux-headers-$(uname -r) build-essential
+
+      - name: Build all LKMs
+        run: |
+          for d in phases/09-kernel-internals/*/; do
+            [ -f "$d/Makefile" ] && grep -q 'obj-m' "$d/Makefile" && make -C "$d" || true
+          done
+
+      - name: Load LKMs in a transient VM and run their self-tests
+        run: |
+          # Run each lesson's tests/ inside a virtme-ng VM where the LKM is loaded.
+          # Each lesson is responsible for its own self-test under tests/run.sh.
+          for d in phases/09-kernel-internals/*/; do
+            if [ -f "$d/tests/run.sh" ]; then
+              echo "::group::virtme-ng test $d"
+              vng --rwdir "$PWD" -- bash -c "cd $PWD/$d && bash tests/run.sh"
+              echo "::endgroup::"
+            fi
+          done

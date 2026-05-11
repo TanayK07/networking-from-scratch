@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson — Networking from Scratch</title>
+<meta name="description" content="Learn networking from raw bytes. Implementation-heavy lessons in C and Python.">
+<link rel="stylesheet" href="css/style.css">
+<script>
+if(localStorage.getItem('nfs_theme')==='dark'||(!localStorage.getItem('nfs_theme')&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark');
+</script>
+</head>
+<body>
+
+<div id="scroll-progress" class="scroll-progress"></div>
+
+<nav class="topnav">
+  <a href="index.html" class="brand">NETWORKING / FROM SCRATCH</a>
+  <div class="links">
+    <a href="index.html">Contents</a>
+    <a href="catalog.html">Catalog</a>
+    <a href="roadmap.html">Roadmap</a>
+    <a href="glossary.html">Glossary</a>
+    <a href="https://github.com/Tanayk07/networking-from-scratch" class="gh-link">GitHub <span class="gh-stars" style="display:none"></span></a>
+    <button class="theme-toggle" aria-label="Toggle theme">N</button>
+  </div>
+</nav>
+
+<div class="lesson-layout">
+  <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle sidebar">&#9776;</button>
+
+  <aside id="sidebar" class="lesson-sidebar">
+    <div class="sidebar-header">
+      <h3 id="sidebar-phase-title"></h3>
+    </div>
+    <div id="sidebar-lessons" class="sidebar-lessons"></div>
+  </aside>
+
+  <main class="lesson-main">
+    <div id="breadcrumb" class="breadcrumb"></div>
+    <div id="lesson-content" class="lesson-content"></div>
+    <div id="completion" class="lesson-completion"></div>
+    <div id="prev-next" class="lesson-nav"></div>
+  </main>
+</div>
+
+<footer>
+  <span><a href="https://github.com/Tanayk07/networking-from-scratch">GitHub</a> &middot; open source &middot; free forever</span>
+  <div class="footer-links">
+    <a href="index.html">Home</a>
+    <a href="catalog.html">Catalog</a>
+    <a href="glossary.html">Glossary</a>
+  </div>
+</footer>
+
+<script src="js/data.js"></script>
+<script src="js/progress.js"></script>
+<script src="js/header.js"></script>
+<script src="js/app.js"></script>
+<script src="js/vendor/marked.min.js"></script>
+<script src="js/lesson.js"></script>
+
+</body>
+</html>

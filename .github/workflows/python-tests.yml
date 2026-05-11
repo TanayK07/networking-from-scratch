@@ -1,0 +1,74 @@
+name: Python Tests
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'phases/**/*.py'
+      - 'common/python/**'
+      - 'tools/**'
+      - 'tox.ini'
+      - 'pyproject.toml'
+      - '.github/workflows/python-tests.yml'
+  pull_request:
+    paths:
+      - 'phases/**/*.py'
+      - 'common/python/**'
+      - 'tools/**'
+
+jobs:
+  test:
+    name: Python ${{ matrix.python }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.11', '3.12']
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: 'pip'
+
+      - name: Install tox
+        run: pip install tox
+
+      - name: Run tests
+        run: tox -e py${{ matrix.python }}-${{ matrix.python == '3.11' && '11' || '12' }} || tox -e py${{ matrix.python == '3.11' && '311' || '312' }}
+
+  lint:
+    name: ruff + format
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+      - run: pip install tox
+      - run: tox -e lint
+
+  type:
+    name: mypy --strict
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+      - run: pip install tox
+      - run: tox -e type
+
+  curriculum-lint:
+    name: lint-curriculum
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Lint every lesson has the 6 required sections
+        run: python3 tools/lint-curriculum.py

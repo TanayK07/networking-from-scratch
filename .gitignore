@@ -1,0 +1,28 @@
+# Build artifacts
+*.o
+*.so
+*.a
+*.dylib
+outputs/
+
+# Python
+__pycache__/
+*.pyc
+.tox/
+*.egg-info/
+.pytest_cache/
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local

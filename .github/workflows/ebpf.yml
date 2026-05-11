@@ -1,0 +1,62 @@
+name: eBPF / XDP
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'phases/10-ebpf-xdp/**'
+      - '.github/workflows/ebpf.yml'
+  pull_request:
+    paths:
+      - 'phases/10-ebpf-xdp/**'
+
+jobs:
+  build:
+    name: BPF CO-RE build
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install clang + libbpf + bpftool
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            clang \
+            llvm \
+            libbpf-dev \
+            linux-tools-common linux-tools-$(uname -r) \
+            linux-headers-$(uname -r) \
+            build-essential
+
+      - name: Generate vmlinux.h
+        run: |
+          mkdir -p /tmp/bpf
+          sudo bpftool btf dump file /sys/kernel/btf/vmlinux format c \
+            > /tmp/bpf/vmlinux.h
+          # Make it discoverable by per-lesson Makefiles
+          echo "VMLINUX_H=/tmp/bpf/vmlinux.h" >> $GITHUB_ENV
+
+      - name: Build every BPF program
+        run: |
+          for d in phases/10-ebpf-xdp/*/; do
+            if [ -f "$d/Makefile" ] && grep -qE '\.bpf\.c|bpf\.o' "$d/Makefile"; then
+              echo "::group::$d"
+              make -C "$d" clean || true
+              make -C "$d" VMLINUX_H=/tmp/bpf/vmlinux.h
+              echo "::endgroup::"
+            fi
+          done
+
+      - name: Verifier check (load each program)
+        # Loading XDP programs needs CAP_BPF/CAP_NET_ADMIN. GitHub-hosted runners
+        # have these via sudo. We unload immediately to avoid touching the host net.
+        run: |
+          for d in phases/10-ebpf-xdp/*/; do
+            for obj in "$d"*.bpf.o; do
+              [ -f "$obj" ] || continue
+              echo "Verifying: $obj"
+              sudo bpftool prog load "$obj" /sys/fs/bpf/test_$(basename "$obj" .bpf.o) || \
+                { echo "FAILED: $obj"; exit 1; }
+              sudo rm -f /sys/fs/bpf/test_$(basename "$obj" .bpf.o)
+            done
+          done

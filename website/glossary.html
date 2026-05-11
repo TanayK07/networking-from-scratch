@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Glossary — Networking from Scratch</title>
+<meta name="description" content="Networking terms defined twice: what people say vs what it actually means.">
+<link rel="stylesheet" href="css/style.css">
+<script>
+if(localStorage.getItem('nfs_theme')==='dark'||(!localStorage.getItem('nfs_theme')&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark');
+</script>
+</head>
+<body>
+
+<nav class="topnav">
+  <a href="index.html" class="brand">NETWORKING / FROM SCRATCH</a>
+  <div class="links">
+    <a href="index.html">Contents</a>
+    <a href="catalog.html">Catalog</a>
+    <a href="roadmap.html">Roadmap</a>
+    <a href="glossary.html" class="active">Glossary</a>
+    <a href="https://github.com/Tanayk07/networking-from-scratch" class="gh-link">GitHub <span class="gh-stars" style="display:none"></span></a>
+    <button class="theme-toggle" aria-label="Toggle theme">N</button>
+  </div>
+</nav>
+
+<main class="container" style="padding-top:40px;padding-bottom:80px;">
+  <h1>Glossary</h1>
+  <p class="text-muted" style="margin-bottom:24px;">Every term defined twice: what people casually say, and what it actually means at the byte level.</p>
+
+  <div style="max-width:500px;margin:0 auto 24px;">
+    <input type="text" id="search" placeholder="Search terms..." class="control-input search-input" style="width:100%;">
+  </div>
+
+  <nav id="catNav" class="glossary-nav mono"></nav>
+
+  <div id="content" class="glossary-content"></div>
+</main>
+
+<footer>
+  <span><a href="https://github.com/Tanayk07/networking-from-scratch">GitHub</a> &middot; open source &middot; free forever</span>
+  <div class="footer-links">
+    <a href="index.html">Home</a>
+    <a href="catalog.html">Catalog</a>
+  </div>
+</footer>
+
+<script src="js/data.js"></script>
+<script src="js/progress.js"></script>
+<script src="js/header.js"></script>
+<script src="js/app.js"></script>
+<script>
+function render() {
+  var search = document.getElementById('search').value.toLowerCase();
+  var content = document.getElementById('content');
+  var catNav = document.getElementById('catNav');
+
+  catNav.innerHTML = NFS.GLOSSARY.map(function(c) {
+    return '<a href="#' + c.id + '">' + c.cat + '</a>';
+  }).join('');
+
+  var html = '';
+  var totalShown = 0;
+
+  NFS.GLOSSARY.forEach(function(cat) {
+    var visible = cat.terms.filter(function(t) {
+      if (!search) return true;
+      return t.name.toLowerCase().indexOf(search) !== -1 ||
+             t.exp.toLowerCase().indexOf(search) !== -1 ||
+             t.say.toLowerCase().indexOf(search) !== -1 ||
+             t.is.toLowerCase().indexOf(search) !== -1;
+    });
+    if (visible.length === 0 && search) return;
+    totalShown += visible.length;
+
+    html += '<section class="glossary-category" id="' + cat.id + '">' +
+      '<h2>' + cat.cat + '</h2>';
+
+    visible.forEach(function(t) {
+      html += '<div class="term-card card reveal">' +
+        '<div class="term-name">' + t.name + '</div>' +
+        (t.exp ? '<div class="term-exp mono text-muted">' + t.exp + '</div>' : '') +
+        '<div class="term-row"><span class="term-label mono">What people say</span><span class="term-text">' + t.say + '</span></div>' +
+        '<div class="term-row"><span class="term-label mono">What it is</span><span class="term-text">' + t.is + '</span></div>' +
+        (t.ref ? '<div class="term-row"><span class="term-label mono">Built in</span><span class="term-text"><a href="catalog.html" class="text-accent mono">' + t.ref + '</a></span></div>' : '') +
+      '</div>';
+    });
+    html += '</section>';
+  });
+
+  if (totalShown === 0 && search) {
+    html = '<div class="text-muted" style="text-align:center;padding:40px;">No terms match "' + search + '".</div>';
+  }
+
+  content.innerHTML = html;
+  NFS.scrollReveal();
+}
+
+document.getElementById('search').addEventListener('input', render);
+render();
+</script>
+
+</body>
+</html>

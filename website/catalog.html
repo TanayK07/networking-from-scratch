@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catalog — Networking from Scratch</title>
+<meta name="description" content="Search and filter all 289 networking lessons by phase, language, type, and status.">
+<link rel="stylesheet" href="css/style.css">
+<script>
+if(localStorage.getItem('nfs_theme')==='dark'||(!localStorage.getItem('nfs_theme')&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark');
+</script>
+</head>
+<body>
+
+<nav class="topnav">
+  <a href="index.html" class="brand">NETWORKING / FROM SCRATCH</a>
+  <div class="links">
+    <a href="index.html">Contents</a>
+    <a href="catalog.html" class="active">Catalog</a>
+    <a href="roadmap.html">Roadmap</a>
+    <a href="glossary.html">Glossary</a>
+    <a href="https://github.com/Tanayk07/networking-from-scratch" class="gh-link">GitHub <span class="gh-stars" style="display:none"></span></a>
+    <button class="theme-toggle" aria-label="Toggle theme">N</button>
+  </div>
+</nav>
+
+<main class="container" style="padding-top:40px;padding-bottom:80px;">
+  <h1>Catalog</h1>
+  <p class="text-muted" style="margin-bottom:24px;">Search, filter, and sort all lessons. Click a lesson title to read it.</p>
+
+  <div class="controls">
+    <input type="text" id="searchBox" placeholder="Search lessons..." class="control-input search-input">
+    <select id="phaseFilter" class="control-input"><option value="">All phases</option></select>
+    <select id="langFilter" class="control-input">
+      <option value="">All languages</option>
+      <option value="c">C</option>
+      <option value="py">Python</option>
+      <option value="bpf">eBPF</option>
+      <option value="lua">Lua</option>
+    </select>
+    <select id="typeFilter" class="control-input">
+      <option value="">All types</option>
+      <option value="theory">Theory</option>
+      <option value="implement">Build</option>
+      <option value="capstone">Capstone</option>
+    </select>
+    <select id="statusFilter" class="control-input">
+      <option value="">All statuses</option>
+      <option value="done">Complete</option>
+      <option value="planned">Planned</option>
+    </select>
+    <button class="btn btn-small" onclick="clearFilters()">Clear</button>
+  </div>
+
+  <p class="mono text-muted" style="margin:16px 0 8px;font-size:0.8rem;" id="stats"></p>
+
+  <div class="table-wrap">
+    <table class="catalog-table">
+      <thead>
+        <tr>
+          <th data-sort="phase">Phase</th>
+          <th data-sort="id">#</th>
+          <th data-sort="title">Lesson</th>
+          <th data-sort="type">Type</th>
+          <th data-sort="lang">Lang</th>
+          <th data-sort="status">Status</th>
+        </tr>
+      </thead>
+      <tbody id="catalogBody"></tbody>
+    </table>
+  </div>
+</main>
+
+<footer>
+  <span><a href="https://github.com/Tanayk07/networking-from-scratch">GitHub</a> &middot; open source &middot; free forever</span>
+  <div class="footer-links">
+    <a href="index.html">Home</a>
+    <a href="glossary.html">Glossary</a>
+  </div>
+</footer>
+
+<script src="js/data.js"></script>
+<script src="js/progress.js"></script>
+<script src="js/header.js"></script>
+<script src="js/app.js"></script>
+<script>
+var ALL_LESSONS = [];
+NFS.PHASES.forEach(function(phase, pIdx) {
+  phase.lessons.forEach(function(lesson, lIdx) {
+    ALL_LESSONS.push({
+      phase: phase.id, phaseTitle: phase.title, pIdx: pIdx, lIdx: lIdx,
+      id: phase.id + '.' + String(lIdx + 1).padStart(2, '0'),
+      title: lesson[0], lang: lesson[1], type: lesson[2], slug: lesson[3]
+    });
+  });
+});
+
+// Populate phase filter
+var phaseFilter = document.getElementById('phaseFilter');
+NFS.PHASES.forEach(function(p) {
+  var opt = document.createElement('option');
+  opt.value = p.id;
+  opt.textContent = p.id + ' — ' + p.title;
+  phaseFilter.appendChild(opt);
+});
+
+var sortField = 'id', sortAsc = true;
+
+function getStatus(l) {
+  return NFS.progress.isDone(l.pIdx, l.lIdx) ? 'done' : 'planned';
+}
+
+function render() {
+  var search = document.getElementById('searchBox').value.toLowerCase();
+  var phase = document.getElementById('phaseFilter').value;
+  var lang = document.getElementById('langFilter').value;
+  var type = document.getElementById('typeFilter').value;
+  var status = document.getElementById('statusFilter').value;
+
+  var rows = ALL_LESSONS.filter(function(l) {
+    if (search && l.title.toLowerCase().indexOf(search) === -1 && l.phaseTitle.toLowerCase().indexOf(search) === -1) return false;
+    if (phase && l.phase !== phase) return false;
+    if (lang && l.lang !== lang) return false;
+    if (type && l.type !== type) return false;
+    if (status && getStatus(l) !== status) return false;
+    return true;
+  });
+
+  rows.sort(function(a, b) {
+    var av, bv;
+    if (sortField === 'phase') { av = a.phase; bv = b.phase; }
+    else if (sortField === 'id') { av = a.id; bv = b.id; }
+    else if (sortField === 'title') { av = a.title; bv = b.title; }
+    else if (sortField === 'type') { av = a.type; bv = b.type; }
+    else if (sortField === 'lang') { av = a.lang; bv = b.lang; }
+    else if (sortField === 'status') { av = getStatus(a); bv = getStatus(b); }
+    if (av < bv) return sortAsc ? -1 : 1;
+    if (av > bv) return sortAsc ? 1 : -1;
+    return 0;
+  });
+
+  var tbody = document.getElementById('catalogBody');
+  if (rows.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" class="empty">No lessons match your filters.</td></tr>';
+  } else {
+    tbody.innerHTML = rows.map(function(l) {
+      var s = getStatus(l);
+      return '<tr>' +
+        '<td><span class="phase-tag">' + l.phase + '</span></td>' +
+        '<td><span class="mono">' + l.id + '</span></td>' +
+        '<td><a href="' + NFS.lessonUrl(l.pIdx, l.lIdx) + '">' + l.title + '</a></td>' +
+        '<td><span class="type-tag ' + l.type + '">' + (NFS.TYPE_LABELS[l.type] || l.type) + '</span></td>' +
+        '<td><span class="lang-tag ' + l.lang + '">' + (NFS.LANG_SHORT[l.lang] || l.lang) + '</span></td>' +
+        '<td><span class="status-sq ' + s + '"></span>' + (s === 'done' ? 'Complete' : 'Planned') + '</td>' +
+      '</tr>';
+    }).join('');
+  }
+  document.getElementById('stats').textContent = 'Showing ' + rows.length + ' of ' + ALL_LESSONS.length + ' lessons.';
+
+  document.querySelectorAll('th').forEach(function(th) {
+    th.classList.remove('sorted', 'asc');
+    if (th.dataset.sort === sortField) {
+      th.classList.add('sorted');
+      if (sortAsc) th.classList.add('asc');
+    }
+  });
+}
+
+['searchBox','phaseFilter','langFilter','typeFilter','statusFilter'].forEach(function(id) {
+  document.getElementById(id).addEventListener('input', render);
+});
+
+document.querySelectorAll('th[data-sort]').forEach(function(th) {
+  th.addEventListener('click', function() {
+    var f = th.dataset.sort;
+    if (sortField === f) sortAsc = !sortAsc;
+    else { sortField = f; sortAsc = true; }
+    render();
+  });
+});
+
+function clearFilters() {
+  document.getElementById('searchBox').value = '';
+  document.getElementById('phaseFilter').value = '';
+  document.getElementById('langFilter').value = '';
+  document.getElementById('typeFilter').value = '';
+  document.getElementById('statusFilter').value = '';
+  render();
+}
+
+render();
+</script>
+
+</body>
+</html>

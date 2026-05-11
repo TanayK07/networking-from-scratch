@@ -1,0 +1,41 @@
+name: Bug report
+description: A lesson, test, or build doesn't work as documented.
+labels: [bug]
+body:
+  - type: input
+    id: lesson
+    attributes:
+      label: Lesson
+      description: Which lesson? (e.g. P2.06 ARP request/reply)
+      placeholder: P3.07 IP fragmentation
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What did you run? What did you expect? What did you actually see?
+      placeholder: |
+        I ran `make test` in phases/03-network-layer/02-internet-checksum
+        and got an assertion failure on line 47 of tests/test_checksum.c.
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, kernel, compiler, Python version
+      placeholder: |
+        - Ubuntu 24.04
+        - Linux 6.8.0-generic
+        - gcc 13.2.0
+        - Python 3.12.3
+      render: markdown
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / output
+      render: shell

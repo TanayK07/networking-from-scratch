@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Roadmap — Networking from Scratch</title>
+<meta name="description" content="Interactive dependency graph showing how the 15 networking phases connect.">
+<link rel="stylesheet" href="css/style.css">
+<script>
+if(localStorage.getItem('nfs_theme')==='dark'||(!localStorage.getItem('nfs_theme')&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark');
+</script>
+</head>
+<body>
+
+<nav class="topnav">
+  <a href="index.html" class="brand">NETWORKING / FROM SCRATCH</a>
+  <div class="links">
+    <a href="index.html">Contents</a>
+    <a href="catalog.html">Catalog</a>
+    <a href="roadmap.html" class="active">Roadmap</a>
+    <a href="glossary.html">Glossary</a>
+    <a href="https://github.com/Tanayk07/networking-from-scratch" class="gh-link">GitHub <span class="gh-stars" style="display:none"></span></a>
+    <button class="theme-toggle" aria-label="Toggle theme">N</button>
+  </div>
+</nav>
+
+<main class="container" style="padding-top:40px;padding-bottom:80px;">
+  <h1>Roadmap</h1>
+  <p class="text-muted" style="margin-bottom:16px;">Click any phase to see its prerequisites and what it unlocks downstream.</p>
+
+  <div class="legend">
+    <span class="legend-item"><span class="status-sq done"></span> Complete</span>
+    <span class="legend-item"><span class="status-sq inprogress"></span> In Progress</span>
+    <span class="legend-item"><span class="status-sq planned"></span> Planned</span>
+    <button class="btn btn-small" onclick="clearSelection()">Clear selection</button>
+  </div>
+
+  <p class="mono text-muted" style="font-size:0.75rem;margin:8px 0;">Scroll horizontally to explore the full graph.</p>
+
+  <div class="graph-container" style="overflow-x:auto;margin:24px 0;">
+    <svg class="graph" id="graph" viewBox="0 0 1300 580" preserveAspectRatio="xMinYMid meet" style="min-width:1200px;width:100%;height:auto;"></svg>
+  </div>
+
+  <div class="card" id="detail" style="margin-top:24px;">
+    <div class="text-muted" style="padding:20px;text-align:center;">Click a phase node above to see its prerequisites and downstream phases.</div>
+  </div>
+</main>
+
+<footer>
+  <span><a href="https://github.com/Tanayk07/networking-from-scratch">GitHub</a> &middot; open source &middot; free forever</span>
+  <div class="footer-links">
+    <a href="index.html">Home</a>
+    <a href="catalog.html">Catalog</a>
+    <a href="glossary.html">Glossary</a>
+  </div>
+</footer>
+
+<script src="js/data.js"></script>
+<script src="js/progress.js"></script>
+<script src="js/header.js"></script>
+<script src="js/app.js"></script>
+<script>
+var NODE_W = 160, NODE_H = 56;
+var selectedPhase = null;
+
+var PHASE_MAP = {};
+NFS.PHASES.forEach(function(p) { PHASE_MAP[p.id] = p; });
+
+function getUpstream(id, visited) {
+  visited = visited || {};
+  if (visited[id]) return [];
+  visited[id] = true;
+  var p = PHASE_MAP[id];
+  if (!p || !p.deps) return [];
+  var result = [];
+  p.deps.forEach(function(d) {
+    result.push(d);
+    result = result.concat(getUpstream(d, visited));
+  });
+  return result;
+}
+
+function getAllDownstream(id, visited) {
+  visited = visited || {};
+  if (visited[id]) return [];
+  visited[id] = true;
+  var result = [];
+  NFS.PHASES.forEach(function(p) {
+    if (p.deps && p.deps.indexOf(id) !== -1) {
+      result.push(p.id);
+      result = result.concat(getAllDownstream(p.id, visited));
+    }
+  });
+  return result;
+}
+
+function renderGraph() {
+  var svg = document.getElementById('graph');
+  var upstream = selectedPhase ? getUpstream(selectedPhase) : [];
+  var downstream = selectedPhase ? getAllDownstream(selectedPhase) : [];
+
+  var html = '<defs>' +
+    '<marker id="arrow" viewBox="0 0 10 8" refX="10" refY="4" markerWidth="8" markerHeight="6" orient="auto"><polygon points="0,0 10,4 0,8" fill="var(--line-soft)"/></marker>' +
+    '<marker id="arrow-hl" viewBox="0 0 10 8" refX="10" refY="4" markerWidth="8" markerHeight="6" orient="auto"><polygon points="0,0 10,4 0,8" fill="var(--accent)"/></marker>' +
+  '</defs>';
+
+  // Draw edges first
+  NFS.PHASES.forEach(function(p) {
+    if (!p.deps) return;
+    p.deps.forEach(function(depId) {
+      var dep = PHASE_MAP[depId];
+      if (!dep) return;
+      var x1 = dep.x + NODE_W, y1 = dep.y + NODE_H / 2;
+      var x2 = p.x, y2 = p.y + NODE_H / 2;
+      var dx = Math.abs(x2 - x1) * 0.4;
+      var isHl = selectedPhase && ((p.id === selectedPhase && upstream.indexOf(depId) !== -1) ||
+                                    (depId === selectedPhase && downstream.indexOf(p.id) !== -1) ||
+                                    (upstream.indexOf(depId) !== -1 && upstream.indexOf(p.id) !== -1) ||
+                                    (downstream.indexOf(depId) !== -1 && downstream.indexOf(p.id) !== -1));
+      var isDimmed = selectedPhase && !isHl && p.id !== selectedPhase && depId !== selectedPhase;
+      var cls = isDimmed ? 'edge dimmed' : isHl ? 'edge highlighted' : 'edge';
+      var marker = isHl ? 'url(#arrow-hl)' : 'url(#arrow)';
+      html += '<path class="' + cls + '" d="M' + x1 + ' ' + y1 + ' C' + (x1 + dx) + ' ' + y1 + ',' + (x2 - dx) + ' ' + y2 + ',' + x2 + ' ' + y2 + '" marker-end="' + marker + '"/>';
+    });
+  });
+
+  // Draw nodes
+  NFS.PHASES.forEach(function(p, i) {
+    var isSelected = p.id === selectedPhase;
+    var isUp = upstream.indexOf(p.id) !== -1;
+    var isDown = downstream.indexOf(p.id) !== -1;
+    var isDimmed = selectedPhase && !isSelected && !isUp && !isDown;
+    var cls = 'node';
+    if (isSelected) cls += ' selected';
+    else if (isUp) cls += ' upstream';
+    else if (isDown) cls += ' downstream';
+    if (isDimmed) cls += ' dimmed';
+    if (p.bonus) cls += ' bonus';
+
+    html += '<g class="' + cls + '" onclick="selectPhase(\'' + p.id + '\')" style="cursor:pointer">' +
+      '<rect x="' + p.x + '" y="' + p.y + '" width="' + NODE_W + '" height="' + NODE_H + '" rx="0"/>' +
+      '<text x="' + (p.x + 10) + '" y="' + (p.y + 20) + '" class="node-id">' + p.id + '</text>' +
+      '<text x="' + (p.x + 10) + '" y="' + (p.y + 38) + '" class="node-title">' + p.title.substring(0, 20) + (p.title.length > 20 ? '...' : '') + '</text>' +
+      '<text x="' + (p.x + NODE_W - 10) + '" y="' + (p.y + 20) + '" class="node-count" text-anchor="end">' + p.count + '</text>' +
+    '</g>';
+  });
+
+  svg.innerHTML = html;
+}
+
+function renderDetail() {
+  var el = document.getElementById('detail');
+  if (!selectedPhase) {
+    el.innerHTML = '<div class="text-muted" style="padding:20px;text-align:center;">Click a phase node above to see its prerequisites and downstream phases.</div>';
+    return;
+  }
+  var p = PHASE_MAP[selectedPhase];
+  var deps = p.deps || [];
+  var down = [];
+  NFS.PHASES.forEach(function(ph) {
+    if (ph.deps && ph.deps.indexOf(selectedPhase) !== -1) down.push(ph.id);
+  });
+
+  var html = '<div style="padding:20px;">' +
+    '<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">' +
+      '<span class="mono text-accent" style="font-size:1.2rem;">' + p.id + '</span>' +
+      '<h3 style="margin:0;">' + p.title + '</h3>' +
+    '</div>' +
+    '<p class="text-muted" style="margin-bottom:16px;">' + p.desc + '</p>' +
+    '<p class="mono" style="font-size:0.85rem;margin-bottom:16px;">' + p.count + ' lessons</p>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">' +
+      '<div><h4 class="mono text-muted" style="font-size:0.75rem;margin-bottom:8px;">PREREQUISITES</h4>';
+
+  if (deps.length === 0) html += '<span class="text-muted">None — start here</span>';
+  else deps.forEach(function(d) {
+    html += '<a href="#" onclick="selectPhase(\'' + d + '\');return false;" class="text-accent mono" style="display:block;margin-bottom:4px;">' + d + ' — ' + PHASE_MAP[d].title + '</a>';
+  });
+
+  html += '</div><div><h4 class="mono text-muted" style="font-size:0.75rem;margin-bottom:8px;">UNLOCKS</h4>';
+  if (down.length === 0) html += '<span class="text-muted">Terminal phase</span>';
+  else down.forEach(function(d) {
+    html += '<a href="#" onclick="selectPhase(\'' + d + '\');return false;" class="text-accent mono" style="display:block;margin-bottom:4px;">' + d + ' — ' + PHASE_MAP[d].title + '</a>';
+  });
+
+  html += '</div></div></div>';
+  el.innerHTML = html;
+}
+
+function selectPhase(id) {
+  selectedPhase = selectedPhase === id ? null : id;
+  renderGraph();
+  renderDetail();
+}
+
+function clearSelection() {
+  selectedPhase = null;
+  renderGraph();
+  renderDetail();
+}
+
+renderGraph();
+renderDetail();
+</script>
+
+</body>
+</html>
