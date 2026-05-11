@@ -14,20 +14,10 @@ on:
       - 'website/**'
 
 jobs:
-  build:
+  validate:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Install MkDocs Material
-        run: pip install mkdocs mkdocs-material pymdown-extensions
-
-      - name: Build docs site
-        run: mkdocs build --strict
 
       - name: Validate website HTML
         run: |
@@ -43,27 +33,3 @@ jobs:
                   ok = False
           sys.exit(0 if ok else 1)
           "
-
-  deploy:
-    needs: build
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-24.04
-    permissions:
-      contents: write
-      pages: write
-      id-token: write
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - run: pip install mkdocs mkdocs-material pymdown-extensions
-      - name: Build and deploy
-        run: |
-          mkdocs build --strict
-          # Copy static website pages alongside MkDocs output
-          cp -r website/* site/
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: site/
-      - uses: actions/deploy-pages@v4
