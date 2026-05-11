@@ -958,68 +958,31 @@ small {
   padding: 20px 0;
 }
 
-.roadmap-svg text {
-  font-family: var(--font-mono);
-}
-
-.roadmap-svg .node rect {
+#graph text { font-family: var(--font-mono); }
+#graph .node rect {
   fill: var(--bg-surface);
   stroke: var(--line-soft);
   stroke-width: 1.5;
-  rx: 4;
-  transition: fill 0.2s ease, stroke 0.2s ease;
+  transition: all 0.3s ease;
+  cursor: pointer;
 }
+#graph .node:hover rect { stroke: var(--accent); stroke-width: 2; }
+#graph .node.selected rect { stroke: var(--accent); stroke-width: 2.5; fill: var(--accent-tint, rgba(0,137,123,0.08)); }
+#graph .node.upstream rect { fill: rgba(39, 174, 96, 0.12); stroke: #27ae60; }
+html.dark #graph .node.upstream rect { fill: rgba(102, 187, 106, 0.12); stroke: #66bb6a; }
+#graph .node.downstream rect { fill: rgba(230, 126, 34, 0.12); stroke: #e67e22; }
+html.dark #graph .node.downstream rect { fill: rgba(255, 167, 38, 0.12); stroke: #ffa726; }
+#graph .node.dimmed { opacity: 0.2; transition: opacity 0.3s ease; }
+#graph .node.bonus rect { stroke-dasharray: 5, 3; }
+#graph .node-id { font-size: 11px; fill: var(--accent); font-weight: 600; }
+#graph .node-title { font-size: 10px; fill: var(--fg); }
+#graph .node-count { font-size: 10px; fill: var(--muted); }
 
-.roadmap-svg .node.selected rect {
-  stroke: var(--accent);
-  stroke-width: 2;
-  fill: var(--accent-tint);
-}
-
-.roadmap-svg .node.upstream rect {
-  fill: rgba(39, 174, 96, 0.1);
-}
-
-html.dark .roadmap-svg .node.upstream rect {
-  fill: rgba(102, 187, 106, 0.1);
-}
-
-.roadmap-svg .node.downstream rect {
-  fill: rgba(230, 126, 34, 0.1);
-}
-
-html.dark .roadmap-svg .node.downstream rect {
-  fill: rgba(255, 167, 38, 0.1);
-}
-
-.roadmap-svg .node.dimmed {
-  opacity: 0.35;
-}
-
-.roadmap-svg .node.bonus rect {
-  stroke-dasharray: 5, 3;
-}
-
-.roadmap-svg .edge line,
-.roadmap-svg .edge path {
-  stroke: var(--line-soft);
-  stroke-width: 1.5;
-  fill: none;
-}
-
-.roadmap-svg .edge.highlighted line,
-.roadmap-svg .edge.highlighted path {
-  stroke: var(--accent);
-  stroke-width: 2;
-}
-
-.roadmap-svg .edge marker {
-  fill: var(--line-soft);
-}
-
-.roadmap-svg .edge.highlighted marker {
-  fill: var(--accent);
-}
+#graph .edge { fill: none; stroke: var(--line-soft); stroke-width: 1.5; transition: all 0.3s ease; }
+#graph .edge.highlighted { stroke: var(--accent); stroke-width: 2.5; }
+#graph .edge.dimmed { opacity: 0.1; }
+#graph .edge-arrow { fill: var(--line-soft); transition: fill 0.3s ease; }
+#graph .edge-arrow.highlighted { fill: var(--accent); }
 
 /* Detail panel for selected node */
 .roadmap-detail {
