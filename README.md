@@ -6,10 +6,10 @@
 
 **15 phases. 289 lessons. No frameworks until you build one.**
 
-🌐 **Website**: [networking-from-scratch.com](https://networking-from-scratch.com)
-📚 **Catalog**: [networking-from-scratch.com/catalog.html](https://networking-from-scratch.com/catalog.html)
-🗺️ **Roadmap**: [networking-from-scratch.com/roadmap.html](https://networking-from-scratch.com/roadmap.html)
-📖 **Glossary**: [networking-from-scratch.com/glossary.html](https://networking-from-scratch.com/glossary.html)
+🌐 **Website**: [networkingfromscratch.vercel.app](https://networkingfromscratch.vercel.app)
+📚 **Catalog**: [networkingfromscratch.vercel.app/catalog.html](https://networkingfromscratch.vercel.app/catalog.html)
+🗺️ **Roadmap**: [networkingfromscratch.vercel.app/roadmap.html](https://networkingfromscratch.vercel.app/roadmap.html)
+📖 **Glossary**: [networkingfromscratch.vercel.app/glossary.html](https://networkingfromscratch.vercel.app/glossary.html)
 
 ---
 
@@ -209,7 +209,7 @@ We want this curriculum to be the canonical answer to "how do I really learn net
 
 Useful contributions:
 
-1. **Write a lesson.** Pick any planned lesson from the [catalog](https://networking-from-scratch.com/catalog.html), fork, write it following [`docs/style-guide.md`](docs/style-guide.md), open a PR.
+1. **Write a lesson.** Pick any planned lesson from the [catalog](https://networkingfromscratch.vercel.app/catalog.html), fork, write it following [`docs/style-guide.md`](docs/style-guide.md), open a PR.
 2. **Add a test.** Existing lessons are improved by more property tests, fuzz harnesses, and interop checks.
 3. **Fix a bug.** Code, prose, links — open a PR.
 4. **Translate.** We accept lesson translations as separate folders (`README.es.md`, etc.).
@@ -220,7 +220,7 @@ See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the full guide.
 
 ## Status
 
-This is a curriculum-in-progress. The structure, sample lessons, and three reference implementations (P1.02, P2.06, P3.02) are complete; ~286 lessons are still planned. See the live progress on [the website](https://networking-from-scratch.com).
+This is a curriculum-in-progress. The structure, sample lessons, and three reference implementations (P1.02, P2.06, P3.02) are complete; ~286 lessons are still planned. See the live progress on [the website](https://networkingfromscratch.vercel.app).
 
 If you want to help write lessons, the [project board](https://github.com/TanayK07/networking-from-scratch/projects/1) shows what's claimed and what's open.
 

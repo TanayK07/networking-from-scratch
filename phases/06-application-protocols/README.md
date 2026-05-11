@@ -4,11 +4,11 @@ DNS, HTTP/1.1, HTTP/2, HTTP/3, WebSocket, SSH, NTP, MQTT, CoAP. Build the parser
 
 **28 lessons.**
 
-This README will list each lesson with a short description as they get written. For now, see the [main catalog](https://networking-from-scratch.com/catalog.html) for the full lesson list.
+This README will list each lesson with a short description as they get written. For now, see the [main catalog](https://networkingfromscratch.vercel.app/catalog.html) for the full lesson list.
 
 ## Lessons in this phase
 
 
 ---
 
-← [Back to main README](../../README.md) · [Catalog](https://networking-from-scratch.com/catalog.html) · [Roadmap](https://networking-from-scratch.com/roadmap.html)
+← [Back to main README](../../README.md) · [Catalog](https://networkingfromscratch.vercel.app/catalog.html) · [Roadmap](https://networkingfromscratch.vercel.app/roadmap.html)

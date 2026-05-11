@@ -6,7 +6,7 @@ Thank you for considering a contribution. This curriculum lives or dies by commu
 
 ### 1. Write a lesson
 
-The single most valuable contribution. Pick any planned lesson from the [catalog](https://networking-from-scratch.com/catalog.html), claim it on the [project board](https://github.com/TanayK07/networking-from-scratch/projects/1), then:
+The single most valuable contribution. Pick any planned lesson from the [catalog](https://networkingfromscratch.vercel.app/catalog.html), claim it on the [project board](https://github.com/TanayK07/networking-from-scratch/projects/1), then:
 
 ```bash
 # Scaffold the lesson directory

@@ -1,6 +1,6 @@
 # Networking from Scratch — Curriculum
 
-This is the canonical lesson index. The website (`networking-from-scratch.com`) is generated from this file plus per-lesson READMEs.
+This is the canonical lesson index. The website (`networkingfromscratch.vercel.app`) is generated from this file plus per-lesson READMEs.
 
 ## Phase index
 

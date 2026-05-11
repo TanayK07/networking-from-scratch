@@ -2,7 +2,7 @@
 
 Networking terms defined twice — what people say, and what it actually means. Cross-referenced against the curriculum so every term links to where you build it from scratch.
 
-This is the markdown version. The interactive web glossary at [networking-from-scratch.com/glossary.html](https://networking-from-scratch.com/glossary.html) has search and category filtering.
+This is the markdown version. The interactive web glossary at [networkingfromscratch.vercel.app/glossary.html](https://networkingfromscratch.vercel.app/glossary.html) has search and category filtering.
 
 ---
 
