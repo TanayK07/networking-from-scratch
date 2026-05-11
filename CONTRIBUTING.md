@@ -6,7 +6,7 @@ Thank you for considering a contribution. This curriculum lives or dies by commu
 
 ### 1. Write a lesson
 
-The single most valuable contribution. Pick any planned lesson from the [catalog](https://networking-from-scratch.com/catalog.html), claim it on the [project board](https://github.com/Tanay10x/networking-from-scratch/projects/1), then:
+The single most valuable contribution. Pick any planned lesson from the [catalog](https://networking-from-scratch.com/catalog.html), claim it on the [project board](https://github.com/TanayK07/networking-from-scratch/projects/1), then:
 
 ```bash
 # Scaffold the lesson directory
@@ -99,4 +99,4 @@ By contributing, you agree your contribution is licensed under [MIT](LICENSE).
 
 ## Questions
 
-Open a [Discussion](https://github.com/Tanay10x/networking-from-scratch/discussions) or file an [issue](https://github.com/Tanay10x/networking-from-scratch/issues/new/choose).
+Open a [Discussion](https://github.com/TanayK07/networking-from-scratch/discussions) or file an [issue](https://github.com/TanayK07/networking-from-scratch/issues/new/choose).

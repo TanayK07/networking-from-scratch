@@ -72,7 +72,7 @@ multipass launch --name nfs --cpus 4 --memory 8G --disk 30G 24.04
 multipass shell nfs
 
 # Inside the VM:
-git clone https://github.com/Tanay10x/networking-from-scratch.git
+git clone https://github.com/TanayK07/networking-from-scratch.git
 cd networking-from-scratch
 ./tools/setup-vm.sh
 ```
