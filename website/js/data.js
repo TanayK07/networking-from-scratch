@@ -16,8 +16,8 @@ function slugify(num, title) {
 }
 
 /* ---------- helper to build lesson tuple ------------------------- */
-function L(num, title, lang, type) {
-  return [title, lang, type, slugify(num, title)];
+function L(num, title, lang, type, explicitSlug) {
+  return [title, lang, type, explicitSlug || slugify(num, title)];
 }
 
 /* ---------- CONFIG ------------------------------------------------ */
@@ -42,7 +42,7 @@ NFS.PHASES = [
     x: 80, y: 80,
     lessons: [
       L(1,  'What is a network?',                     'py',  'theory'),
-      L(2,  'Bits, bytes, and endianness',             'c',   'implement'),
+      L(2,  'Bits, bytes, and endianness',             'c',   'implement', '02-bits-bytes-endianness'),
       L(3,  'Hex dumps and the binary mind',           'c',   'implement'),
       L(4,  'Bit fields and packed structs',           'c',   'implement'),
       L(5,  'Manchester, NRZ, 4B/5B encodings',        'py',  'implement'),
@@ -102,7 +102,7 @@ NFS.PHASES = [
     x: 480, y: 80,
     lessons: [
       L(1,  'The IPv4 header (RFC 791)',               'c',   'implement'),
-      L(2,  'The Internet checksum (RFC 1071)',        'c',   'implement'),
+      L(2,  'The Internet checksum (RFC 1071)',        'c',   'implement', '02-internet-checksum'),
       L(3,  'CIDR and subnetting',                     'py',  'implement'),
       L(4,  'Longest-prefix match routing',            'c',   'implement'),
       L(5,  'The routing table',                       'c',   'implement'),

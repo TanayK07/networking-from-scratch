@@ -2434,3 +2434,22 @@ footer a:hover { color: var(--accent); }
   .pn-link.next { text-align: left; }
   footer { padding: 16px; }
 }
+
+/* Section 35: Coming Soon + Button Variants */
+.lesson-coming-soon {
+  border: 1px dashed var(--line-soft);
+  padding: 32px;
+  margin-top: 24px;
+  background: var(--bg-surface);
+}
+.lesson-error {
+  text-align: center;
+  padding: 60px 20px;
+}
+.lesson-error h2 { font-family: var(--font-display); color: var(--fg); }
+.lesson-error p { color: var(--muted); margin-top: 8px; }
+.lesson-error a { color: var(--accent); }
+.btn { display: inline-block; padding: 8px 16px; font-family: var(--font-mono); font-size: 0.85rem; text-decoration: none; cursor: pointer; border: 1px solid var(--accent); background: var(--accent); color: var(--bg); transition: opacity 0.15s; }
+.btn:hover { opacity: 0.85; }
+.btn-outline { background: transparent; color: var(--accent); }
+.btn-outline:hover { background: var(--accent); color: var(--bg); }

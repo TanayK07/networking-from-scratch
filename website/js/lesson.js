@@ -97,15 +97,31 @@ window.NFS = window.NFS || {};
       '<div class="sk-line sk-w70"></div><div class="sk-line sk-w50"></div></div>';
   }
 
-  function showError(msg) {
+  function showError() {
     var el = document.getElementById('lesson-content');
+    var num = String(state.lessonIdx + 1).padStart(2, '0');
+    var lessonTitle = state.lesson ? state.lesson[0] : 'Unknown';
+    var lang = state.lesson ? (NFS.LANG_LABELS[state.lesson[1]] || state.lesson[1]) : '';
+    var type = state.lesson ? (NFS.TYPE_LABELS[state.lesson[2]] || state.lesson[2]) : '';
+    var phaseTitle = state.phase ? state.phase.title : '';
+
     el.innerHTML =
-      '<div class="lesson-error">' +
-      '<h2>' + msg + '</h2>' +
-      '<p>This lesson hasn\'t been written yet.</p>' +
-      '<p>Want to contribute? Check the <a href="' + NFS.CONFIG.repoUrl + '/blob/main/CONTRIBUTING.md">contributing guide</a>.</p>' +
-      '<a href="' + NFS.CONFIG.repoUrl + '" class="btn btn-primary">View on GitHub</a>' +
-      '</div>';
+      '<article class="lesson-article">' +
+      '<h1>' + num + '. ' + lessonTitle + '</h1>' +
+      '<p class="mono text-muted" style="margin-bottom:24px">' +
+        state.phase.id + ' &middot; ' + phaseTitle + ' &middot; ' + type + ' &middot; ' + lang +
+      '</p>' +
+      '<div class="lesson-coming-soon">' +
+      '<p style="font-size:1.1rem;margin-bottom:16px">This lesson is planned but not written yet.</p>' +
+      '<p>The curriculum is open source — anyone can write a lesson. Each one follows a ' +
+      '<a href="' + NFS.CONFIG.repoUrl + '/blob/main/docs/style-guide.md">six-section format</a>: ' +
+      'Problem, Theory, Math/Spec, Code, Tests, Exercises.</p>' +
+      '<div style="margin-top:24px;display:flex;gap:12px;flex-wrap:wrap">' +
+      '<a href="' + NFS.CONFIG.repoUrl + '/blob/main/CONTRIBUTING.md" class="btn">Contribute this lesson</a>' +
+      '<a href="catalog.html" class="btn btn-outline">Browse catalog</a>' +
+      '</div>' +
+      '</div>' +
+      '</article>';
   }
 
   function renderMarkdown(md) {
@@ -158,7 +174,8 @@ window.NFS = window.NFS || {};
 
   function init() {
     if (!parseParams()) {
-      showError('Lesson not found');
+      var el = document.getElementById('lesson-content');
+      el.innerHTML = '<div class="lesson-error"><h2>Lesson not found</h2><p>Check the URL or browse the <a href="catalog.html">catalog</a>.</p></div>';
       return;
     }
     document.title = state.lesson[0] + ' — Networking from Scratch';
@@ -177,7 +194,7 @@ window.NFS = window.NFS || {};
         return r.text();
       })
       .then(renderMarkdown)
-      .catch(function() { showError('Lesson not available'); });
+      .catch(function() { showError(); });
   }
 
   document.addEventListener('DOMContentLoaded', init);
