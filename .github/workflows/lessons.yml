@@ -1,0 +1,47 @@
+name: Build & Test Lessons
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'phases/**/*.c'
+      - 'phases/**/*.h'
+      - 'phases/**/Makefile'
+      - 'common/c/**'
+      - '.github/workflows/lessons.yml'
+  pull_request:
+    paths:
+      - 'phases/**/*.c'
+      - 'phases/**/*.h'
+      - 'phases/**/Makefile'
+      - 'common/c/**'
+      - '.github/workflows/lessons.yml'
+
+jobs:
+  test-lesson:
+    name: ${{ matrix.lesson }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - lesson: 01-bits-and-wires/02-bits-bytes-endianness
+            path: phases/01-bits-and-wires/02-bits-bytes-endianness
+          - lesson: 02-link-layer/03-raw-sockets-on-linux-afpacket
+            path: phases/02-link-layer/03-raw-sockets-on-linux-afpacket
+          - lesson: 02-link-layer/06-arp-request-reply
+            path: phases/02-link-layer/06-arp-request-reply
+          - lesson: 03-network-layer/01-the-ipv4-header-rfc-791
+            path: phases/03-network-layer/01-the-ipv4-header-rfc-791
+          - lesson: 03-network-layer/02-internet-checksum
+            path: phases/03-network-layer/02-internet-checksum
+          - lesson: 04-transport/09-the-three-way-handshake
+            path: phases/04-transport/09-the-three-way-handshake
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: sudo apt-get update && sudo apt-get install -y build-essential gcc
+
+      - name: Build and test
+        run: make -C ${{ matrix.path }} test

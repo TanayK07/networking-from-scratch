@@ -1,18 +1,18 @@
 # 01. The IPv4 header (RFC 791)
 
+> By the end of this lesson you will have implemented a parser and builder for the 20-byte IPv4 header, verified your output against a real tcpdump capture, and understood every bit of the most important header on the Internet.
+
 ## 1. Problem
 
-In real networking systems, the ipv4 header (rfc 791) is a critical component that you encounter constantly. If you cannot implement it correctly from first principles, you will be at the mercy of library bugs, misconfigurations, and subtle protocol violations that are nearly impossible to debug without deep understanding.
+Every packet that crosses the Internet carries an IPv4 header. Routers read it to decide where the packet goes. Firewalls read it to decide whether the packet is allowed. NAT boxes rewrite it in transit. If you cannot parse and construct this header correctly, you cannot build anything at Layer 3 or above.
 
-The challenge is that the ipv4 header (rfc 791) involves precise binary layouts, strict protocol rules, and edge cases that only manifest under specific network conditions. Getting even one byte wrong means packets are silently dropped or connections mysteriously fail.
+The difficulty is that the header packs 13 fields into 20 bytes, several fields share a byte or a 16-bit word via bit-level sub-fields, and all multi-byte integers are big-endian on the wire but little-endian in your CPU. Getting the bit shifts or byte order wrong means packets are silently dropped, and there is no error message to tell you why.
+
+This lesson is the foundation for everything in P3 (fragmentation, ICMP, routing) and P4 (TCP, UDP).
 
 ## 2. Theory
 
-The IPv4 header (RFC 791) is a core concept in Network Layer: IPv4, IPv6, ICMP. Understanding it requires grasping both the design philosophy and the implementation details.
-
-The authoritative specification is RFC 791.
-
-IPv4 header (RFC 791), 20 bytes minimum:
+The IPv4 header is defined in RFC 791 (September 1981). The minimum header is 20 bytes (IHL = 5, no options). The maximum is 60 bytes (IHL = 15, 40 bytes of options).
 
 ```
  0                   1                   2                   3
@@ -32,209 +32,123 @@ IPv4 header (RFC 791), 20 bytes minimum:
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 ```
 
-Protocol field values: 1=ICMP, 6=TCP, 17=UDP, 41=IPv6-in-IPv4
+Key design decisions in RFC 791:
+
+- **Version + IHL share byte 0.** The version is always 4 (high nibble). IHL counts 32-bit words, so `IHL * 4` gives the header length in bytes. Minimum IHL is 5 (20 bytes). This lets the receiver find where the payload starts without parsing options.
+
+- **DSCP + ECN share byte 1.** Originally this was the Type of Service (ToS) byte. RFC 2474 redefined bits 0-5 as Differentiated Services Code Point (DSCP) and RFC 3168 defined bits 6-7 as Explicit Congestion Notification (ECN).
+
+- **Flags + Fragment Offset share bytes 6-7.** Three flag bits (Reserved, Don't Fragment, More Fragments) sit in the high 3 bits. The 13-bit fragment offset is in units of 8 bytes, allowing offsets up to 65528.
+
+- **Header Checksum** covers only the header, not the payload. This is a deliberate trade-off: routers decrement TTL on every hop, so the checksum must be recomputed at each hop. Checksumming only 20 bytes is fast. The payload is protected by the L4 checksum (TCP/UDP).
 
 ## 3. Math / Spec
 
-The authoritative specification is RFC 791. Key fields and their sizes are defined with bit-level precision.
+RFC 791 field definitions, byte by byte:
 
-The protocol defines specific algorithms and data formats that must be implemented exactly for interoperability:
+| Offset | Bits  | Field          | Description                                      |
+|--------|-------|----------------|--------------------------------------------------|
+| 0      | 4     | Version        | Must be 4                                        |
+| 0      | 4     | IHL            | Header length in 32-bit words (5-15)             |
+| 1      | 6     | DSCP           | Differentiated Services Code Point               |
+| 1      | 2     | ECN            | Explicit Congestion Notification                 |
+| 2-3    | 16    | Total Length   | Entire datagram size in bytes (header + payload) |
+| 4-5    | 16    | Identification | Fragment group ID                                |
+| 6      | 3     | Flags          | Bit 0: Reserved, Bit 1: DF, Bit 2: MF           |
+| 6-7    | 13    | Fragment Offset| In 8-byte units                                  |
+| 8      | 8     | TTL            | Hop limit, decremented by each router            |
+| 9      | 8     | Protocol       | Upper-layer protocol (1=ICMP, 6=TCP, 17=UDP)    |
+| 10-11  | 16    | Header Checksum| One's complement sum of header (RFC 1071)        |
+| 12-15  | 32    | Source Address | Sender's IPv4 address                            |
+| 16-19  | 32    | Dest Address   | Receiver's IPv4 address                          |
 
-- **Header format**: fixed and variable-length fields with specific byte ordering
-- **Checksum**: error detection method (one's complement sum or CRC)
-- **State transitions**: valid sequences of operations and responses
-- **Timer values**: retransmission timeouts, keepalive intervals, expiration times
+The checksum algorithm (RFC 1071):
 
-All multi-byte integer fields are in network byte order (big-endian) unless explicitly stated otherwise.
+1. Zero the checksum field.
+2. Treat the header as a sequence of 16-bit big-endian words.
+3. Sum all words using one's complement arithmetic (fold carries back in).
+4. Take the bitwise NOT.
+5. To verify: sum all words including the checksum; the result should fold to 0xFFFF (internet_checksum returns 0x0000 after the NOT).
+
+All multi-byte fields are in network byte order (big-endian) on the wire.
 
 ## 4. Code
 
+The implementation is split into three files:
+
+- [`ipv4.h`](ipv4.h) -- the `nfs_ipv4_hdr` struct and function declarations. Fields are stored in host byte order after parsing. No packed attribute is used; instead, parse/build handle the wire format manually for portability across compilers and architectures.
+
+- [`ipv4.c`](ipv4.c) -- the core logic:
+  - `nfs_ipv4_parse()` reads raw wire bytes, extracts every field with shifts and masks, validates version == 4, IHL >= 5, and verifies the header checksum.
+  - `nfs_ipv4_build()` serializes the struct back to wire format and computes the checksum automatically.
+  - `nfs_ipv4_checksum()` wraps the shared `internet_checksum()` from `common/c/checksum.c`.
+  - `nfs_ipv4_format_addr()` converts a host-order 32-bit address to dotted decimal.
+  - `nfs_ipv4_protocol_name()` maps protocol numbers to human-readable names.
+
+- [`main.c`](main.c) -- a CLI tool that takes a hex string of an IPv4 header and pretty-prints all decoded fields.
+
+The parse function extracts bit-fields like this:
+
 ```c
-/*
- * the_ipv4_header_rfc_791.c -- The IPv4 header (RFC 791)
- * Compile: gcc -Wall -O2 -o the_ipv4_header_rfc_791 the_ipv4_header_rfc_791.c
- */
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
-#include <arpa/inet.h>
+/* Byte 0: version (high nibble) | IHL (low nibble). */
+out->version = (buf[0] >> 4) & 0x0F;
+out->ihl     = buf[0] & 0x0F;
 
-/* -- Data structures ------------------------------------------------ */
+/* Bytes 6-7: flags (3 bits) | fragment offset (13 bits). */
+uint16_t flags_frag = (uint16_t)((buf[6] << 8) | buf[7]);
+out->flags       = (uint8_t)((flags_frag >> 13) & 0x07);
+out->frag_offset = flags_frag & 0x1FFF;
+```
 
-struct protocol_hdr {
-    uint8_t  ver_type;    /* version (4 bits) | type (4 bits) */
-    uint8_t  flags;
-    uint16_t length;      /* total length including header */
-    uint32_t id;
-} __attribute__((packed));
+The build function is the exact inverse, placing each field back at its wire position and computing the checksum with the checksum field zeroed:
 
-#define HDR_SIZE  sizeof(struct protocol_hdr)
-#define VERSION   1
+```c
+buf[10] = 0; buf[11] = 0;
+uint16_t cs = internet_checksum(buf, hdr_len);
+buf[10] = (uint8_t)(cs >> 8);
+buf[11] = (uint8_t)(cs & 0xFF);
+```
 
-/* -- Accessors ------------------------------------------------------ */
+Example CLI usage:
 
-static inline uint8_t hdr_version(const struct protocol_hdr *h) {
-    return (h->ver_type >> 4) & 0x0F;
-}
-static inline uint8_t hdr_type(const struct protocol_hdr *h) {
-    return h->ver_type & 0x0F;
-}
-
-/* -- Checksum (one's complement) ------------------------------------ */
-
-uint16_t checksum(const void *data, size_t len)
-{
-    const uint8_t *p = data;
-    uint32_t sum = 0;
-    for (size_t i = 0; i + 1 < len; i += 2)
-        sum += (uint32_t)(p[i] << 8 | p[i + 1]);
-    if (len & 1)
-        sum += (uint32_t)(p[len - 1] << 8);
-    while (sum >> 16)
-        sum = (sum & 0xFFFF) + (sum >> 16);
-    return (uint16_t)~sum;
-}
-
-/* -- Build ---------------------------------------------------------- */
-
-size_t build_packet(uint8_t *buf, size_t max,
-                    uint8_t type, uint8_t flags,
-                    const uint8_t *payload, uint16_t plen, uint32_t id)
-{
-    size_t total = HDR_SIZE + plen;
-    if (total > max) return 0;
-
-    struct protocol_hdr *h = (struct protocol_hdr *)buf;
-    h->ver_type = (VERSION << 4) | (type & 0x0F);
-    h->flags    = flags;
-    h->length   = htons((uint16_t)total);
-    h->id       = htonl(id);
-
-    if (payload && plen)
-        memcpy(buf + HDR_SIZE, payload, plen);
-    return total;
-}
-
-/* -- Parse ---------------------------------------------------------- */
-
-int parse_packet(const uint8_t *buf, size_t len, struct protocol_hdr *out,
-                 const uint8_t **payload, uint16_t *plen)
-{
-    if (len < HDR_SIZE) return -1;
-
-    memcpy(out, buf, HDR_SIZE);
-    out->length = ntohs(out->length);
-    out->id     = ntohl(out->id);
-
-    if (out->length > len) return -1;
-
-    *payload = buf + HDR_SIZE;
-    *plen    = out->length - HDR_SIZE;
-    return 0;
-}
-
-/* -- Main ----------------------------------------------------------- */
-
-int main(void)
-{
-    uint8_t pkt[1500];
-    const char *msg = "Hello from The IPv4 header (RFC 791)";
-    size_t len = build_packet(pkt, sizeof(pkt), 1, 0,
-                              (const uint8_t *)msg, strlen(msg), 1);
-    printf("Built %zu-byte packet\n", len);
-
-    struct protocol_hdr hdr;
-    const uint8_t *payload;
-    uint16_t plen;
-    if (parse_packet(pkt, len, &hdr, &payload, &plen) == 0) {
-        printf("ver=%u type=%u flags=0x%02x len=%u id=%u\n",
-               hdr_version(&hdr), hdr_type(&hdr), hdr.flags, hdr.length, hdr.id);
-        printf("payload (%u bytes): %.*s\n", plen, plen, payload);
-    }
-
-    printf("checksum: 0x%04x\n", checksum(pkt, len));
-    return 0;
-}
+```bash
+$ ./ipv4_parse 4500005400004000400126a70a0000010a000002
+IPv4 Header (20 bytes on wire)
+  Version ........ 4
+  IHL ............ 5 (20 bytes)
+  DSCP ........... 0
+  ECN ............ 0
+  Total Length ... 84
+  Identification . 0x0000 (0)
+  Flags .......... 0x2 [DF]
+  Frag Offset .... 0 (byte offset: 0)
+  TTL ............ 64
+  Protocol ....... ICMP (1)
+  Checksum ....... 0x26a7
+  Source ......... 10.0.0.1
+  Destination .... 10.0.0.2
 ```
 
 ## 5. Tests
 
-```c
-#include <assert.h>
-#include <string.h>
-#include <stdio.h>
-
-void test_build_parse_roundtrip(void)
-{
-    uint8_t buf[256];
-    const char *msg = "test";
-    size_t len = build_packet(buf, sizeof(buf), 1, 0, (const uint8_t *)msg, 4, 99);
-    assert(len > 0);
-
-    struct protocol_hdr hdr;
-    const uint8_t *payload;
-    uint16_t plen;
-    assert(parse_packet(buf, len, &hdr, &payload, &plen) == 0);
-    assert(hdr_version(&hdr) == VERSION);
-    assert(hdr_type(&hdr) == 1);
-    assert(hdr.id == 99);
-    assert(plen == 4);
-    assert(memcmp(payload, "test", 4) == 0);
-}
-
-void test_reject_truncated(void)
-{
-    uint8_t buf[] = {0x10, 0x00};
-    struct protocol_hdr hdr;
-    const uint8_t *p;
-    uint16_t plen;
-    assert(parse_packet(buf, 2, &hdr, &p, &plen) == -1);
-}
-
-void test_checksum_verify(void)
-{
-    uint8_t data[] = {0x00, 0x01, 0x00, 0x02};
-    uint16_t cs = checksum(data, 4);
-    uint8_t with_cs[6];
-    memcpy(with_cs, data, 4);
-    with_cs[4] = cs >> 8;
-    with_cs[5] = cs & 0xFF;
-    assert(checksum(with_cs, 6) == 0);
-}
-
-void test_empty_payload(void)
-{
-    uint8_t buf[64];
-    size_t len = build_packet(buf, sizeof(buf), 0, 0, NULL, 0, 0);
-    assert(len == HDR_SIZE);
-}
-
-int main(void)
-{
-    test_build_parse_roundtrip();
-    test_reject_truncated();
-    test_checksum_verify();
-    test_empty_payload();
-    printf("All tests for The IPv4 header (RFC 791) passed.\n");
-    return 0;
-}
+```bash
+make test
 ```
+
+The test suite ([`tests/test_ipv4.c`](tests/test_ipv4.c)) covers:
+
+- **test_parse_real_packet** -- parse a known-good ICMP echo request header (from a real tcpdump capture: `ping 10.0.0.2` from `10.0.0.1`) and verify every field.
+- **test_build_roundtrip** -- construct a header with non-trivial field values (DSCP=46, ECN=1, TCP, 192.168.x.x addresses), serialize to wire, parse back, compare all fields.
+- **test_checksum_valid** -- the RFC 1071 checksum over the real packet (with checksum included) must be zero.
+- **test_checksum_zero_after_include** -- the raw one's complement sum (before NOT) must be 0xFFFF.
+- **test_bad_version** -- a header with version=6 returns `NFS_IPV4_ERR_VERSION`.
+- **test_short_packet** -- buffers of 19 bytes and 0 bytes return `NFS_IPV4_ERR_SHORT`.
+- **test_bad_checksum** -- a flipped bit in the checksum returns `NFS_IPV4_ERR_CHECKSUM`.
+- **test_format_addr** -- dotted decimal for 10.0.0.1, 192.168.0.1, 255.255.255.255, 0.0.0.0.
+- **test_protocol_name** -- ICMP, TCP, UDP, IPv6-in-IPv4, unknown.
+- **test_build_too_small** -- build into a 19-byte buffer returns 0.
+- **test_fragment_fields** -- roundtrip with MF flag set and a non-zero fragment offset.
 
 ## 6. Exercises
 
-1. **\u2605** Parse a hex dump of a real the ipv4 header packet and identify every field manually.
-
-2. **\u2605** Implement the basic parser and verify it produces byte-identical output to a reference implementation.
-
-3. **\u2605\u2605** Add comprehensive input validation: reject packets with invalid field values and return appropriate error codes.
-
-4. **\u2605\u2605** Handle all edge cases: minimum-size packets, maximum-size packets, optional fields, and malformed input.
-
-5. **\u2605\u2605** Write a pcap analyzer that reads capture files and decodes the ipv4 header packets with full field breakdown.
-
-6. **\u2605\u2605\u2605** Implement the complete protocol state machine. Verify all transitions with a test harness.
-
-7. **\u2605\u2605\u2605** Benchmark parsing throughput (packets/sec) and compare to theoretical line rate.
-
-8. **\u2605\u2605\u2605** Test against real network traffic: capture live packets and verify your parser handles all observed variations.
+See [`exercises.md`](exercises.md).

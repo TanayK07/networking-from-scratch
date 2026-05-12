@@ -1,234 +1,202 @@
 # 09. The three-way handshake
 
+> By the end of this lesson, you will have implemented the TCP three-way handshake from raw bytes -- building SYN, SYN-ACK, and ACK segments, tracking sequence numbers through a state machine, and verifying the invariants that make reliable connections possible.
+
 ## 1. Problem
 
-In real networking systems, the three-way handshake is a critical component that you encounter constantly. If you cannot implement it correctly from first principles, you will be at the mercy of library bugs, misconfigurations, and subtle protocol violations that are nearly impossible to debug without deep understanding.
+Every TCP connection begins with a three-way handshake. When you type `curl https://example.com`, the kernel exchanges three segments before a single byte of HTTP data flows. If any step is wrong -- a bad sequence number, a missing flag bit, an incorrect acknowledgement -- the connection silently fails or, worse, succeeds with corrupted state that manifests as data loss minutes later.
 
-The challenge is that the three-way handshake involves precise binary layouts, strict protocol rules, and edge cases that only manifest under specific network conditions. Getting even one byte wrong means packets are silently dropped or connections mysteriously fail.
+Understanding the handshake matters because:
+
+- **Debugging:** `ss -tn state syn-sent` shows connections stuck in the handshake. Without knowing what each state means, you cannot diagnose whether the problem is a firewall, a full SYN backlog, or a misconfigured MSS.
+- **Security:** SYN floods exploit the server's obligation to allocate state after step 2. SYN cookies (RFC 4987) encode state into the ISN to avoid allocation. You cannot understand the defense without understanding the attack surface.
+- **Performance:** TCP Fast Open (RFC 7413) piggybacks data on the SYN to save one RTT. Knowing the baseline handshake is prerequisite to understanding the optimization.
+
+This lesson builds the handshake from scratch: no sockets, no kernel -- just byte buffers and a state machine.
 
 ## 2. Theory
 
-The three-way handshake is a core concept in Transport: UDP, TCP, QUIC. Understanding it requires grasping both the design philosophy and the implementation details.
+### The exchange
 
-TCP three-way handshake:
+Two hosts need to agree on initial sequence numbers before they can reliably track bytes. The three-way handshake accomplishes this in three segments:
 
 ```
-  Client                          Server
-    |                                |
-    |  SYN (seq=x)                   |
-    |------------------------------->|
-    |                                |
-    |  SYN-ACK (seq=y, ack=x+1)     |
-    |<-------------------------------|
-    |                                |
-    |  ACK (seq=x+1, ack=y+1)       |
-    |------------------------------->|
-    |                                |
-    |  Connection ESTABLISHED        |
+    Client                                Server
+      |                                      |
+      |  1. SYN       seq=x                  |
+      |------------------------------------->|
+      |                                      |
+      |  2. SYN-ACK   seq=y, ack=x+1         |
+      |<-------------------------------------|
+      |                                      |
+      |  3. ACK       seq=x+1, ack=y+1       |
+      |------------------------------------->|
+      |                                      |
+      |       Connection ESTABLISHED          |
 ```
 
-ISN (Initial Sequence Number) should be randomized (RFC 6528) to prevent
-off-path injection attacks. The third ACK can carry data (piggybacked).
+**Step 1 -- SYN:** The client picks an Initial Sequence Number (ISN) `x` and sends a segment with the SYN flag set. This means "I want to start a connection, and my byte stream will begin at sequence number `x`."
+
+**Step 2 -- SYN-ACK:** The server picks its own ISN `y` and acknowledges the client's SYN by setting `ack = x + 1`. The "+1" is because the SYN itself consumes one sequence number (even though it carries no data). Both SYN and ACK flags are set.
+
+**Step 3 -- ACK:** The client acknowledges the server's SYN with `ack = y + 1`. After this segment, both sides are in the ESTABLISHED state.
+
+### Why three, not two?
+
+A two-way handshake (SYN, then ACK) would leave the server unable to verify that the client received its ISN. Old duplicate SYNs from previous connections could trick the server into establishing a ghost connection. The third segment proves the client is alive and aware of the server's ISN.
+
+### Initial Sequence Numbers (ISNs)
+
+RFC 793 (the original TCP spec) proposed a clock-based ISN: increment a 32-bit counter every 4 microseconds. This was predictable, enabling blind injection attacks (the Mitnick attack, 1994).
+
+RFC 6528 replaced this with a cryptographic approach:
+
+```
+ISN = F(local_ip, local_port, remote_ip, remote_port, secret_key)
+```
+
+where `F` is a PRF (e.g., MD5, SipHash). This makes ISNs unpredictable to off-path attackers while remaining deterministic per 4-tuple (so retransmitted SYNs get the same ISN).
+
+Our implementation uses `time + rand()` for simplicity. Production stacks use a keyed hash.
+
+### The Transmission Control Block (TCB)
+
+Each connection requires per-connection state, stored in a structure the RFCs call the TCB:
+
+- Local and remote IP/port (the 4-tuple)
+- Send sequence variables: SND.UNA, SND.NXT, SND.WND, ISS
+- Receive sequence variables: RCV.NXT, RCV.WND, IRS
+- Connection state (CLOSED, SYN_SENT, ESTABLISHED, etc.)
+
+Our `nfs_tcp_handshake` struct is a minimal TCB that tracks just enough for the handshake.
 
 ## 3. Math / Spec
 
-The protocol defines specific algorithms and data formats that must be implemented exactly for interoperability:
+### TCP header format (RFC 9293, Section 3.1)
 
-- **Header format**: fixed and variable-length fields with specific byte ordering
-- **Checksum**: error detection method (one's complement sum or CRC)
-- **State transitions**: valid sequences of operations and responses
-- **Timer values**: retransmission timeouts, keepalive intervals, expiration times
+```
+ 0                   1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|          Source Port          |       Destination Port        |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                        Sequence Number                        |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                    Acknowledgment Number                      |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|  Data |       |C|E|U|A|P|R|S|F|                               |
+| Offset| Rsrvd |W|C|R|C|S|S|Y|I|            Window             |
+|       |       |R|E|G|K|H|T|N|N|                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|           Checksum            |         Urgent Pointer        |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+```
 
-All multi-byte integer fields are in network byte order (big-endian) unless explicitly stated otherwise.
+The minimum header is 20 bytes (Data Offset = 5, meaning 5 x 32-bit words). Options extend it up to 60 bytes.
+
+### Sequence number arithmetic
+
+Sequence numbers are 32-bit unsigned integers that wrap around. Comparisons use modular arithmetic (RFC 9293, Section 3.4):
+
+```
+SEG.ACK = SND.NXT        (the ACK acknowledges our SYN)
+SND.UNA < SEG.ACK <= SND.NXT  (valid ACK range)
+```
+
+In the handshake specifically:
+- SYN consumes 1 sequence number: if ISN = x, the next data byte is x + 1.
+- FIN also consumes 1 sequence number (relevant for connection teardown).
+- Pure ACKs consume 0 sequence numbers.
+
+### State machine (excerpt from RFC 9293, Figure 6)
+
+```
+                  active OPEN: send SYN
+  CLOSED ---------------------------------> SYN_SENT
+                                                |
+                  recv SYN-ACK, send ACK        |
+  SYN_SENT ------------------------------------> ESTABLISHED
+                                                     ^
+                  recv SYN, send SYN-ACK             |
+  CLOSED ---------> LISTEN ---------> SYN_RECEIVED --+
+                  (passive OPEN)    recv ACK of SYN
+```
+
+Our implementation covers the active open path (client) and the passive responder path (server).
+
+### TCP checksum (pseudo-header)
+
+The TCP checksum covers a 12-byte pseudo-header prepended to the segment:
+
+```
++--------+--------+--------+--------+
+|           Source Address           |   4 bytes
++--------+--------+--------+--------+
+|        Destination Address         |   4 bytes
++--------+--------+--------+--------+
+|  zero  | Proto  |    TCP Length    |   4 bytes
++--------+--------+--------+--------+
+```
+
+Proto = 6 (IPPROTO_TCP). The checksum algorithm is the standard Internet checksum (RFC 1071) -- the same one's-complement sum used for IP headers.
 
 ## 4. Code
 
+The implementation is split across three files:
+
+- [`tcp.h`](tcp.h) -- the packed header struct, flag constants, state enum, handshake context struct, and function declarations.
+- [`tcp.c`](tcp.c) -- all the logic: parsing, building SYN/SYN-ACK/ACK, ISN generation, and the pseudo-header checksum.
+- [`main.c`](main.c) -- a CLI demo that runs a complete handshake between a "client" and "server" in memory.
+
+### Key design decisions
+
+**Parsed headers are in host byte order.** `nfs_tcp_parse` converts all multi-byte fields from network order so callers can use plain arithmetic. The build functions do the reverse before serializing.
+
+**The context tracks state.** Each `nfs_tcp_handshake` struct holds the local and remote ISNs, ports, and the current state. The build functions advance the state machine:
+
 ```c
-/*
- * the_threeway_handshake.c -- The three-way handshake
- * Compile: gcc -Wall -O2 -o the_threeway_handshake the_threeway_handshake.c
- */
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
-#include <arpa/inet.h>
+nfs_tcp_build_syn(ctx, ...)      // CLOSED      -> SYN_SENT
+nfs_tcp_build_synack(ctx, ...)   // (any)       -> SYN_RECEIVED
+nfs_tcp_build_ack(ctx, ...)      // SYN_SENT    -> ESTABLISHED
+```
 
-/* -- Data structures ------------------------------------------------ */
+**The checksum reuses common/c/checksum.c.** The `internet_checksum_partial` / `internet_checksum_fold` functions from P3.02 are composed to checksum the pseudo-header and TCP segment without copying into a contiguous buffer:
 
-struct protocol_hdr {
-    uint8_t  ver_type;    /* version (4 bits) | type (4 bits) */
-    uint8_t  flags;
-    uint16_t length;      /* total length including header */
-    uint32_t id;
-} __attribute__((packed));
+```c
+uint32_t sum = 0;
+sum = internet_checksum_partial(pseudo, 12, sum);
+sum = internet_checksum_partial(tcp_buf, tcp_len, sum);
+uint16_t checksum = internet_checksum_fold(sum);
+```
 
-#define HDR_SIZE  sizeof(struct protocol_hdr)
-#define VERSION   1
+### Building and running
 
-/* -- Accessors ------------------------------------------------------ */
-
-static inline uint8_t hdr_version(const struct protocol_hdr *h) {
-    return (h->ver_type >> 4) & 0x0F;
-}
-static inline uint8_t hdr_type(const struct protocol_hdr *h) {
-    return h->ver_type & 0x0F;
-}
-
-/* -- Checksum (one's complement) ------------------------------------ */
-
-uint16_t checksum(const void *data, size_t len)
-{
-    const uint8_t *p = data;
-    uint32_t sum = 0;
-    for (size_t i = 0; i + 1 < len; i += 2)
-        sum += (uint32_t)(p[i] << 8 | p[i + 1]);
-    if (len & 1)
-        sum += (uint32_t)(p[len - 1] << 8);
-    while (sum >> 16)
-        sum = (sum & 0xFFFF) + (sum >> 16);
-    return (uint16_t)~sum;
-}
-
-/* -- Build ---------------------------------------------------------- */
-
-size_t build_packet(uint8_t *buf, size_t max,
-                    uint8_t type, uint8_t flags,
-                    const uint8_t *payload, uint16_t plen, uint32_t id)
-{
-    size_t total = HDR_SIZE + plen;
-    if (total > max) return 0;
-
-    struct protocol_hdr *h = (struct protocol_hdr *)buf;
-    h->ver_type = (VERSION << 4) | (type & 0x0F);
-    h->flags    = flags;
-    h->length   = htons((uint16_t)total);
-    h->id       = htonl(id);
-
-    if (payload && plen)
-        memcpy(buf + HDR_SIZE, payload, plen);
-    return total;
-}
-
-/* -- Parse ---------------------------------------------------------- */
-
-int parse_packet(const uint8_t *buf, size_t len, struct protocol_hdr *out,
-                 const uint8_t **payload, uint16_t *plen)
-{
-    if (len < HDR_SIZE) return -1;
-
-    memcpy(out, buf, HDR_SIZE);
-    out->length = ntohs(out->length);
-    out->id     = ntohl(out->id);
-
-    if (out->length > len) return -1;
-
-    *payload = buf + HDR_SIZE;
-    *plen    = out->length - HDR_SIZE;
-    return 0;
-}
-
-/* -- Main ----------------------------------------------------------- */
-
-int main(void)
-{
-    uint8_t pkt[1500];
-    const char *msg = "Hello from The three-way handshake";
-    size_t len = build_packet(pkt, sizeof(pkt), 1, 0,
-                              (const uint8_t *)msg, strlen(msg), 1);
-    printf("Built %zu-byte packet\n", len);
-
-    struct protocol_hdr hdr;
-    const uint8_t *payload;
-    uint16_t plen;
-    if (parse_packet(pkt, len, &hdr, &payload, &plen) == 0) {
-        printf("ver=%u type=%u flags=0x%02x len=%u id=%u\n",
-               hdr_version(&hdr), hdr_type(&hdr), hdr.flags, hdr.length, hdr.id);
-        printf("payload (%u bytes): %.*s\n", plen, plen, payload);
-    }
-
-    printf("checksum: 0x%04x\n", checksum(pkt, len));
-    return 0;
-}
+```bash
+make          # builds ./handshake
+./handshake   # runs the simulation
+make test     # compiles and runs the test suite
 ```
 
 ## 5. Tests
 
-```c
-#include <assert.h>
-#include <string.h>
-#include <stdio.h>
-
-void test_build_parse_roundtrip(void)
-{
-    uint8_t buf[256];
-    const char *msg = "test";
-    size_t len = build_packet(buf, sizeof(buf), 1, 0, (const uint8_t *)msg, 4, 99);
-    assert(len > 0);
-
-    struct protocol_hdr hdr;
-    const uint8_t *payload;
-    uint16_t plen;
-    assert(parse_packet(buf, len, &hdr, &payload, &plen) == 0);
-    assert(hdr_version(&hdr) == VERSION);
-    assert(hdr_type(&hdr) == 1);
-    assert(hdr.id == 99);
-    assert(plen == 4);
-    assert(memcmp(payload, "test", 4) == 0);
-}
-
-void test_reject_truncated(void)
-{
-    uint8_t buf[] = {0x10, 0x00};
-    struct protocol_hdr hdr;
-    const uint8_t *p;
-    uint16_t plen;
-    assert(parse_packet(buf, 2, &hdr, &p, &plen) == -1);
-}
-
-void test_checksum_verify(void)
-{
-    uint8_t data[] = {0x00, 0x01, 0x00, 0x02};
-    uint16_t cs = checksum(data, 4);
-    uint8_t with_cs[6];
-    memcpy(with_cs, data, 4);
-    with_cs[4] = cs >> 8;
-    with_cs[5] = cs & 0xFF;
-    assert(checksum(with_cs, 6) == 0);
-}
-
-void test_empty_payload(void)
-{
-    uint8_t buf[64];
-    size_t len = build_packet(buf, sizeof(buf), 0, 0, NULL, 0, 0);
-    assert(len == HDR_SIZE);
-}
-
-int main(void)
-{
-    test_build_parse_roundtrip();
-    test_reject_truncated();
-    test_checksum_verify();
-    test_empty_payload();
-    printf("All tests for The three-way handshake passed.\n");
-    return 0;
-}
+```bash
+make test
 ```
+
+The test suite ([`tests/test_tcp.c`](tests/test_tcp.c)) covers nine areas:
+
+| Test | What it verifies |
+|------|-----------------|
+| `test_struct_size` | `sizeof(nfs_tcp_hdr) == 20` -- the struct matches the wire |
+| `test_parse_known_syn` | Hand-crafted SYN bytes parse to expected field values |
+| `test_full_handshake` | Complete client/server handshake, all seq/ack numbers correct |
+| `test_syn_has_correct_flags` | SYN has SYN set, ACK/FIN/RST clear |
+| `test_synack_ack_numbers` | `SYN-ACK.ack == SYN.seq + 1` |
+| `test_final_ack_numbers` | `ACK.ack == SYN-ACK.seq + 1`, `ACK.seq == SYN.seq + 1` |
+| `test_isn_randomness` | 100 generated ISNs are all unique |
+| `test_reject_truncated` | Buffers shorter than 20 bytes are rejected |
+| `test_checksum_pseudo` | Pseudo-header checksum validates to zero when filled in |
 
 ## 6. Exercises
 
-1. **\u2605** Parse a hex dump of a real the three-way handshake packet and identify every field manually.
-
-2. **\u2605** Implement the basic parser and verify it produces byte-identical output to a reference implementation.
-
-3. **\u2605\u2605** Add comprehensive input validation: reject packets with invalid field values and return appropriate error codes.
-
-4. **\u2605\u2605** Handle all edge cases: minimum-size packets, maximum-size packets, optional fields, and malformed input.
-
-5. **\u2605\u2605** Write a pcap analyzer that reads capture files and decodes the three-way handshake packets with full field breakdown.
-
-6. **\u2605\u2605\u2605** Implement the complete protocol state machine. Verify all transitions with a test harness.
-
-7. **\u2605\u2605\u2605** Benchmark parsing throughput (packets/sec) and compare to theoretical line rate.
-
-8. **\u2605\u2605\u2605** Test against real network traffic: capture live packets and verify your parser handles all observed variations.
+See [`exercises.md`](exercises.md).

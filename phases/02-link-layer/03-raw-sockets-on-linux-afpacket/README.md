@@ -1,232 +1,209 @@
 # 03. Raw sockets on Linux (AF_PACKET)
 
+> One-sentence promise: by the end of this lesson, you will have a working packet sniffer that captures raw Ethernet frames off a real NIC using Linux's AF_PACKET socket interface — no libpcap, no shortcuts.
+
 ## 1. Problem
 
-In real networking systems, raw sockets on linux (af_packet) is a critical component that you encounter constantly. If you cannot implement it correctly from first principles, you will be at the mercy of library bugs, misconfigurations, and subtle protocol violations that are nearly impossible to debug without deep understanding.
+Every network tool you've ever used — `tcpdump`, Wireshark, `arping`, `nmap` — needs to see raw Ethernet frames exactly as they appear on the wire. The normal socket API (`AF_INET`) only gives you payload after the kernel has stripped every header below L4. You never see the MAC addresses, you never see the EtherType, and you certainly can't forge your own L2 frames.
 
-The challenge is that raw sockets on linux (af_packet) involves precise binary layouts, strict protocol rules, and edge cases that only manifest under specific network conditions. Getting even one byte wrong means packets are silently dropped or connections mysteriously fail.
+Linux solves this with `AF_PACKET` sockets. They bypass the entire TCP/IP stack and give you direct access to the link layer. But they come with sharp edges: you need root (or `CAP_NET_RAW`), you must handle raw byte buffers with packed structs, and you're responsible for parsing every header yourself.
+
+This lesson makes you build that from scratch.
 
 ## 2. Theory
 
-Raw sockets on Linux (AF_PACKET) is a core concept in Link Layer. Understanding it requires grasping both the design philosophy and the implementation details.
+### The AF_PACKET interface
 
-AF_PACKET raw socket on Linux:
+When you call `socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL))`, the kernel creates a packet socket that taps into the network driver's receive path. Every frame the NIC delivers — before any protocol processing — gets copied into your socket's receive buffer.
 
 ```
-  User space          Kernel
-  +----------+        +------------------+
-  | socket() |------->| AF_PACKET socket |
-  | bind()   |        | SOCK_RAW         |
-  | sendto() |------->| bypass TCP/IP    |---> NIC
-  | recvfrom()|<------| all L2 frames    |<--- NIC
-  +----------+        +------------------+
+  User space                    Kernel
+  +-------------------+         +---------------------------+
+  | socket(AF_PACKET, |-------->| packet socket             |
+  |   SOCK_RAW,       |         |   protocol = ETH_P_ALL    |
+  |   ETH_P_ALL)      |         +---------------------------+
+  |                   |                    |
+  | bind(sockfd,      |-------->| bind to ifindex            |
+  |   &sockaddr_ll)   |         | (filter by interface)      |
+  |                   |                    |
+  | recvfrom(sockfd,  |<--------| raw L2 frame              |<--- NIC
+  |   buf, len)       |         | (complete Ethernet header) |
+  |                   |                    |
+  | sendto(sockfd,    |-------->| inject frame              |---> NIC
+  |   frame, len,     |         | (bypass TCP/IP stack)      |
+  |   &sockaddr_ll)   |         +---------------------------+
+  +-------------------+
 ```
 
-Socket types:
-- SOCK_RAW: receive complete L2 frames including Ethernet header
-- SOCK_DGRAM: receive with L2 header stripped (cooked mode)
+### SOCK_RAW vs. SOCK_DGRAM
 
-Requires CAP_NET_RAW capability (or root).
+`AF_PACKET` offers two socket types:
+
+| Type        | You receive                         | You send                     |
+|-------------|-------------------------------------|------------------------------|
+| `SOCK_RAW`  | Complete L2 frame (Ethernet header + payload) | Must build entire frame |
+| `SOCK_DGRAM`| Payload only (Ethernet header stripped) | Kernel adds L2 header    |
+
+We use `SOCK_RAW` because we want to see — and build — every byte.
+
+### The sockaddr_ll structure
+
+To bind a packet socket to a specific interface, you fill a `struct sockaddr_ll`:
+
+```c
+struct sockaddr_ll {
+    unsigned short sll_family;    /* AF_PACKET              */
+    unsigned short sll_protocol;  /* ETH_P_ALL, in net order */
+    int            sll_ifindex;   /* interface index         */
+    unsigned short sll_hatype;    /* ARP hardware type       */
+    unsigned char  sll_pkttype;   /* packet type             */
+    unsigned char  sll_halen;     /* address length          */
+    unsigned char  sll_addr[8];   /* physical-layer address  */
+};
+```
+
+The critical field is `sll_ifindex`. You get it from `if_nametoindex("eth0")`. Without binding, the socket captures frames from all interfaces.
+
+### Privileges
+
+AF_PACKET requires `CAP_NET_RAW`. In practice this means running as root or using:
+
+```bash
+sudo setcap cap_net_raw+ep ./sniff
+```
 
 ## 3. Math / Spec
 
-The protocol defines specific algorithms and data formats that must be implemented exactly for interoperability:
+### Ethernet II frame layout
 
-- **Header format**: fixed and variable-length fields with specific byte ordering
-- **Checksum**: error detection method (one's complement sum or CRC)
-- **State transitions**: valid sequences of operations and responses
-- **Timer values**: retransmission timeouts, keepalive intervals, expiration times
+Every Ethernet II frame on the wire has this structure (IEEE 802.3, RFC 894):
 
-All multi-byte integer fields are in network byte order (big-endian) unless explicitly stated otherwise.
+```
+ Byte offset
+ 0                   6                   12     14
+ +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ |  Destination MAC (6 bytes)  |   Source MAC (6 bytes)         |
+ +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ | EtherType (2) |                                              |
+ +-+-+-+-+-+-+-+-+          Payload (46 - 1500 bytes)           |
+ |                                                              |
+ +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ |                         FCS (4 bytes)                        |
+ +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+```
+
+Byte-level breakdown:
+
+```
+ Offset  Size  Field
+ ------  ----  ----------------------------
+  0       6    Destination MAC address
+  6       6    Source MAC address
+ 12       2    EtherType (network byte order)
+ 14       var  Payload (46-1500 bytes)
+ --       4    FCS (stripped by NIC, not visible to AF_PACKET)
+```
+
+**Total header size: 14 bytes.** This is the magic number. If a `recvfrom()` returns fewer than 14 bytes, you don't have a valid frame.
+
+### Common EtherType values
+
+| EtherType | Protocol     |
+|-----------|-------------|
+| `0x0800`  | IPv4        |
+| `0x0806`  | ARP         |
+| `0x86DD`  | IPv6        |
+| `0x8100`  | 802.1Q VLAN |
+
+All multi-byte fields are in **network byte order** (big-endian). Use `ntohs()` to convert the EtherType to host order for comparison.
+
+### What the NIC strips
+
+The 4-byte Frame Check Sequence (FCS / CRC-32) at the end of every Ethernet frame is verified and stripped by the NIC hardware before the frame reaches AF_PACKET. You will never see it in your buffer. The 8-byte preamble and Start Frame Delimiter (SFD) are also stripped at the physical layer.
 
 ## 4. Code
 
+The implementation lives in `sniff.h`, `sniff.c`, and `main.c`.
+
+### Wire-format struct
+
 ```c
-/*
- * raw_sockets_on_linux_afpacket.c -- Raw sockets on Linux (AF_PACKET)
- * Compile: gcc -Wall -O2 -o raw_sockets_on_linux_afpacket raw_sockets_on_linux_afpacket.c
- */
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
-#include <arpa/inet.h>
-
-/* -- Data structures ------------------------------------------------ */
-
-struct protocol_hdr {
-    uint8_t  ver_type;    /* version (4 bits) | type (4 bits) */
-    uint8_t  flags;
-    uint16_t length;      /* total length including header */
-    uint32_t id;
+struct nfs_eth_header {
+    uint8_t  dst[6];       /* destination MAC address */
+    uint8_t  src[6];       /* source MAC address      */
+    uint16_t ethertype;    /* network byte order      */
 } __attribute__((packed));
+```
 
-#define HDR_SIZE  sizeof(struct protocol_hdr)
-#define VERSION   1
+This is 14 bytes with no padding, guaranteed by `packed`. We overlay it directly on the receive buffer.
 
-/* -- Accessors ------------------------------------------------------ */
+### Core functions
 
-static inline uint8_t hdr_version(const struct protocol_hdr *h) {
-    return (h->ver_type >> 4) & 0x0F;
+```c
+/* Create an AF_PACKET socket. Protocol is in HOST byte order. */
+int nfs_create_raw_socket(uint16_t protocol);
+
+/* Bind to a named interface (e.g. "eth0"). */
+int nfs_bind_to_interface(int sockfd, const char *ifname);
+
+/* Parse raw bytes into a structured frame view. */
+int nfs_parse_eth_frame(const uint8_t *buf, size_t len,
+                        struct nfs_parsed_frame *out);
+
+/* Format a 6-byte MAC as "xx:xx:xx:xx:xx:xx". */
+char *nfs_format_mac(const uint8_t mac[6], char *buf, size_t buflen);
+
+/* Send a complete raw Ethernet frame out an interface. */
+ssize_t nfs_send_raw_frame(int sockfd, const char *ifname,
+                           const uint8_t *frame, size_t frame_len);
+```
+
+### Main loop
+
+```c
+int sockfd = nfs_create_raw_socket(ETH_P_ALL);
+nfs_bind_to_interface(sockfd, "eth0");
+
+uint8_t buf[65536];
+for (;;) {
+    ssize_t n = recvfrom(sockfd, buf, sizeof(buf), 0, NULL, NULL);
+    struct nfs_parsed_frame frame;
+    if (nfs_parse_eth_frame(buf, (size_t)n, &frame) < 0)
+        continue;
+    /* frame.dst, frame.src, frame.ethertype, frame.payload are ready */
 }
-static inline uint8_t hdr_type(const struct protocol_hdr *h) {
-    return h->ver_type & 0x0F;
-}
+```
 
-/* -- Checksum (one's complement) ------------------------------------ */
+Run it:
 
-uint16_t checksum(const void *data, size_t len)
-{
-    const uint8_t *p = data;
-    uint32_t sum = 0;
-    for (size_t i = 0; i + 1 < len; i += 2)
-        sum += (uint32_t)(p[i] << 8 | p[i + 1]);
-    if (len & 1)
-        sum += (uint32_t)(p[len - 1] << 8);
-    while (sum >> 16)
-        sum = (sum & 0xFFFF) + (sum >> 16);
-    return (uint16_t)~sum;
-}
-
-/* -- Build ---------------------------------------------------------- */
-
-size_t build_packet(uint8_t *buf, size_t max,
-                    uint8_t type, uint8_t flags,
-                    const uint8_t *payload, uint16_t plen, uint32_t id)
-{
-    size_t total = HDR_SIZE + plen;
-    if (total > max) return 0;
-
-    struct protocol_hdr *h = (struct protocol_hdr *)buf;
-    h->ver_type = (VERSION << 4) | (type & 0x0F);
-    h->flags    = flags;
-    h->length   = htons((uint16_t)total);
-    h->id       = htonl(id);
-
-    if (payload && plen)
-        memcpy(buf + HDR_SIZE, payload, plen);
-    return total;
-}
-
-/* -- Parse ---------------------------------------------------------- */
-
-int parse_packet(const uint8_t *buf, size_t len, struct protocol_hdr *out,
-                 const uint8_t **payload, uint16_t *plen)
-{
-    if (len < HDR_SIZE) return -1;
-
-    memcpy(out, buf, HDR_SIZE);
-    out->length = ntohs(out->length);
-    out->id     = ntohl(out->id);
-
-    if (out->length > len) return -1;
-
-    *payload = buf + HDR_SIZE;
-    *plen    = out->length - HDR_SIZE;
-    return 0;
-}
-
-/* -- Main ----------------------------------------------------------- */
-
-int main(void)
-{
-    uint8_t pkt[1500];
-    const char *msg = "Hello from Raw sockets on Linux (AF_PACKET)";
-    size_t len = build_packet(pkt, sizeof(pkt), 1, 0,
-                              (const uint8_t *)msg, strlen(msg), 1);
-    printf("Built %zu-byte packet\n", len);
-
-    struct protocol_hdr hdr;
-    const uint8_t *payload;
-    uint16_t plen;
-    if (parse_packet(pkt, len, &hdr, &payload, &plen) == 0) {
-        printf("ver=%u type=%u flags=0x%02x len=%u id=%u\n",
-               hdr_version(&hdr), hdr_type(&hdr), hdr.flags, hdr.length, hdr.id);
-        printf("payload (%u bytes): %.*s\n", plen, plen, payload);
-    }
-
-    printf("checksum: 0x%04x\n", checksum(pkt, len));
-    return 0;
-}
+```bash
+make
+sudo ./sniff eth0
 ```
 
 ## 5. Tests
 
-```c
-#include <assert.h>
-#include <string.h>
-#include <stdio.h>
+The tests (`tests/test_sniff.c`) verify struct layout and parsing logic without needing root or a real network interface.
 
-void test_build_parse_roundtrip(void)
-{
-    uint8_t buf[256];
-    const char *msg = "test";
-    size_t len = build_packet(buf, sizeof(buf), 1, 0, (const uint8_t *)msg, 4, 99);
-    assert(len > 0);
+What we test:
+- **Struct pinning:** `sizeof(struct nfs_eth_header) == 14`, field offsets at 0, 6, 12.
+- **Known-frame parsing:** construct a byte array with a known Ethernet header, parse it, verify every field matches.
+- **Edge cases:** buffer shorter than 14 bytes is rejected; exactly 14 bytes yields zero-length payload; NULL pointers are rejected.
+- **format_mac:** verify output for all-zeros, broadcast, and normal MACs. Verify small-buffer rejection.
+- **Property test:** fill a 64-byte buffer with a recognisable pattern, parse it, confirm the parser faithfully reproduces every byte.
 
-    struct protocol_hdr hdr;
-    const uint8_t *payload;
-    uint16_t plen;
-    assert(parse_packet(buf, len, &hdr, &payload, &plen) == 0);
-    assert(hdr_version(&hdr) == VERSION);
-    assert(hdr_type(&hdr) == 1);
-    assert(hdr.id == 99);
-    assert(plen == 4);
-    assert(memcmp(payload, "test", 4) == 0);
-}
-
-void test_reject_truncated(void)
-{
-    uint8_t buf[] = {0x10, 0x00};
-    struct protocol_hdr hdr;
-    const uint8_t *p;
-    uint16_t plen;
-    assert(parse_packet(buf, 2, &hdr, &p, &plen) == -1);
-}
-
-void test_checksum_verify(void)
-{
-    uint8_t data[] = {0x00, 0x01, 0x00, 0x02};
-    uint16_t cs = checksum(data, 4);
-    uint8_t with_cs[6];
-    memcpy(with_cs, data, 4);
-    with_cs[4] = cs >> 8;
-    with_cs[5] = cs & 0xFF;
-    assert(checksum(with_cs, 6) == 0);
-}
-
-void test_empty_payload(void)
-{
-    uint8_t buf[64];
-    size_t len = build_packet(buf, sizeof(buf), 0, 0, NULL, 0, 0);
-    assert(len == HDR_SIZE);
-}
-
-int main(void)
-{
-    test_build_parse_roundtrip();
-    test_reject_truncated();
-    test_checksum_verify();
-    test_empty_payload();
-    printf("All tests for Raw sockets on Linux (AF_PACKET) passed.\n");
-    return 0;
-}
+```bash
+make test
+# runs tests/test_sniff without root
 ```
 
 ## 6. Exercises
 
-1. **\u2605** Parse a hex dump of a real raw sockets on linux packet and identify every field manually.
+See `exercises.md`. Highlights:
 
-2. **\u2605** Implement the basic parser and verify it produces byte-identical output to a reference implementation.
-
-3. **\u2605\u2605** Add comprehensive input validation: reject packets with invalid field values and return appropriate error codes.
-
-4. **\u2605\u2605** Handle all edge cases: minimum-size packets, maximum-size packets, optional fields, and malformed input.
-
-5. **\u2605\u2605** Write a pcap analyzer that reads capture files and decodes raw sockets on linux packets with full field breakdown.
-
-6. **\u2605\u2605\u2605** Implement the complete protocol state machine. Verify all transitions with a test harness.
-
-7. **\u2605\u2605\u2605** Benchmark parsing throughput (packets/sec) and compare to theoretical line rate.
-
-8. **\u2605\u2605\u2605** Test against real network traffic: capture live packets and verify your parser handles all observed variations.
+- ★ Sniff on loopback and identify frames from `ping 127.0.0.1`.
+- ★ Compare `SOCK_RAW` vs. `SOCK_DGRAM` output and explain when you'd use each.
+- ★★ Enable promiscuous mode with `ioctl(SIOCSIFFLAGS)`.
+- ★★ Send a raw broadcast frame with a custom EtherType and capture it with `tcpdump`.
+- ★★★ Attach a classic BPF filter via `SO_ATTACH_FILTER` to do kernel-level EtherType matching.
+- ★★★ Implement zero-copy capture with `TPACKET_V3` memory-mapped ring buffers and benchmark against `recvfrom()`.
