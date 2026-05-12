@@ -1,7 +1,7 @@
 CC      ?= gcc
 CFLAGS  ?= -O2 -g -Wall -Wextra -Wpedantic -Werror -std=c11 \
-           -I../../../common/c
-LDFLAGS ?=
+           -I../../../common/c $(EXTRA_CFLAGS)
+LDFLAGS ?= $(EXTRA_LDFLAGS)
 
 BIN := arp_responder
 SRC := arp.c

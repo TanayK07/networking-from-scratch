@@ -1,6 +1,6 @@
 CC      ?= gcc
-CFLAGS  ?= -O2 -g -Wall -Wextra -Wpedantic -Werror -std=c11 -I../../../common/c
-LDFLAGS ?=
+CFLAGS  ?= -O2 -g -Wall -Wextra -Wpedantic -Werror -std=c11 -I../../../common/c $(EXTRA_CFLAGS)
+LDFLAGS ?= $(EXTRA_LDFLAGS)
 
 COMMON_DIR := ../../../common/c
 COMMON_C   := $(COMMON_DIR)/checksum.c

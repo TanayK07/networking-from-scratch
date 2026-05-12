@@ -21,7 +21,7 @@
 
 /* Pretty-print TCP flags. */
 static void print_flags(uint8_t flags) {
-    const char *names[] = {"FIN","SYN","RST","PSH","ACK","URG","ECE","CWR"};
+    const char *names[] = {"FIN", "SYN", "RST", "PSH", "ACK", "URG", "ECE", "CWR"};
     int first = 1;
     for (int i = 0; i < 8; i++) {
         if (flags & (1 << i)) {
@@ -31,10 +31,9 @@ static void print_flags(uint8_t flags) {
     }
 }
 
-static void print_step(const char *role, const char *label,
-                        const struct nfs_tcp_hdr *h) {
-    printf("[%s] %-7s seq=%" PRIu32 ", ack=%" PRIu32 ", flags=",
-           role, label, h->seq_num, h->ack_num);
+static void print_step(const char *role, const char *label, const struct nfs_tcp_hdr *h) {
+    printf("[%s] %-7s seq=%" PRIu32 ", ack=%" PRIu32 ", flags=", role, label, h->seq_num,
+           h->ack_num);
     print_flags(h->flags);
     printf("\n");
 }
@@ -56,10 +55,14 @@ int main(void) {
     /* --- Step 1: Client → SYN --- */
 
     size_t n = nfs_tcp_build_syn(&client, wire, sizeof(wire));
-    if (n == 0) { fprintf(stderr, "build_syn failed\n"); return 1; }
+    if (n == 0) {
+        fprintf(stderr, "build_syn failed\n");
+        return 1;
+    }
 
     if (nfs_tcp_parse(wire, n, &parsed) < 0) {
-        fprintf(stderr, "parse SYN failed\n"); return 1;
+        fprintf(stderr, "parse SYN failed\n");
+        return 1;
     }
     print_step("client", "SYN ->", &parsed);
 
@@ -67,10 +70,14 @@ int main(void) {
 
     struct nfs_tcp_hdr syn_parsed = parsed;
     n = nfs_tcp_build_synack(&server, &syn_parsed, wire, sizeof(wire));
-    if (n == 0) { fprintf(stderr, "build_synack failed\n"); return 1; }
+    if (n == 0) {
+        fprintf(stderr, "build_synack failed\n");
+        return 1;
+    }
 
     if (nfs_tcp_parse(wire, n, &parsed) < 0) {
-        fprintf(stderr, "parse SYN-ACK failed\n"); return 1;
+        fprintf(stderr, "parse SYN-ACK failed\n");
+        return 1;
     }
     print_step("server", "SYN-ACK", &parsed);
 
@@ -78,10 +85,14 @@ int main(void) {
 
     struct nfs_tcp_hdr synack_parsed = parsed;
     n = nfs_tcp_build_ack(&client, &synack_parsed, wire, sizeof(wire));
-    if (n == 0) { fprintf(stderr, "build_ack failed\n"); return 1; }
+    if (n == 0) {
+        fprintf(stderr, "build_ack failed\n");
+        return 1;
+    }
 
     if (nfs_tcp_parse(wire, n, &parsed) < 0) {
-        fprintf(stderr, "parse ACK failed\n"); return 1;
+        fprintf(stderr, "parse ACK failed\n");
+        return 1;
     }
     print_step("client", "ACK ->", &parsed);
 

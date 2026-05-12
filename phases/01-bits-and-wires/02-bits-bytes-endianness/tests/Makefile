@@ -1,6 +1,6 @@
 CC      ?= gcc
-CFLAGS  ?= -O0 -g -Wall -Wextra -Werror -std=c11 -I..
-LDFLAGS ?=
+CFLAGS  ?= -O0 -g -Wall -Wextra -Werror -std=c11 -I.. $(EXTRA_CFLAGS)
+LDFLAGS ?= $(EXTRA_LDFLAGS)
 
 TEST_BIN := test_htonl
 

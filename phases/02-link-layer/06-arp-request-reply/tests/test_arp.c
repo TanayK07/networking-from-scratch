@@ -22,15 +22,15 @@ static void test_sizes(void) {
 /* Build a known ARP request and verify byte layout. */
 static void test_request_layout(void) {
     struct arp_packet arp = {
-        .hw_type        = htons(1),
-        .proto_type     = htons(0x0800),
-        .hw_addr_len    = 6,
+        .hw_type = htons(1),
+        .proto_type = htons(0x0800),
+        .hw_addr_len = 6,
         .proto_addr_len = 4,
-        .opcode         = htons(1),
-        .sender_hw      = {0xaa, 0xbb, 0xcc, 0x11, 0x22, 0x33},
-        .sender_proto   = {10, 0, 0, 1},
-        .target_hw      = {0, 0, 0, 0, 0, 0},
-        .target_proto   = {10, 0, 0, 42},
+        .opcode = htons(1),
+        .sender_hw = {0xaa, 0xbb, 0xcc, 0x11, 0x22, 0x33},
+        .sender_proto = {10, 0, 0, 1},
+        .target_hw = {0, 0, 0, 0, 0, 0},
+        .target_proto = {10, 0, 0, 42},
     };
 
     const uint8_t *p = (const uint8_t *)&arp;

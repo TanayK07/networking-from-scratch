@@ -29,7 +29,10 @@
 /* Open a TAP device by name. Returns the fd or -1 on failure. */
 static int tap_open(const char *requested_name) {
     int fd = open("/dev/net/tun", O_RDWR);
-    if (fd < 0) { perror("open /dev/net/tun"); return -1; }
+    if (fd < 0) {
+        perror("open /dev/net/tun");
+        return -1;
+    }
 
     struct ifreq ifr = {0};
     ifr.ifr_flags = IFF_TAP | IFF_NO_PI;
@@ -44,11 +47,9 @@ static int tap_open(const char *requested_name) {
     return fd;
 }
 
-static void send_arp_reply(int tap_fd,
-                            const struct eth_header *req_eth,
-                            const struct arp_packet *req_arp,
-                            const uint8_t our_mac[6],
-                            const uint8_t our_ip[4]) {
+static void send_arp_reply(int tap_fd, const struct eth_header *req_eth,
+                           const struct arp_packet *req_arp, const uint8_t our_mac[6],
+                           const uint8_t our_ip[4]) {
     uint8_t out[sizeof(struct eth_header) + sizeof(struct arp_packet)] = {0};
     struct eth_header *eth = (struct eth_header *)out;
     struct arp_packet *arp = (struct arp_packet *)(out + sizeof *eth);
@@ -59,28 +60,30 @@ static void send_arp_reply(int tap_fd,
     eth->ethertype = htons(ETHERTYPE_ARP);
 
     /* ARP: reply opcode, swap sender/target. */
-    arp->hw_type        = htons(ARP_HW_ETHER);
-    arp->proto_type     = htons(ETHERTYPE_IPV4);
-    arp->hw_addr_len    = 6;
+    arp->hw_type = htons(ARP_HW_ETHER);
+    arp->proto_type = htons(ETHERTYPE_IPV4);
+    arp->hw_addr_len = 6;
     arp->proto_addr_len = 4;
-    arp->opcode         = htons(ARP_OP_REPLY);
-    memcpy(arp->sender_hw,    our_mac,             6);
-    memcpy(arp->sender_proto, our_ip,              4);
-    memcpy(arp->target_hw,    req_arp->sender_hw,  6);
+    arp->opcode = htons(ARP_OP_REPLY);
+    memcpy(arp->sender_hw, our_mac, 6);
+    memcpy(arp->sender_proto, our_ip, 4);
+    memcpy(arp->target_hw, req_arp->sender_hw, 6);
     memcpy(arp->target_proto, req_arp->sender_proto, 4);
 
     ssize_t w = write(tap_fd, out, sizeof out);
-    if (w < 0) perror("write");
+    if (w < 0)
+        perror("write");
 }
 
 int main(int argc, char **argv) {
     const char *ifname = (argc > 1) ? argv[1] : "tap0";
     int tap_fd = tap_open(ifname);
-    if (tap_fd < 0) return 1;
+    if (tap_fd < 0)
+        return 1;
 
     uint8_t our_mac[6] = {0x02, 0x00, 0x00, 0x00, 0x00, 0x42};
     /* 10.0.0.42 in network order */
-    uint8_t our_ip[4]  = {10, 0, 0, 42};
+    uint8_t our_ip[4] = {10, 0, 0, 42};
 
     fprintf(stderr, "answering ARP for 10.0.0.42 with 02:00:00:00:00:42\n");
 
@@ -92,14 +95,17 @@ int main(int argc, char **argv) {
         }
 
         struct eth_header *eth = (struct eth_header *)buf;
-        if (ntohs(eth->ethertype) != ETHERTYPE_ARP) continue;
+        if (ntohs(eth->ethertype) != ETHERTYPE_ARP)
+            continue;
 
         struct arp_packet *arp = (struct arp_packet *)(buf + sizeof *eth);
-        if (ntohs(arp->opcode) != ARP_OP_REQUEST) continue;
-        if (memcmp(arp->target_proto, our_ip, 4) != 0) continue;
+        if (ntohs(arp->opcode) != ARP_OP_REQUEST)
+            continue;
+        if (memcmp(arp->target_proto, our_ip, 4) != 0)
+            continue;
 
-        fprintf(stderr, "ARP req for %u.%u.%u.%u — replying\n",
-                our_ip[0], our_ip[1], our_ip[2], our_ip[3]);
+        fprintf(stderr, "ARP req for %u.%u.%u.%u — replying\n", our_ip[0], our_ip[1], our_ip[2],
+                our_ip[3]);
         send_arp_reply(tap_fd, eth, arp, our_mac, our_ip);
     }
 }

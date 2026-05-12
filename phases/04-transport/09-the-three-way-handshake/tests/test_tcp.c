@@ -22,30 +22,31 @@
 #include <string.h>
 #include <time.h>
 
-static int tests_run    = 0;
+static int tests_run = 0;
 static int tests_passed = 0;
 
-#define ASSERT_EQ(expr, expected) do {                                    \
-    tests_run++;                                                          \
-    long long _got = (long long)(expr);                                   \
-    long long _exp = (long long)(expected);                               \
-    if (_got != _exp) {                                                   \
-        fprintf(stderr, "  FAIL %s:%d: %s == %lld, want %lld\n",         \
-                __FILE__, __LINE__, #expr, _got, _exp);                   \
-        return;                                                           \
-    }                                                                     \
-    tests_passed++;                                                       \
-} while (0)
+#define ASSERT_EQ(expr, expected)                                                                  \
+    do {                                                                                           \
+        tests_run++;                                                                               \
+        long long _got = (long long)(expr);                                                        \
+        long long _exp = (long long)(expected);                                                    \
+        if (_got != _exp) {                                                                        \
+            fprintf(stderr, "  FAIL %s:%d: %s == %lld, want %lld\n", __FILE__, __LINE__, #expr,    \
+                    _got, _exp);                                                                   \
+            return;                                                                                \
+        }                                                                                          \
+        tests_passed++;                                                                            \
+    } while (0)
 
-#define ASSERT_TRUE(expr) do {                                            \
-    tests_run++;                                                          \
-    if (!(expr)) {                                                        \
-        fprintf(stderr, "  FAIL %s:%d: %s is false\n",                    \
-                __FILE__, __LINE__, #expr);                               \
-        return;                                                           \
-    }                                                                     \
-    tests_passed++;                                                       \
-} while (0)
+#define ASSERT_TRUE(expr)                                                                          \
+    do {                                                                                           \
+        tests_run++;                                                                               \
+        if (!(expr)) {                                                                             \
+            fprintf(stderr, "  FAIL %s:%d: %s is false\n", __FILE__, __LINE__, #expr);             \
+            return;                                                                                \
+        }                                                                                          \
+        tests_passed++;                                                                            \
+    } while (0)
 
 /* ---------------------------------------------------------------
  * Test 1: struct size must be exactly 20 bytes

@@ -17,22 +17,32 @@
 #include <string.h>
 
 static int hex2nyb(int c) {
-    if (c >= '0' && c <= '9') return c - '0';
-    if (c >= 'a' && c <= 'f') return c - 'a' + 10;
-    if (c >= 'A' && c <= 'F') return c - 'A' + 10;
+    if (c >= '0' && c <= '9')
+        return c - '0';
+    if (c >= 'a' && c <= 'f')
+        return c - 'a' + 10;
+    if (c >= 'A' && c <= 'F')
+        return c - 'A' + 10;
     return -1;
 }
 
 static int parse_hex(const char *s, uint8_t *out, size_t cap, size_t *len) {
     size_t n = 0;
     while (*s) {
-        if (isspace((unsigned char)*s)) { s++; continue; }
+        if (isspace((unsigned char)*s)) {
+            s++;
+            continue;
+        }
         int hi = hex2nyb(*s++);
-        if (hi < 0) return -1;
-        if (!*s) return -1;                 /* odd nibble count */
+        if (hi < 0)
+            return -1;
+        if (!*s)
+            return -1; /* odd nibble count */
         int lo = hex2nyb(*s++);
-        if (lo < 0) return -1;
-        if (n >= cap) return -1;
+        if (lo < 0)
+            return -1;
+        if (n >= cap)
+            return -1;
         out[n++] = (uint8_t)((hi << 4) | lo);
     }
     *len = n;
@@ -56,7 +66,8 @@ int main(int argc, char **argv) {
     uint16_t cs = internet_checksum(buf, len);
 
     printf("data:        ");
-    for (size_t i = 0; i < len; i++) printf("%02x ", buf[i]);
+    for (size_t i = 0; i < len; i++)
+        printf("%02x ", buf[i]);
     printf("\nlength:      %zu bytes\n", len);
     printf("checksum:    0x%04x\n", cs);
     return 0;

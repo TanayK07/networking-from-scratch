@@ -10,15 +10,11 @@
  *   old_word   -- the 16-bit word being replaced (host order)
  *   new_word   -- the new value (host order)
  */
-uint16_t internet_checksum_update(uint16_t old_check,
-                                  uint16_t old_word,
-                                  uint16_t new_word);
+uint16_t internet_checksum_update(uint16_t old_check, uint16_t old_word, uint16_t new_word);
 
 /* Same idea, but for an N-byte change (N must be even).
  * Used for IP-address fields (4 bytes each) in NAT. */
-uint16_t internet_checksum_update_n(uint16_t old_check,
-                                    const void *old_data,
-                                    const void *new_data,
+uint16_t internet_checksum_update_n(uint16_t old_check, const void *old_data, const void *new_data,
                                     unsigned int n);
 
 #endif /* NFS_INCREMENTAL_H */

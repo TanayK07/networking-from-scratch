@@ -19,7 +19,7 @@ uint32_t internet_checksum_partial(const void *data, size_t len, uint32_t seed) 
          * and the result must be byte-swapped consistently across calls,
          * so we read big-endian here. */
         sum += ((uint32_t)p[0] << 8) | (uint32_t)p[1];
-        p   += 2;
+        p += 2;
         len -= 2;
     }
 

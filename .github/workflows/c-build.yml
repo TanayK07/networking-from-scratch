@@ -45,10 +45,10 @@ jobs:
           MAKEFLAGS: -j2
         run: |
           if [ "${{ matrix.sanitizer }}" = "asan" ]; then
-            make build TARGET=asan
-          else
-            make build
+            export EXTRA_CFLAGS="-fsanitize=address -fno-omit-frame-pointer"
+            export EXTRA_LDFLAGS="-fsanitize=address"
           fi
+          make build
 
       - name: Run C tests
         run: make test-c

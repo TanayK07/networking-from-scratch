@@ -19,7 +19,8 @@
 
 static int open_dev(char *ifname, int flags) {
     int fd = open("/dev/net/tun", O_RDWR);
-    if (fd < 0) return -1;
+    if (fd < 0)
+        return -1;
 
     struct ifreq ifr;
     memset(&ifr, 0, sizeof(ifr));
@@ -39,5 +40,9 @@ static int open_dev(char *ifname, int flags) {
     return fd;
 }
 
-int tun_open(char *ifname) { return open_dev(ifname, IFF_TUN); }
-int tap_open(char *ifname) { return open_dev(ifname, IFF_TAP); }
+int tun_open(char *ifname) {
+    return open_dev(ifname, IFF_TUN);
+}
+int tap_open(char *ifname) {
+    return open_dev(ifname, IFF_TAP);
+}

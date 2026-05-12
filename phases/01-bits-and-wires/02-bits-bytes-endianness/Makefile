@@ -1,6 +1,6 @@
 CC      ?= gcc
-CFLAGS  ?= -O2 -g -Wall -Wextra -Wpedantic -Werror -std=c11
-LDFLAGS ?=
+CFLAGS  ?= -O2 -g -Wall -Wextra -Wpedantic -Werror -std=c11 $(EXTRA_CFLAGS)
+LDFLAGS ?= $(EXTRA_LDFLAGS)
 
 BIN := endian
 OBJS := main.o htonl.o

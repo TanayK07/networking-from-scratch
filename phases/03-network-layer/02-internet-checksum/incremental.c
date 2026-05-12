@@ -7,9 +7,7 @@
 
 #include <stdint.h>
 
-uint16_t internet_checksum_update(uint16_t old_check,
-                                  uint16_t old_word,
-                                  uint16_t new_word) {
+uint16_t internet_checksum_update(uint16_t old_check, uint16_t old_word, uint16_t new_word) {
     /* RFC 1624 eq. 3:  HC' = ~(~HC + ~m + m')
      * where ~ is one's-complement and addition is one's-complement
      * (i.e. with carry folding). */
@@ -24,9 +22,7 @@ uint16_t internet_checksum_update(uint16_t old_check,
 
 /* Update a checksum when an N-byte field changes. The old and new
  * fields must be the same length, and N must be even. */
-uint16_t internet_checksum_update_n(uint16_t old_check,
-                                    const void *old_data,
-                                    const void *new_data,
+uint16_t internet_checksum_update_n(uint16_t old_check, const void *old_data, const void *new_data,
                                     unsigned int n) {
     const uint8_t *o = (const uint8_t *)old_data;
     const uint8_t *n_ = (const uint8_t *)new_data;

@@ -1,5 +1,6 @@
 CC      ?= gcc
-CFLAGS  ?= -O2 -g -Wall -Wextra -Wpedantic -Werror -std=c11
+CFLAGS  ?= -O2 -g -Wall -Wextra -Wpedantic -Werror -std=c11 $(EXTRA_CFLAGS)
+LDFLAGS ?= $(EXTRA_LDFLAGS)
 
 BIN := test_arp
 SRC := test_arp.c
@@ -9,7 +10,7 @@ SRC := test_arp.c
 all: run
 
 $(BIN): $(SRC) ../arp.h
-	$(CC) $(CFLAGS) -o $@ $<
+	$(CC) $(CFLAGS) -o $@ $< $(LDFLAGS)
 
 run: $(BIN)
 	./$(BIN)

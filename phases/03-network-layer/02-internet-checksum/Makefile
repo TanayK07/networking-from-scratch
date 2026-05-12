@@ -1,6 +1,6 @@
 CC      ?= gcc
-CFLAGS  ?= -O2 -g -Wall -Wextra -Wpedantic -Werror -std=c11 -I../../../common/c
-LDFLAGS ?=
+CFLAGS  ?= -O2 -g -Wall -Wextra -Wpedantic -Werror -std=c11 -I../../../common/c $(EXTRA_CFLAGS)
+LDFLAGS ?= $(EXTRA_LDFLAGS)
 
 # Lesson uses the shared internet_checksum from common/c/checksum.c
 # plus a lesson-local incremental.c for RFC 1624.

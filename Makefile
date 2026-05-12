@@ -5,7 +5,7 @@
 PHASES := $(sort $(wildcard phases/*))
 LESSONS := $(sort $(shell find phases -mindepth 2 -maxdepth 2 -type d))
 
-.PHONY: all clean test lint type lessons help
+.PHONY: all clean test test-c build lint type lessons help
 
 help:
 	@echo "Networking from Scratch"
@@ -22,6 +22,7 @@ help:
 	@echo "  make -C phases/02-link-layer/15-raw-sockets-on-linux test"
 
 all: lessons
+build: lessons
 
 lessons:
 	@for d in $(LESSONS); do \
@@ -40,6 +41,14 @@ test:
 	done
 	@echo ">> pytest"
 	tox -e py312
+
+test-c:
+	@for d in $(LESSONS); do \
+	  if [ -f "$$d/Makefile" ] && [ -d "$$d/tests" ]; then \
+	    echo ">> test $$d"; \
+	    $(MAKE) -C "$$d" test || exit 1; \
+	  fi; \
+	done
 
 lint:
 	tox -e lint

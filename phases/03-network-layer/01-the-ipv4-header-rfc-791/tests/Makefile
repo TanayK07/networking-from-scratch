@@ -1,6 +1,6 @@
 CC      ?= gcc
-CFLAGS  ?= -O0 -g -Wall -Wextra -Wpedantic -Werror -std=c11 -I.. -I../../../../common/c
-LDFLAGS ?=
+CFLAGS  ?= -O0 -g -Wall -Wextra -Wpedantic -Werror -std=c11 -I.. -I../../../../common/c $(EXTRA_CFLAGS)
+LDFLAGS ?= $(EXTRA_LDFLAGS)
 
 TEST_BIN := test_ipv4
 COMMON_C := ../../../../common/c/checksum.c

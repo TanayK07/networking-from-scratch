@@ -1,6 +1,6 @@
 CC      ?= gcc
-CFLAGS  ?= -O2 -g -Wall -Wextra -Wpedantic -Werror -std=c11 -I../../../common/c
-LDFLAGS ?=
+CFLAGS  ?= -O2 -g -Wall -Wextra -Wpedantic -Werror -std=c11 -I../../../common/c $(EXTRA_CFLAGS)
+LDFLAGS ?= $(EXTRA_LDFLAGS)
 
 # Shared checksum from common/c used for TCP pseudo-header checksum.
 COMMON_DIR := ../../../common/c

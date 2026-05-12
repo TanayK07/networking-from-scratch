@@ -6,21 +6,22 @@
 
 #include "../htonl.h"
 
-#include <arpa/inet.h>   /* for the system htonl/htons we compare against */
+#include <arpa/inet.h> /* for the system htonl/htons we compare against */
 #include <stdio.h>
 #include <stdlib.h>
 
 static int failures = 0;
 
-#define ASSERT_EQ(a, b) do {                                    \
-    unsigned long long _a = (unsigned long long)(a);             \
-    unsigned long long _b = (unsigned long long)(b);             \
-    if (_a != _b) {                                              \
-        fprintf(stderr, "FAIL %s:%d  %s (0x%llx) != %s (0x%llx)\n",\
-                __FILE__, __LINE__, #a, _a, #b, _b);             \
-        failures++;                                              \
-    }                                                            \
-} while (0)
+#define ASSERT_EQ(a, b)                                                                            \
+    do {                                                                                           \
+        unsigned long long _a = (unsigned long long)(a);                                           \
+        unsigned long long _b = (unsigned long long)(b);                                           \
+        if (_a != _b) {                                                                            \
+            fprintf(stderr, "FAIL %s:%d  %s (0x%llx) != %s (0x%llx)\n", __FILE__, __LINE__, #a,    \
+                    _a, #b, _b);                                                                   \
+            failures++;                                                                            \
+        }                                                                                          \
+    } while (0)
 
 static void test_swap_pinned_values(void) {
     /* Pure swap functions don't depend on host endianness. */
@@ -59,8 +60,7 @@ static void test_round_trip(void) {
 static void test_matches_libc(void) {
     /* Bit-for-bit agreement with the system <arpa/inet.h>. */
     uint32_t test_values_32[] = {
-        0, 1, 0xFF, 0x100, 0xFFFF, 0x10000, 0xFFFFFFFF,
-        0x12345678, 0xDEADBEEF, 0xCAFEBABE,
+        0, 1, 0xFF, 0x100, 0xFFFF, 0x10000, 0xFFFFFFFF, 0x12345678, 0xDEADBEEF, 0xCAFEBABE,
     };
     uint16_t test_values_16[] = {
         0, 1, 0xFF, 0x100, 0xFFFF, 0xABCD, 0x1234,

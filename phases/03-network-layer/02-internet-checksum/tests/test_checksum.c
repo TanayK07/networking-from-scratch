@@ -19,12 +19,12 @@
  * and recompute, we should get the original value back. */
 static void test_real_ipv4_header(void) {
     uint8_t hdr[20] = {
-        0x45, 0x00, 0x00, 0x54,    /* version/IHL, ToS, total len */
-        0x00, 0x00, 0x40, 0x00,    /* ID, flags+frag offset */
-        0x40, 0x01,                 /* TTL=64, proto=ICMP */
-        0x00, 0x00,                 /* checksum (zeroed) */
-        0x0a, 0x00, 0x00, 0x01,    /* src 10.0.0.1 */
-        0x0a, 0x00, 0x00, 0x02     /* dst 10.0.0.2 */
+        0x45, 0x00, 0x00, 0x54, /* version/IHL, ToS, total len */
+        0x00, 0x00, 0x40, 0x00, /* ID, flags+frag offset */
+        0x40, 0x01,             /* TTL=64, proto=ICMP */
+        0x00, 0x00,             /* checksum (zeroed) */
+        0x0a, 0x00, 0x00, 0x01, /* src 10.0.0.1 */
+        0x0a, 0x00, 0x00, 0x02  /* dst 10.0.0.2 */
     };
     uint16_t cs = internet_checksum(hdr, sizeof(hdr));
     /* Hand-computed (verified with python: see lesson README). */
@@ -40,20 +40,20 @@ static void test_self_check_property(void) {
     srand(42);
     for (int trial = 0; trial < 100; trial++) {
         uint8_t data[64];
-        for (size_t i = 0; i < sizeof(data); i++) data[i] = (uint8_t)rand();
+        for (size_t i = 0; i < sizeof(data); i++)
+            data[i] = (uint8_t)rand();
 
         uint16_t cs = internet_checksum(data, sizeof(data));
 
         uint8_t ext[sizeof(data) + 2];
         memcpy(ext, data, sizeof(data));
-        ext[sizeof(data)]     = (uint8_t)(cs >> 8);
+        ext[sizeof(data)] = (uint8_t)(cs >> 8);
         ext[sizeof(data) + 1] = (uint8_t)(cs & 0xFF);
 
         uint16_t verify = internet_checksum(ext, sizeof(ext));
         /* (~sum + sum) folded == 0xFFFF, complement == 0x0000 */
         if (verify != 0x0000) {
-            fprintf(stderr, "  FAIL self_check trial %d: got 0x%04x\n",
-                    trial, verify);
+            fprintf(stderr, "  FAIL self_check trial %d: got 0x%04x\n", trial, verify);
             exit(1);
         }
     }
@@ -66,27 +66,27 @@ static void test_incremental_parity(void) {
 
     for (int trial = 0; trial < 1000; trial++) {
         uint8_t buf[64];
-        for (size_t i = 0; i < sizeof(buf); i++) buf[i] = (uint8_t)rand();
+        for (size_t i = 0; i < sizeof(buf); i++)
+            buf[i] = (uint8_t)rand();
 
         size_t off = (size_t)((rand() & 0x1F) * 2);
-        if (off >= sizeof(buf) - 2) off = 0;
+        if (off >= sizeof(buf) - 2)
+            off = 0;
 
         uint16_t old_word = (uint16_t)((buf[off] << 8) | buf[off + 1]);
         uint16_t new_word = (uint16_t)rand();
 
         uint16_t cs_before = internet_checksum(buf, sizeof(buf));
 
-        buf[off]     = (uint8_t)(new_word >> 8);
+        buf[off] = (uint8_t)(new_word >> 8);
         buf[off + 1] = (uint8_t)(new_word & 0xFF);
 
-        uint16_t cs_full        = internet_checksum(buf, sizeof(buf));
-        uint16_t cs_incremental =
-            internet_checksum_update(cs_before, old_word, new_word);
+        uint16_t cs_full = internet_checksum(buf, sizeof(buf));
+        uint16_t cs_incremental = internet_checksum_update(cs_before, old_word, new_word);
 
         if (cs_full != cs_incremental) {
-            fprintf(stderr,
-                "  FAIL incremental_parity trial %d: full=0x%04x incr=0x%04x\n",
-                trial, cs_full, cs_incremental);
+            fprintf(stderr, "  FAIL incremental_parity trial %d: full=0x%04x incr=0x%04x\n", trial,
+                    cs_full, cs_incremental);
             exit(1);
         }
     }
@@ -97,7 +97,8 @@ static void test_incremental_parity(void) {
 static void test_chunked_parity(void) {
     srand(456);
     uint8_t buf[100];
-    for (size_t i = 0; i < sizeof(buf); i++) buf[i] = (uint8_t)rand();
+    for (size_t i = 0; i < sizeof(buf); i++)
+        buf[i] = (uint8_t)rand();
 
     uint16_t whole = internet_checksum(buf, sizeof(buf));
 
@@ -105,15 +106,12 @@ static void test_chunked_parity(void) {
     size_t splits[] = {0, 16, 40, 80, sizeof(buf)};
     uint32_t partial = 0;
     for (int i = 0; i < 4; i++) {
-        partial = internet_checksum_partial(buf + splits[i],
-                                            splits[i + 1] - splits[i],
-                                            partial);
+        partial = internet_checksum_partial(buf + splits[i], splits[i + 1] - splits[i], partial);
     }
     uint16_t chunked = internet_checksum_fold(partial);
 
     if (whole != chunked) {
-        fprintf(stderr, "  FAIL chunked_parity: whole=0x%04x chunked=0x%04x\n",
-                whole, chunked);
+        fprintf(stderr, "  FAIL chunked_parity: whole=0x%04x chunked=0x%04x\n", whole, chunked);
         exit(1);
     }
     printf("  chunked vs whole parity... OK\n");
