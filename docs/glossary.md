@@ -16,7 +16,7 @@ This is the markdown version. The interactive web glossary at [networkingfromscr
 ### MTU · *Maximum Transmission Unit*
 - **What people say.** The largest packet a link will carry, usually 1500 bytes for Ethernet.
 - **What it is.** A property of a single link. End-to-end MTU is determined by the smallest MTU on the path. Path MTU Discovery (RFC 1191) finds it dynamically using the DF bit and ICMP "Fragmentation Needed" replies.
-- **Built in.** [P3.08 — Path MTU Discovery](../phases/03-network-layer/)
+- **Built in.** [P3.08 — Path MTU Discovery](../phases/03-network-layer/08-path-mtu-discovery-rfc-1191/)
 
 ### MSS · *Maximum Segment Size*
 - **What people say.** How much TCP data fits in one packet.
@@ -108,7 +108,7 @@ This is the markdown version. The interactive web glossary at [networkingfromscr
 ### QUIC
 - **What people say.** TCP rebuilt over UDP with TLS 1.3 baked in.
 - **What it is.** RFC 9000. Reliable, ordered streams over UDP, with TLS 1.3 mandatory. Eliminates head-of-line blocking between streams. Connection IDs allow migration across IP changes. The transport layer of HTTP/3.
-- **Built in.** P4.34 — QUIC overview.
+- **Built in.** P4.35 — QUIC overview.
 
 ---
 
@@ -151,7 +151,7 @@ This is the markdown version. The interactive web glossary at [networkingfromscr
 ### kTLS · *Kernel TLS*
 - **What people say.** TLS record encryption done in the kernel.
 - **What it is.** `setsockopt(TCP_ULP, "tls")`. The handshake stays in userspace; once keys are negotiated, application data is encrypted by the kernel. Enables `sendfile()` to a TLS connection. Linux supports AES-GCM and ChaCha20-Poly1305 in kTLS.
-- **Built in.** P7.16 — TLS in the kernel: kTLS.
+- **Built in.** P7.15 — TLS in the kernel: kTLS.
 
 ---
 

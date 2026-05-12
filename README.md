@@ -62,8 +62,8 @@ sudo apt install -y build-essential gcc clang make python3 python3-pip \
 make -C phases/01-bits-and-wires/02-bits-bytes-endianness test
 
 # Or jump to the link layer
-make -C phases/02-link-layer/03-raw-sockets-on-linux
-sudo ./phases/02-link-layer/03-raw-sockets-on-linux/sniff eth0
+make -C phases/02-link-layer/03-raw-sockets-on-linux-afpacket
+sudo ./phases/02-link-layer/03-raw-sockets-on-linux-afpacket/sniff eth0
 ```
 
 ---

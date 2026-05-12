@@ -88,6 +88,25 @@ window.NFS = window.NFS || {};
     renderSidebar();
   };
 
+  function renderShareBar() {
+    var bar = document.getElementById('share-bar');
+    if (!bar) return;
+    var url = 'https://networkingfromscratch.vercel.app/lesson.html?p=' + state.phaseIdx + '&l=' + state.lessonIdx;
+    var text = state.lesson[0] + ' — Networking from Scratch';
+    var encoded = encodeURIComponent(text + ' ' + url);
+
+    document.getElementById('share-twitter').href = 'https://twitter.com/intent/tweet?text=' + encoded;
+    document.getElementById('share-reddit').href = 'https://reddit.com/submit?url=' + encodeURIComponent(url) + '&title=' + encodeURIComponent(text);
+    document.getElementById('share-copy').onclick = function() {
+      navigator.clipboard.writeText(url).then(function() {
+        var btn = document.getElementById('share-copy');
+        btn.textContent = 'Copied!';
+        setTimeout(function() { btn.textContent = 'Copy link'; }, 1500);
+      });
+    };
+    bar.style.display = '';
+  }
+
   function showLoading() {
     var el = document.getElementById('lesson-content');
     el.innerHTML =
@@ -172,17 +191,70 @@ window.NFS = window.NFS || {};
     });
   }
 
+  function updateMeta(name, content, attr) {
+    attr = attr || 'name';
+    var el = document.querySelector('meta[' + attr + '="' + name + '"]');
+    if (el) el.setAttribute('content', content);
+  }
+
+  function updateSEO() {
+    var num = String(state.lessonIdx + 1).padStart(2, '0');
+    var title = state.lesson[0] + ' — Networking from Scratch';
+    var desc = state.phase.id + '.' + num + ': ' + state.lesson[0] + '. Hands-on ' +
+      (NFS.LANG_LABELS[state.lesson[1]] || state.lesson[1]) + ' lesson from Networking from Scratch.';
+    var url = 'https://networkingfromscratch.vercel.app/lesson.html?p=' + state.phaseIdx + '&l=' + state.lessonIdx;
+
+    document.title = title;
+
+    var canon = document.querySelector('link[rel="canonical"]');
+    if (canon) canon.setAttribute('href', url);
+
+    updateMeta('description', desc);
+    updateMeta('og:title', title, 'property');
+    updateMeta('og:description', desc, 'property');
+    updateMeta('og:url', url, 'property');
+    updateMeta('twitter:title', title, 'name');
+    updateMeta('twitter:description', desc, 'name');
+
+    var ld = document.getElementById('ld-lesson');
+    if (ld) ld.remove();
+    var script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.id = 'ld-lesson';
+    script.textContent = JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'LearningResource',
+      'name': state.lesson[0],
+      'description': desc,
+      'url': url,
+      'learningResourceType': NFS.TYPE_LABELS[state.lesson[2]] || state.lesson[2],
+      'programmingLanguage': NFS.LANG_LABELS[state.lesson[1]] || state.lesson[1],
+      'isPartOf': {
+        '@type': 'Course',
+        'name': 'Networking from Scratch',
+        'url': 'https://networkingfromscratch.vercel.app'
+      },
+      'provider': {
+        '@type': 'Organization',
+        'name': 'Networking from Scratch',
+        'url': 'https://networkingfromscratch.vercel.app'
+      }
+    });
+    document.head.appendChild(script);
+  }
+
   function init() {
     if (!parseParams()) {
       var el = document.getElementById('lesson-content');
       el.innerHTML = '<div class="lesson-error"><h2>Lesson not found</h2><p>Check the URL or browse the <a href="catalog.html">catalog</a>.</p></div>';
       return;
     }
-    document.title = state.lesson[0] + ' — Networking from Scratch';
+    updateSEO();
     renderBreadcrumb();
     renderSidebar();
     renderPrevNext();
     renderCompletion();
+    renderShareBar();
     showLoading();
     initScrollProgress();
     initSidebarToggle();

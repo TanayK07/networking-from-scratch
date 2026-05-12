@@ -627,7 +627,7 @@ NFS.GLOSSARY = [
         is: 'A model-based algorithm that estimates bottleneck bandwidth and minimum RTT, then paces packets at that rate. Doesn\'t treat loss as a congestion signal. Per Cardwell et al. (ACM Queue 2016), throughput improvements of 2–25× on Google\'s B4 WAN compared to CUBIC.', ref: 'P4.28' },
       { name: 'QUIC', exp: '',
         say: 'TCP rebuilt over UDP with TLS 1.3 baked in.',
-        is: 'RFC 9000. Reliable, ordered streams over UDP, with TLS 1.3 mandatory. Eliminates head-of-line blocking between streams. Connection IDs allow migration across IP changes. The transport layer of HTTP/3.', ref: 'P4.34' }
+        is: 'RFC 9000. Reliable, ordered streams over UDP, with TLS 1.3 mandatory. Eliminates head-of-line blocking between streams. Connection IDs allow migration across IP changes. The transport layer of HTTP/3.', ref: 'P4.35' }
     ]
   },
   {
@@ -663,7 +663,7 @@ NFS.GLOSSARY = [
         is: 'EdDSA over Curve25519. Deterministic (no per-signature randomness needed), fast, small (64-byte signatures, 32-byte keys). Used in TLS 1.3 certificates and OpenSSH host keys.', ref: 'P7.05' },
       { name: 'kTLS', exp: 'Kernel TLS',
         say: 'TLS record encryption done in the kernel.',
-        is: 'setsockopt(TCP_ULP, "tls"). The handshake stays in userspace; once keys are negotiated, application data is encrypted by the kernel. Enables sendfile() to a TLS connection. Linux supports AES-GCM and ChaCha20-Poly1305 in kTLS.', ref: 'P7.16' }
+        is: 'setsockopt(TCP_ULP, "tls"). The handshake stays in userspace; once keys are negotiated, application data is encrypted by the kernel. Enables sendfile() to a TLS connection. Linux supports AES-GCM and ChaCha20-Poly1305 in kTLS.', ref: 'P7.15' }
     ]
   },
   {

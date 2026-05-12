@@ -11,7 +11,7 @@ This is the canonical lesson index. The website (`networkingfromscratch.vercel.a
 | 03 | Network Layer | 22 | Userspace IP router on TUN |
 | 04 | Transport (UDP/TCP/QUIC) | 40 | Full TCP on TUN, can `curl` HTTPS |
 | 05 | Sockets & I/O Models | 16 | 10k-connection HTTP/1.0 server |
-| 06 | Application Protocols | 28 | DNS resolver + HTTP/1.1 + HTTP/2 frames |
+| 06 | Application Protocols | 28 | HTTP CONNECT proxy supporting HTTP/1.1, /2, /3 |
 | 07 | TLS & Secure Transport | 16 | TLS 1.3 client handshakes with cloudflare.com |
 | 08 | Userspace TCP/IP Stack | 12 | `level-ip`-style stack, rebuilt and extended |
 | 09 | Linux Kernel Internals | 24 | Netfilter LKM firewall |
@@ -20,9 +20,9 @@ This is the canonical lesson index. The website (`networkingfromscratch.vercel.a
 | 12 | Routing | 16 | BGP route reflector + OSPF simulator |
 | 13 | Overlays & Container Networking | 16 | Bridge CNI plugin + VXLAN overlay |
 | 14 | Service Mesh & Cloud-Native | 12 | 200-line L7 reverse proxy |
-| 15 | DDS & Robotics (BONUS) | 24 | DDS publisher interoperating with Cyclone DDS |
+| 15 | DDS & Robotics (BONUS) | 25 | DDS publisher interoperating with Cyclone DDS |
 
-**Total:** ~305 lessons.
+**Total:** 289 lessons.
 
 ## Reading order
 

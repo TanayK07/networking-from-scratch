@@ -15,8 +15,16 @@
 <meta name="twitter:description" content="Build the network stack from raw bytes. 289 hands-on lessons in C and Python.">
 <meta name="twitter:image" content="https://networkingfromscratch.vercel.app/og.png">
 <meta name="theme-color" content="#00897B">
+<meta name="robots" content="index, follow">
+<meta property="og:site_name" content="Networking from Scratch">
+<meta property="og:locale" content="en_US">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌐</text></svg>">
 <link rel="canonical" href="https://networkingfromscratch.vercel.app/lesson.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://api.github.com">
+<link rel="preconnect" href="https://raw.githubusercontent.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=VT323&family=Source+Serif+4:ital,wght@0,300..900;1,300..900&family=JetBrains+Mono:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="css/style.css">
 <script>
 if(localStorage.getItem('nfs_theme')==='dark'||(!localStorage.getItem('nfs_theme')&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark');
@@ -51,6 +59,12 @@ if(localStorage.getItem('nfs_theme')==='dark'||(!localStorage.getItem('nfs_theme
   <main class="lesson-main">
     <div id="breadcrumb" class="breadcrumb"></div>
     <div id="lesson-content" class="lesson-content"></div>
+    <div id="share-bar" class="share-bar" style="display:none">
+      <span class="share-bar-label">SHARE</span>
+      <a id="share-twitter" class="share-btn" target="_blank" rel="noopener">Twitter/X</a>
+      <a id="share-reddit" class="share-btn" target="_blank" rel="noopener">Reddit</a>
+      <button id="share-copy" class="share-btn">Copy link</button>
+    </div>
     <div id="completion" class="lesson-completion"></div>
     <div id="prev-next" class="lesson-nav"></div>
   </main>
@@ -62,6 +76,7 @@ if(localStorage.getItem('nfs_theme')==='dark'||(!localStorage.getItem('nfs_theme
     <a href="index.html">Home</a>
     <a href="catalog.html">Catalog</a>
     <a href="glossary.html">Glossary</a>
+    <a href="https://github.com/TanayK07/networking-from-scratch/discussions">Discussions</a>
   </div>
 </footer>
 
