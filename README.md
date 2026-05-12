@@ -1,15 +1,19 @@
+<div align="center">
+
 # Networking from Scratch
 
-> Build the network stack — bits, frames, packets, TCP, TLS, kernel modules, eBPF,
-> CNI plugins, and a real DDS implementation — from raw bytes, in C and Python.
-> Free, open source, MIT-licensed.
+**Build the network stack — bits, frames, packets, TCP, TLS, kernel modules, eBPF, CNI plugins, and a real DDS implementation — from raw bytes, in C and Python.**
 
-**15 phases. 289 lessons. No frameworks until you build one.**
+[![GitHub stars](https://img.shields.io/github/stars/TanayK07/networking-from-scratch?style=flat-square&color=00897B)](https://github.com/TanayK07/networking-from-scratch/stargazers)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
+[![Lessons](https://img.shields.io/badge/lessons-289-teal?style=flat-square)](https://networkingfromscratch.vercel.app/catalog.html)
+[![Phases](https://img.shields.io/badge/phases-15-orange?style=flat-square)](https://networkingfromscratch.vercel.app/roadmap.html)
+[![C](https://img.shields.io/badge/C-00599C?style=flat-square&logo=c&logoColor=white)](phases/)
+[![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white)](phases/)
 
-🌐 **Website**: [networkingfromscratch.vercel.app](https://networkingfromscratch.vercel.app)
-📚 **Catalog**: [networkingfromscratch.vercel.app/catalog.html](https://networkingfromscratch.vercel.app/catalog.html)
-🗺️ **Roadmap**: [networkingfromscratch.vercel.app/roadmap.html](https://networkingfromscratch.vercel.app/roadmap.html)
-📖 **Glossary**: [networkingfromscratch.vercel.app/glossary.html](https://networkingfromscratch.vercel.app/glossary.html)
+[Website](https://networkingfromscratch.vercel.app) · [Catalog](https://networkingfromscratch.vercel.app/catalog.html) · [Roadmap](https://networkingfromscratch.vercel.app/roadmap.html) · [Glossary](https://networkingfromscratch.vercel.app/glossary.html) · [Discussions](https://github.com/TanayK07/networking-from-scratch/discussions)
+
+</div>
 
 ---
 

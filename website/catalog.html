@@ -219,6 +219,15 @@ function clearFilters() {
   render();
 }
 
+// URL param support for ?q= search
+(function() {
+  var params = new URLSearchParams(window.location.search);
+  var q = params.get('q');
+  if (q) {
+    document.getElementById('searchBox').value = q;
+  }
+})();
+
 render();
 </script>
 
