@@ -5,6 +5,18 @@
 *.dylib
 outputs/
 
+# Compiled lesson binaries (no extension)
+phases/01-bits-and-wires/02-bits-bytes-endianness/endian
+phases/02-link-layer/03-raw-sockets-on-linux-afpacket/sniff
+phases/02-link-layer/06-arp-request-reply/arp_responder
+phases/03-network-layer/01-the-ipv4-header-rfc-791/ipv4_parse
+phases/03-network-layer/02-internet-checksum/checksum
+phases/04-transport/09-the-three-way-handshake/handshake
+
+# Compiled test binaries
+phases/*/tests/test_*
+phases/*/*/tests/test_*
+
 # Python
 __pycache__/
 *.pyc
