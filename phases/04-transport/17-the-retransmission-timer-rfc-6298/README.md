@@ -211,18 +211,18 @@ int main(void)
 
 ## 6. Exercises
 
-1. **\u2605** Parse a hex dump of a real the retransmission timer packet and identify every field manually.
+1. **★** Parse a hex dump of a real the retransmission timer packet and identify every field manually.
 
-2. **\u2605** Implement the basic parser and verify it produces byte-identical output to a reference implementation.
+2. **★** Implement the basic parser and verify it produces byte-identical output to a reference implementation.
 
-3. **\u2605\u2605** Add comprehensive input validation: reject packets with invalid field values and return appropriate error codes.
+3. **★★** Add comprehensive input validation: reject packets with invalid field values and return appropriate error codes.
 
-4. **\u2605\u2605** Handle all edge cases: minimum-size packets, maximum-size packets, optional fields, and malformed input.
+4. **★★** Handle all edge cases: minimum-size packets, maximum-size packets, optional fields, and malformed input.
 
-5. **\u2605\u2605** Write a pcap analyzer that reads capture files and decodes the retransmission timer packets with full field breakdown.
+5. **★★** Write a pcap analyzer that reads capture files and decodes the retransmission timer packets with full field breakdown.
 
-6. **\u2605\u2605\u2605** Implement the complete protocol state machine. Verify all transitions with a test harness.
+6. **★★★** Implement the complete protocol state machine. Verify all transitions with a test harness.
 
-7. **\u2605\u2605\u2605** Benchmark parsing throughput (packets/sec) and compare to theoretical line rate.
+7. **★★★** Benchmark parsing throughput (packets/sec) and compare to theoretical line rate.
 
-8. **\u2605\u2605\u2605** Test against real network traffic: capture live packets and verify your parser handles all observed variations.
+8. **★★★** Test against real network traffic: capture live packets and verify your parser handles all observed variations.

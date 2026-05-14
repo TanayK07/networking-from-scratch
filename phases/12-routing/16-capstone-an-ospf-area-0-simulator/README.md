@@ -166,18 +166,18 @@ def test_large_payload():
 
 ## 6. Exercises
 
-1. **\u2605** Build the project skeleton with a proper Makefile. Verify it compiles and runs with empty input.
+1. **★** Build the project skeleton with a proper Makefile. Verify it compiles and runs with empty input.
 
-2. **\u2605** Implement the packet parser for the primary protocol. Test with at least 3 known-good packet captures.
+2. **★** Implement the packet parser for the primary protocol. Test with at least 3 known-good packet captures.
 
-3. **\u2605\u2605** Add comprehensive error handling: every failure path should log a clear message and increment an error counter.
+3. **★★** Add comprehensive error handling: every failure path should log a clear message and increment an error counter.
 
-4. **\u2605\u2605** Implement the core protocol state machine with all required transitions. Draw the state diagram.
+4. **★★** Implement the core protocol state machine with all required transitions. Draw the state diagram.
 
-5. **\u2605\u2605** Write integration tests using real network tools (`ping`, `curl`, `dig`, `tcpdump`).
+5. **★★** Write integration tests using real network tools (`ping`, `curl`, `dig`, `tcpdump`).
 
-6. **\u2605\u2605\u2605** Profile with `perf` and optimize the hot path. Target 100,000+ packets/sec on a single core.
+6. **★★★** Profile with `perf` and optimize the hot path. Target 100,000+ packets/sec on a single core.
 
-7. **\u2605\u2605\u2605** Fuzz with AFL++ or libFuzzer. Fix all crashes.
+7. **★★★** Fuzz with AFL++ or libFuzzer. Fix all crashes.
 
-8. **\u2605\u2605\u2605** Test interoperability with at least two existing implementations. Document any compatibility issues.
+8. **★★★** Test interoperability with at least two existing implementations. Document any compatibility issues.
