@@ -22,6 +22,8 @@
   --accent-tint-strong: rgba(0, 137, 123, 0.18);
   --done: #27ae60;
   --inprogress: #e67e22;
+  --upstream-tint: rgba(39, 174, 96, 0.12);
+  --downstream-tint: rgba(230, 126, 34, 0.12);
   --planned: #999;
   --code-bg: #f0ede5;
   --line: #1a1a1a;
@@ -29,6 +31,12 @@
   --dot: rgba(0, 0, 0, 0.07);
   --shadow: #1a1a1a;
   --header-bg: rgba(250, 248, 243, 0.94);
+  --lang-c: #2980b9;
+  --lang-c-tint: rgba(41, 128, 185, 0.08);
+  --lang-bpf: #8e44ad;
+  --lang-bpf-tint: rgba(142, 68, 173, 0.08);
+  --lang-lua: #d35400;
+  --lang-lua-tint: rgba(211, 84, 0, 0.08);
 
   /* Typography */
   --font-display: 'VT323', ui-monospace, monospace;
@@ -52,6 +60,8 @@ html.dark {
   --accent-tint-strong: rgba(77, 182, 172, 0.18);
   --done: #66bb6a;
   --inprogress: #ffa726;
+  --upstream-tint: rgba(102, 187, 106, 0.12);
+  --downstream-tint: rgba(255, 167, 38, 0.12);
   --planned: #666;
   --code-bg: #131830;
   --line: #2a2d3a;
@@ -59,6 +69,12 @@ html.dark {
   --dot: rgba(255, 255, 255, 0.04);
   --shadow: #000;
   --header-bg: rgba(10, 13, 26, 0.94);
+  --lang-c: #5dade2;
+  --lang-c-tint: rgba(93, 173, 226, 0.12);
+  --lang-bpf: #bb8fce;
+  --lang-bpf-tint: rgba(187, 143, 206, 0.12);
+  --lang-lua: #f0b27a;
+  --lang-lua-tint: rgba(240, 178, 122, 0.12);
 }
 
 /* Fallback for when JS hasn't loaded yet */
@@ -75,6 +91,8 @@ html.dark {
     --accent-tint-strong: rgba(77, 182, 172, 0.18);
     --done: #66bb6a;
     --inprogress: #ffa726;
+    --upstream-tint: rgba(102, 187, 106, 0.12);
+    --downstream-tint: rgba(255, 167, 38, 0.12);
     --planned: #666;
     --code-bg: #131830;
     --line: #2a2d3a;
@@ -82,6 +100,12 @@ html.dark {
     --dot: rgba(255, 255, 255, 0.04);
     --shadow: #000;
     --header-bg: rgba(10, 13, 26, 0.94);
+    --lang-c: #5dade2;
+    --lang-c-tint: rgba(93, 173, 226, 0.12);
+    --lang-bpf: #bb8fce;
+    --lang-bpf-tint: rgba(187, 143, 206, 0.12);
+    --lang-lua: #f0b27a;
+    --lang-lua-tint: rgba(240, 178, 122, 0.12);
   }
 }
 
@@ -786,27 +810,27 @@ small {
 
 /* Language badges */
 .badge--c {
-  color: #2980b9;
-  border-color: #2980b9;
-  background: rgba(41, 128, 185, 0.08);
+  color: var(--lang-c);
+  border-color: var(--lang-c);
+  background: var(--lang-c-tint);
 }
 
 .badge--py {
-  color: #00897B;
-  border-color: #00897B;
+  color: var(--accent);
+  border-color: var(--accent);
   background: var(--accent-tint);
 }
 
 .badge--bpf {
-  color: #8e44ad;
-  border-color: #8e44ad;
-  background: rgba(142, 68, 173, 0.08);
+  color: var(--lang-bpf);
+  border-color: var(--lang-bpf);
+  background: var(--lang-bpf-tint);
 }
 
 .badge--lua {
-  color: #d35400;
-  border-color: #d35400;
-  background: rgba(211, 84, 0, 0.08);
+  color: var(--lang-lua);
+  border-color: var(--lang-lua);
+  background: var(--lang-lua-tint);
 }
 
 @media (max-width: 768px) {
@@ -973,10 +997,8 @@ small {
 }
 #graph .node:hover rect { stroke: var(--accent); stroke-width: 2; }
 #graph .node.selected rect { stroke: var(--accent); stroke-width: 2.5; fill: var(--accent-tint, rgba(0,137,123,0.08)); }
-#graph .node.upstream rect { fill: rgba(39, 174, 96, 0.12); stroke: #27ae60; }
-html.dark #graph .node.upstream rect { fill: rgba(102, 187, 106, 0.12); stroke: #66bb6a; }
-#graph .node.downstream rect { fill: rgba(230, 126, 34, 0.12); stroke: #e67e22; }
-html.dark #graph .node.downstream rect { fill: rgba(255, 167, 38, 0.12); stroke: #ffa726; }
+#graph .node.upstream rect { fill: var(--upstream-tint); stroke: var(--done); }
+#graph .node.downstream rect { fill: var(--downstream-tint); stroke: var(--inprogress); }
 #graph .node.dimmed { opacity: 0.2; transition: opacity 0.3s ease; }
 #graph .node.bonus rect { stroke-dasharray: 5, 3; }
 #graph .node-id { font-size: 11px; fill: var(--accent); font-weight: 600; }
@@ -1696,6 +1718,9 @@ select {
   background-position: right 10px center;
   padding-right: 28px;
 }
+html.dark select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23b0b0a8'/%3E%3C/svg%3E");
+}
 
 textarea {
   resize: vertical;
@@ -2304,10 +2329,10 @@ textarea:focus-visible {
 .type-tag.capstone { color: var(--inprogress); border-color: var(--inprogress); }
 
 .lang-tag { font-family: var(--font-mono); font-size: 0.7rem; padding: 2px 6px; border: 1px solid; text-transform: uppercase; letter-spacing: 0.04em; }
-.lang-tag.c { color: #2980b9; border-color: #2980b9; }
-.lang-tag.py { color: #00897B; border-color: #00897B; }
-.lang-tag.bpf { color: #8e44ad; border-color: #8e44ad; }
-.lang-tag.lua { color: #d35400; border-color: #d35400; }
+.lang-tag.c { color: var(--lang-c); border-color: var(--lang-c); }
+.lang-tag.py { color: var(--accent); border-color: var(--accent); }
+.lang-tag.bpf { color: var(--lang-bpf); border-color: var(--lang-bpf); }
+.lang-tag.lua { color: var(--lang-lua); border-color: var(--lang-lua); }
 
 .control-input { font-family: var(--font-mono); font-size: 0.8rem; padding: 6px 12px; background: var(--bg-surface); border: 1px solid var(--line-soft); color: var(--fg); }
 .control-input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 2px var(--accent-tint); }
