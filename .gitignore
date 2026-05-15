@@ -15,6 +15,31 @@ phases/04-transport/09-the-three-way-handshake/handshake
 phases/01-bits-and-wires/08-errors-and-crcs-crc-81632/crc_calc
 phases/03-network-layer/09-icmpv4-ping-clone/ping_demo
 phases/04-transport/02-udp-header-rfc-768/udp_parse
+phases/04-transport/13-sliding-window-basics/sliding_win
+phases/04-transport/15-tcp-options-encoderdecoder/tcp_opts
+phases/04-transport/17-the-retransmission-timer-rfc-6298/rto_calc
+phases/04-transport/19-selective-acknowledgment-sack/sack_demo
+phases/04-transport/22-connection-teardown-and-time-wait/teardown_demo
+phases/01-bits-and-wires/03-hex-dumps-and-the-binary-mind/hexdump
+phases/01-bits-and-wires/04-bit-fields-and-packed-structs/bitfields
+phases/01-bits-and-wires/05-manchester-nrz-4b5b-encodings/encoding
+phases/01-bits-and-wires/09-forward-error-correction-hamming-74/hamming
+phases/01-bits-and-wires/10-framing-byte-stuffing-bit-stuffing/framing
+phases/02-link-layer/01-ethernet-ii-frame-layout/eth_parse
+phases/02-link-layer/02-mac-addresses-and-oui/mac_tool
+phases/02-link-layer/07-the-arp-cache/arp_cache
+phases/02-link-layer/08-vlans-8021q/vlan_parse
+phases/02-link-layer/12-pcap-file-format/pcap_tool
+phases/03-network-layer/03-cidr-and-subnetting/cidr_calc
+phases/03-network-layer/04-longest-prefix-match-routing/lpm_lookup
+phases/03-network-layer/06-ttl-and-the-traceroute-trick/ttl_demo
+phases/03-network-layer/07-ip-fragmentation/ip_frag
+phases/03-network-layer/12-ipv6-header-rfc-8200/ipv6_parse
+phases/04-transport/03-udp-checksum-with-ipv4-pseudo-header/udp_csum
+phases/04-transport/07-the-tcp-header/tcp_parse
+phases/04-transport/08-tcp-checksum/tcp_csum
+phases/04-transport/10-the-tcp-state-machine-11-states/tcp_fsm
+phases/04-transport/12-sequence-number-arithmetic-mod-2/seqnum
 
 # Compiled test binaries
 phases/*/tests/test_*

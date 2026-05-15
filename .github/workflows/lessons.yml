@@ -43,6 +43,56 @@ jobs:
             path: phases/04-transport/02-udp-header-rfc-768
           - lesson: 04-transport/09-the-three-way-handshake
             path: phases/04-transport/09-the-three-way-handshake
+          - lesson: 01-bits-and-wires/03-hex-dumps-and-the-binary-mind
+            path: phases/01-bits-and-wires/03-hex-dumps-and-the-binary-mind
+          - lesson: 01-bits-and-wires/04-bit-fields-and-packed-structs
+            path: phases/01-bits-and-wires/04-bit-fields-and-packed-structs
+          - lesson: 01-bits-and-wires/05-manchester-nrz-4b5b-encodings
+            path: phases/01-bits-and-wires/05-manchester-nrz-4b5b-encodings
+          - lesson: 01-bits-and-wires/09-forward-error-correction-hamming-74
+            path: phases/01-bits-and-wires/09-forward-error-correction-hamming-74
+          - lesson: 01-bits-and-wires/10-framing-byte-stuffing-bit-stuffing
+            path: phases/01-bits-and-wires/10-framing-byte-stuffing-bit-stuffing
+          - lesson: 02-link-layer/01-ethernet-ii-frame-layout
+            path: phases/02-link-layer/01-ethernet-ii-frame-layout
+          - lesson: 02-link-layer/02-mac-addresses-and-oui
+            path: phases/02-link-layer/02-mac-addresses-and-oui
+          - lesson: 02-link-layer/07-the-arp-cache
+            path: phases/02-link-layer/07-the-arp-cache
+          - lesson: 02-link-layer/08-vlans-8021q
+            path: phases/02-link-layer/08-vlans-8021q
+          - lesson: 02-link-layer/12-pcap-file-format
+            path: phases/02-link-layer/12-pcap-file-format
+          - lesson: 03-network-layer/03-cidr-and-subnetting
+            path: phases/03-network-layer/03-cidr-and-subnetting
+          - lesson: 03-network-layer/04-longest-prefix-match-routing
+            path: phases/03-network-layer/04-longest-prefix-match-routing
+          - lesson: 03-network-layer/06-ttl-and-the-traceroute-trick
+            path: phases/03-network-layer/06-ttl-and-the-traceroute-trick
+          - lesson: 03-network-layer/07-ip-fragmentation
+            path: phases/03-network-layer/07-ip-fragmentation
+          - lesson: 03-network-layer/12-ipv6-header-rfc-8200
+            path: phases/03-network-layer/12-ipv6-header-rfc-8200
+          - lesson: 04-transport/03-udp-checksum-with-ipv4-pseudo-header
+            path: phases/04-transport/03-udp-checksum-with-ipv4-pseudo-header
+          - lesson: 04-transport/07-the-tcp-header
+            path: phases/04-transport/07-the-tcp-header
+          - lesson: 04-transport/08-tcp-checksum
+            path: phases/04-transport/08-tcp-checksum
+          - lesson: 04-transport/10-the-tcp-state-machine-11-states
+            path: phases/04-transport/10-the-tcp-state-machine-11-states
+          - lesson: 04-transport/12-sequence-number-arithmetic-mod-2
+            path: phases/04-transport/12-sequence-number-arithmetic-mod-2
+          - lesson: 04-transport/13-sliding-window-basics
+            path: phases/04-transport/13-sliding-window-basics
+          - lesson: 04-transport/15-tcp-options-encoderdecoder
+            path: phases/04-transport/15-tcp-options-encoderdecoder
+          - lesson: 04-transport/17-the-retransmission-timer-rfc-6298
+            path: phases/04-transport/17-the-retransmission-timer-rfc-6298
+          - lesson: 04-transport/19-selective-acknowledgment-sack
+            path: phases/04-transport/19-selective-acknowledgment-sack
+          - lesson: 04-transport/22-connection-teardown-and-time-wait
+            path: phases/04-transport/22-connection-teardown-and-time-wait
     steps:
       - uses: actions/checkout@v4
 
