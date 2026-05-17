@@ -12,6 +12,12 @@ window.NFS = window.NFS || {};
       if (!toggle) return;
       toggle.addEventListener('click', function() {
         var isDark = document.documentElement.classList.toggle('dark');
+        // Toggle 'light' class so the prefers-color-scheme media query fallback is overridden
+        if (isDark) {
+          document.documentElement.classList.remove('light');
+        } else {
+          document.documentElement.classList.add('light');
+        }
         localStorage.setItem(NFS.darkMode._key, isDark ? 'dark' : 'light');
         toggle.textContent = isDark ? '☀' : '☾';
         toggle.title = isDark ? 'Switch to light mode' : 'Switch to dark mode';
