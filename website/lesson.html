@@ -28,7 +28,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=VT323&family=Source+Serif+4:ital,wght@0,300..900;1,300..900&family=JetBrains+Mono:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="css/style.css">
 <script>
-if(localStorage.getItem('nfs_theme')==='dark'||(!localStorage.getItem('nfs_theme')&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark');
+if(localStorage.getItem('nfs_theme')==='dark'||(!localStorage.getItem('nfs_theme')&&matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.classList.add('dark');document.addEventListener('DOMContentLoaded',function(){var t=document.querySelector('.theme-toggle');if(t){t.textContent='☀';t.title='Switch to light mode'}})}
 </script>
 </head>
 <body>
@@ -43,7 +43,7 @@ if(localStorage.getItem('nfs_theme')==='dark'||(!localStorage.getItem('nfs_theme
     <a href="roadmap.html">Roadmap</a>
     <a href="glossary.html">Glossary</a>
     <a href="https://github.com/TanayK07/networking-from-scratch" class="gh-link">GitHub <span class="gh-stars" style="display:none"></span></a>
-    <button class="theme-toggle" aria-label="Toggle theme">N</button>
+    <button class="theme-toggle" aria-label="Toggle theme">☾</button>
   </div>
 </nav>
 
