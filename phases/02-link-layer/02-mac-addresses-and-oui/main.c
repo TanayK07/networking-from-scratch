@@ -9,8 +9,7 @@
 #include <stdio.h>
 #include <string.h>
 
-static void analyse(const uint8_t mac[6])
-{
+static void analyse(const uint8_t mac[6]) {
     char fmt[32];
     nfs_mac_format(mac, fmt, sizeof(fmt));
 
@@ -25,8 +24,7 @@ static void analyse(const uint8_t mac[6])
     printf("\n");
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     printf("=== MAC Address & OUI Tool ===\n\n");
 
     if (argc > 1) {
@@ -41,10 +39,10 @@ int main(int argc, char *argv[])
     }
 
     /* Demo with well-known addresses. */
-    uint8_t bcast[6]   = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
-    uint8_t mcast[6]   = {0x01, 0x00, 0x5E, 0x00, 0x00, 0x01};  /* IPv4 multicast */
-    uint8_t local[6]   = {0x02, 0x42, 0xAC, 0x11, 0x00, 0x02};  /* Docker-style */
-    uint8_t global[6]  = {0x00, 0x1A, 0x2B, 0x3C, 0x4D, 0x5E};  /* normal NIC */
+    uint8_t bcast[6] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+    uint8_t mcast[6] = {0x01, 0x00, 0x5E, 0x00, 0x00, 0x01};  /* IPv4 multicast */
+    uint8_t local[6] = {0x02, 0x42, 0xAC, 0x11, 0x00, 0x02};  /* Docker-style */
+    uint8_t global[6] = {0x00, 0x1A, 0x2B, 0x3C, 0x4D, 0x5E}; /* normal NIC */
 
     analyse(bcast);
     analyse(mcast);

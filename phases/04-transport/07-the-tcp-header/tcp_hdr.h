@@ -41,8 +41,7 @@ struct nfs_tcp_hdr {
     uint16_t urgent;         /* urgent pointer, network byte order    */
 } __attribute__((packed));
 
-_Static_assert(sizeof(struct nfs_tcp_hdr) == 20,
-               "nfs_tcp_hdr must be exactly 20 bytes");
+_Static_assert(sizeof(struct nfs_tcp_hdr) == 20, "nfs_tcp_hdr must be exactly 20 bytes");
 
 /* Minimum TCP header length (no options). */
 #define NFS_TCP_HDR_MIN_LEN 20
@@ -50,14 +49,14 @@ _Static_assert(sizeof(struct nfs_tcp_hdr) == 20,
 /* ---------------------------------------------------------------
  * TCP flag constants (bottom 9 bits of the data_off_flags field).
  * --------------------------------------------------------------- */
-#define NFS_TCP_FIN  0x001
-#define NFS_TCP_SYN  0x002
-#define NFS_TCP_RST  0x004
-#define NFS_TCP_PSH  0x008
-#define NFS_TCP_ACK  0x010
-#define NFS_TCP_URG  0x020
-#define NFS_TCP_ECE  0x040
-#define NFS_TCP_CWR  0x080
+#define NFS_TCP_FIN 0x001
+#define NFS_TCP_SYN 0x002
+#define NFS_TCP_RST 0x004
+#define NFS_TCP_PSH 0x008
+#define NFS_TCP_ACK 0x010
+#define NFS_TCP_URG 0x020
+#define NFS_TCP_ECE 0x040
+#define NFS_TCP_CWR 0x080
 
 /* ---------------------------------------------------------------
  * Public API
@@ -81,9 +80,8 @@ int nfs_tcp_parse(const uint8_t *data, size_t len, struct nfs_tcp_hdr *hdr);
 /* Build a minimal 20-byte TCP header with no options.
  * Writes to `out` (must be >= out_sz bytes).
  * Returns header length (20) on success, -1 on error. */
-int nfs_tcp_build(uint16_t src_port, uint16_t dst_port, uint32_t seq,
-                  uint32_t ack, uint16_t flags, uint16_t window,
-                  uint8_t *out, size_t out_sz);
+int nfs_tcp_build(uint16_t src_port, uint16_t dst_port, uint32_t seq, uint32_t ack, uint16_t flags,
+                  uint16_t window, uint8_t *out, size_t out_sz);
 
 /* Format a parsed (host-order) TCP header into a human-readable string.
  * Example: "12345->80 seq=1000 ack=2000 [SYN,ACK] win=65535"

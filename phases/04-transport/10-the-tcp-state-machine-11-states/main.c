@@ -20,16 +20,19 @@
 
 /* Map event name string to event enum.  Returns -1 if not found. */
 static int parse_event(const char *name) {
-    struct { const char *str; int ev; } events[] = {
-        { "OPEN_PASSIVE", NFS_TCP_EV_OPEN_PASSIVE },
-        { "OPEN_ACTIVE",  NFS_TCP_EV_OPEN_ACTIVE  },
-        { "CLOSE",        NFS_TCP_EV_CLOSE         },
-        { "RECV_SYN",     NFS_TCP_EV_RECV_SYN      },
-        { "RECV_SYNACK",  NFS_TCP_EV_RECV_SYNACK   },
-        { "RECV_ACK",     NFS_TCP_EV_RECV_ACK      },
-        { "RECV_FIN",     NFS_TCP_EV_RECV_FIN      },
-        { "RECV_FINACK",  NFS_TCP_EV_RECV_FINACK   },
-        { "TIMEOUT",      NFS_TCP_EV_TIMEOUT        },
+    struct {
+        const char *str;
+        int ev;
+    } events[] = {
+        {"OPEN_PASSIVE", NFS_TCP_EV_OPEN_PASSIVE},
+        {"OPEN_ACTIVE", NFS_TCP_EV_OPEN_ACTIVE},
+        {"CLOSE", NFS_TCP_EV_CLOSE},
+        {"RECV_SYN", NFS_TCP_EV_RECV_SYN},
+        {"RECV_SYNACK", NFS_TCP_EV_RECV_SYNACK},
+        {"RECV_ACK", NFS_TCP_EV_RECV_ACK},
+        {"RECV_FIN", NFS_TCP_EV_RECV_FIN},
+        {"RECV_FINACK", NFS_TCP_EV_RECV_FINACK},
+        {"TIMEOUT", NFS_TCP_EV_TIMEOUT},
     };
 
     for (size_t i = 0; i < sizeof(events) / sizeof(events[0]); i++) {
@@ -66,18 +69,19 @@ int main(void) {
         int ev = parse_event(line);
         if (ev < 0) {
             printf("Unknown event '%s'. Valid: OPEN_PASSIVE, OPEN_ACTIVE, CLOSE, "
-                   "RECV_SYN, RECV_SYNACK, RECV_ACK, RECV_FIN, RECV_FINACK, TIMEOUT\n", line);
+                   "RECV_SYN, RECV_SYNACK, RECV_ACK, RECV_FIN, RECV_FINACK, TIMEOUT\n",
+                   line);
             continue;
         }
 
         int action;
         int result = nfs_tcp_fsm_handle(&fsm, ev, &action);
         if (result < 0) {
-            printf("-> Invalid transition from %s on %s\n",
-                   nfs_tcp_state_name(fsm.state), nfs_tcp_event_name(ev));
+            printf("-> Invalid transition from %s on %s\n", nfs_tcp_state_name(fsm.state),
+                   nfs_tcp_event_name(ev));
         } else {
-            printf("-> State: %s (action: %s)\n",
-                   nfs_tcp_state_name(result), nfs_tcp_action_name(action));
+            printf("-> State: %s (action: %s)\n", nfs_tcp_state_name(result),
+                   nfs_tcp_action_name(action));
         }
     }
 

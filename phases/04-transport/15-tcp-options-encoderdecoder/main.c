@@ -8,8 +8,7 @@
 #include <stdio.h>
 #include <string.h>
 
-int main(void)
-{
+int main(void) {
     printf("=== TCP Options Encoder/Decoder Demo ===\n\n");
 
     uint8_t buf[64];
@@ -46,7 +45,8 @@ int main(void)
     printf("Wire bytes:\n  ");
     for (size_t i = 0; i < padded; i++) {
         printf("%02x ", buf[i]);
-        if ((i + 1) % 16 == 0) printf("\n  ");
+        if ((i + 1) % 16 == 0)
+            printf("\n  ");
     }
     printf("\n\n");
 
@@ -59,8 +59,7 @@ int main(void)
     for (size_t i = 0; i < nfound; i++) {
         char desc[128];
         nfs_tcp_opt_format(&opts[i], desc, sizeof(desc));
-        printf("  [%zu] kind=%u len=%u  %s\n",
-               i, opts[i].kind, opts[i].length, desc);
+        printf("  [%zu] kind=%u len=%u  %s\n", i, opts[i].kind, opts[i].length, desc);
     }
 
     printf("\nDone.\n");

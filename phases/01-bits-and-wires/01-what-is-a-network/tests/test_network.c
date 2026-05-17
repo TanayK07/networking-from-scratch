@@ -1,49 +1,45 @@
 /* Unit tests for What is a Network. */
 
 #include "../network.h"
+#include <arpa/inet.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <arpa/inet.h>
 
 static int tests_run = 0;
 static int tests_passed = 0;
 
-#define ASSERT_EQ(expr, expected) \
-    do { \
-        tests_run++; \
-        long long _got = (long long)(expr); \
-        long long _exp = (long long)(expected); \
-        if (_got != _exp) { \
-            fprintf(stderr, "  FAIL %s:%d: %s == 0x%llx, want 0x%llx\n", \
-                    __FILE__, __LINE__, #expr, _got, _exp); \
-            return; \
-        } \
-        tests_passed++; \
+#define ASSERT_EQ(expr, expected)                                                                  \
+    do {                                                                                           \
+        tests_run++;                                                                               \
+        long long _got = (long long)(expr);                                                        \
+        long long _exp = (long long)(expected);                                                    \
+        if (_got != _exp) {                                                                        \
+            fprintf(stderr, "  FAIL %s:%d: %s == 0x%llx, want 0x%llx\n", __FILE__, __LINE__,       \
+                    #expr, _got, _exp);                                                            \
+            return;                                                                                \
+        }                                                                                          \
+        tests_passed++;                                                                            \
     } while (0)
 
-#define ASSERT_TRUE(expr) \
-    do { \
-        tests_run++; \
-        if (!(expr)) { \
-            fprintf(stderr, "  FAIL %s:%d: %s is false\n", \
-                    __FILE__, __LINE__, #expr); \
-            return; \
-        } \
-        tests_passed++; \
+#define ASSERT_TRUE(expr)                                                                          \
+    do {                                                                                           \
+        tests_run++;                                                                               \
+        if (!(expr)) {                                                                             \
+            fprintf(stderr, "  FAIL %s:%d: %s is false\n", __FILE__, __LINE__, #expr);             \
+            return;                                                                                \
+        }                                                                                          \
+        tests_passed++;                                                                            \
     } while (0)
 
 /* ---- 1. Build/parse roundtrip -------------------------------- */
 
-static void test_build_parse_roundtrip(void)
-{
+static void test_build_parse_roundtrip(void) {
     uint8_t buf[256];
     const uint8_t payload[] = "Hello, network!";
     size_t plen = sizeof(payload) - 1;
 
-    int total = nfs_pkt_build(buf, sizeof(buf),
-                              1, 3, 0x42, 0xDEADBEEF,
-                              payload, plen);
+    int total = nfs_pkt_build(buf, sizeof(buf), 1, 3, 0x42, 0xDEADBEEF, payload, plen);
     ASSERT_TRUE(total > 0);
     ASSERT_EQ((size_t)total, NFS_PKT_HDR_SIZE + plen);
 
@@ -52,8 +48,8 @@ static void test_build_parse_roundtrip(void)
     size_t out_len;
 
     ASSERT_EQ(nfs_pkt_parse(buf, (size_t)total, &hdr, &out_payload, &out_len), 0);
-    ASSERT_EQ((hdr.ver_type >> 4) & 0x0F, 1);      /* version */
-    ASSERT_EQ(hdr.ver_type & 0x0F, 3);              /* type */
+    ASSERT_EQ((hdr.ver_type >> 4) & 0x0F, 1); /* version */
+    ASSERT_EQ(hdr.ver_type & 0x0F, 3);        /* type */
     ASSERT_EQ(hdr.flags, 0x42);
     ASSERT_EQ(ntohs(hdr.length), total);
     ASSERT_EQ(ntohl(hdr.id), 0xDEADBEEF);
@@ -63,12 +59,9 @@ static void test_build_parse_roundtrip(void)
 
 /* ---- 2. Empty payload ---------------------------------------- */
 
-static void test_empty_payload(void)
-{
+static void test_empty_payload(void) {
     uint8_t buf[64];
-    int total = nfs_pkt_build(buf, sizeof(buf),
-                              1, 0, 0, 1,
-                              NULL, 0);
+    int total = nfs_pkt_build(buf, sizeof(buf), 1, 0, 0, 1, NULL, 0);
     ASSERT_EQ(total, (int)NFS_PKT_HDR_SIZE);
 
     struct nfs_pkt_header hdr;
@@ -81,8 +74,7 @@ static void test_empty_payload(void)
 
 /* ---- 3. Large payload ---------------------------------------- */
 
-static void test_large_payload(void)
-{
+static void test_large_payload(void) {
     size_t payload_sz = 10000;
     uint8_t *payload = malloc(payload_sz);
     ASSERT_TRUE(payload != NULL);
@@ -93,9 +85,7 @@ static void test_large_payload(void)
     uint8_t *buf = malloc(buf_sz);
     ASSERT_TRUE(buf != NULL);
 
-    int total = nfs_pkt_build(buf, buf_sz,
-                              1, 7, 0xFF, 999999,
-                              payload, payload_sz);
+    int total = nfs_pkt_build(buf, buf_sz, 1, 7, 0xFF, 999999, payload, payload_sz);
     ASSERT_EQ(total, (int)buf_sz);
 
     struct nfs_pkt_header hdr;
@@ -111,9 +101,8 @@ static void test_large_payload(void)
 
 /* ---- 4. Truncated packet rejection --------------------------- */
 
-static void test_truncated_packet(void)
-{
-    uint8_t buf[4] = {0x10, 0x00, 0x00, 0x08};  /* only 4 bytes, need 8 */
+static void test_truncated_packet(void) {
+    uint8_t buf[4] = {0x10, 0x00, 0x00, 0x08}; /* only 4 bytes, need 8 */
     struct nfs_pkt_header hdr;
     const uint8_t *p;
     size_t plen;
@@ -122,14 +111,11 @@ static void test_truncated_packet(void)
 
 /* ---- 5. Length mismatch rejection ----------------------------- */
 
-static void test_length_mismatch(void)
-{
+static void test_length_mismatch(void) {
     /* Build a valid packet, then tell parse the buffer is smaller */
     uint8_t buf[256];
     const uint8_t payload[] = "test data for mismatch";
-    int total = nfs_pkt_build(buf, sizeof(buf),
-                              1, 1, 0, 42,
-                              payload, sizeof(payload) - 1);
+    int total = nfs_pkt_build(buf, sizeof(buf), 1, 1, 0, 42, payload, sizeof(payload) - 1);
     ASSERT_TRUE(total > 0);
 
     /* Header says total bytes but we only give 50 bytes (< total) */
@@ -144,19 +130,18 @@ static void test_length_mismatch(void)
 
 /* ---- 6. Network byte order verification ---------------------- */
 
-static void test_network_byte_order(void)
-{
+static void test_network_byte_order(void) {
     /* Manually construct an 8-byte header in big-endian */
     uint8_t buf[10];
-    buf[0] = 0x13;      /* version=1, type=3 */
-    buf[1] = 0xAB;      /* flags */
-    buf[2] = 0x00;      /* length high byte */
-    buf[3] = 0x0A;      /* length low byte = 10 */
-    buf[4] = 0x00;      /* id bytes (big-endian 0x00000007) */
+    buf[0] = 0x13; /* version=1, type=3 */
+    buf[1] = 0xAB; /* flags */
+    buf[2] = 0x00; /* length high byte */
+    buf[3] = 0x0A; /* length low byte = 10 */
+    buf[4] = 0x00; /* id bytes (big-endian 0x00000007) */
     buf[5] = 0x00;
     buf[6] = 0x00;
     buf[7] = 0x07;
-    buf[8] = 0xCC;      /* 2-byte payload */
+    buf[8] = 0xCC; /* 2-byte payload */
     buf[9] = 0xDD;
 
     struct nfs_pkt_header hdr;
@@ -175,8 +160,7 @@ static void test_network_byte_order(void)
 
 /* ---- 7. Internet checksum: RFC 1071 test vector --------------- */
 
-static void test_checksum_rfc1071(void)
-{
+static void test_checksum_rfc1071(void) {
     /* RFC 1071 section 3 example:
      * Data: {0x00,0x01, 0xf2,0x03, 0xf4,0xf5, 0xf6,0xf7}
      * 16-bit words: 0x0001 + 0xf203 + 0xf4f5 + 0xf6f7 = 0x2ddf0
@@ -190,8 +174,7 @@ static void test_checksum_rfc1071(void)
 
 /* ---- 8. Internet checksum: self-verify ----------------------- */
 
-static void test_checksum_self_verify(void)
-{
+static void test_checksum_self_verify(void) {
     uint8_t data[] = {0x00, 0x01, 0xf2, 0x03, 0xf4, 0xf5, 0xf6, 0xf7};
     uint16_t cksum = nfs_inet_checksum(data, sizeof(data));
 
@@ -206,8 +189,7 @@ static void test_checksum_self_verify(void)
 
 /* ---- 9. Internet checksum: odd-length data ------------------- */
 
-static void test_checksum_odd_length(void)
-{
+static void test_checksum_odd_length(void) {
     /* 3 bytes: {0x01, 0x02, 0x03}
      * Words: 0x0102 + 0x0300 (padded) = 0x0402
      * Complement: ~0x0402 = 0xfbfd
@@ -232,8 +214,7 @@ static void test_checksum_odd_length(void)
 
 /* ---- 10. Internet checksum: all zeros -> 0xFFFF -------------- */
 
-static void test_checksum_all_zeros(void)
-{
+static void test_checksum_all_zeros(void) {
     uint8_t data[8] = {0};
     uint16_t cksum = nfs_inet_checksum(data, sizeof(data));
     ASSERT_EQ(cksum, 0xFFFF);
@@ -241,8 +222,7 @@ static void test_checksum_all_zeros(void)
 
 /* ---- 11. Internet checksum: all ones -> 0x0000 --------------- */
 
-static void test_checksum_all_ones(void)
-{
+static void test_checksum_all_ones(void) {
     uint8_t data[8];
     memset(data, 0xFF, sizeof(data));
     /* Words: 0xFFFF * 4 = 0x3FFFC
@@ -255,15 +235,12 @@ static void test_checksum_all_ones(void)
 
 /* ---- 12. Encapsulate/decapsulate roundtrip ------------------- */
 
-static void test_encap_decap_roundtrip(void)
-{
+static void test_encap_decap_roundtrip(void) {
     uint8_t buf[256];
     const uint8_t payload[] = "encapsulated data";
     size_t plen = sizeof(payload) - 1;
 
-    int total = nfs_encapsulate(buf, sizeof(buf),
-                                5, 0x01, 42,
-                                payload, plen);
+    int total = nfs_encapsulate(buf, sizeof(buf), 5, 0x01, 42, payload, plen);
     ASSERT_TRUE(total > 0);
     ASSERT_EQ((size_t)total, NFS_PKT_HDR_SIZE + plen);
 
@@ -281,15 +258,12 @@ static void test_encap_decap_roundtrip(void)
 
 /* ---- 13. All packet types (0-15) ----------------------------- */
 
-static void test_all_packet_types(void)
-{
+static void test_all_packet_types(void) {
     uint8_t buf[64];
     const uint8_t payload[] = "x";
 
     for (int t = 0; t < 16; t++) {
-        int total = nfs_pkt_build(buf, sizeof(buf),
-                                  1, (uint8_t)t, 0, 0,
-                                  payload, 1);
+        int total = nfs_pkt_build(buf, sizeof(buf), 1, (uint8_t)t, 0, 0, payload, 1);
         ASSERT_TRUE(total > 0);
 
         struct nfs_pkt_header hdr;
@@ -302,12 +276,9 @@ static void test_all_packet_types(void)
 
 /* ---- 14. Max-value fields ------------------------------------ */
 
-static void test_max_value_fields(void)
-{
+static void test_max_value_fields(void) {
     uint8_t buf[64];
-    int total = nfs_pkt_build(buf, sizeof(buf),
-                              0x0F, 0x0F, 0xFF, 0xFFFFFFFF,
-                              NULL, 0);
+    int total = nfs_pkt_build(buf, sizeof(buf), 0x0F, 0x0F, 0xFF, 0xFFFFFFFF, NULL, 0);
     ASSERT_EQ(total, (int)NFS_PKT_HDR_SIZE);
 
     struct nfs_pkt_header hdr;
@@ -322,8 +293,7 @@ static void test_max_value_fields(void)
 
 /* ---- 15. NULL pointer handling ------------------------------- */
 
-static void test_null_pointers(void)
-{
+static void test_null_pointers(void) {
     /* NULL buf in build */
     ASSERT_EQ(nfs_pkt_build(NULL, 256, 1, 0, 0, 0, NULL, 0), -1);
 
@@ -349,15 +319,13 @@ static void test_null_pointers(void)
 
 /* ---- Header size static assert ------------------------------- */
 
-static void test_header_size(void)
-{
+static void test_header_size(void) {
     ASSERT_EQ(sizeof(struct nfs_pkt_header), 8);
 }
 
 /* ---- Test runner --------------------------------------------- */
 
-int main(void)
-{
+int main(void) {
     printf("=== What is a Network — Tests ===\n\n");
 
     printf("[build/parse roundtrip]\n");
@@ -409,6 +377,10 @@ int main(void)
     test_header_size();
 
     printf("\n%d/%d passed\n", tests_passed, tests_run);
-    if (tests_passed == tests_run) { printf("PASS\n"); return 0; }
-    printf("FAIL\n"); return 1;
+    if (tests_passed == tests_run) {
+        printf("PASS\n");
+        return 0;
+    }
+    printf("FAIL\n");
+    return 1;
 }

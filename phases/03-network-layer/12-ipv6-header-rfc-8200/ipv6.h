@@ -15,16 +15,15 @@
  * --------------------------------------------------------------------------- */
 
 struct nfs_ipv6_hdr {
-    uint32_t vtc_flow;      /* version (4) | traffic class (8) | flow label (20) */
-    uint16_t payload_len;   /* payload length (not including this header)         */
-    uint8_t  next_hdr;      /* next header type                                  */
-    uint8_t  hop_limit;     /* hop limit (analogous to TTL)                      */
-    uint8_t  src[16];       /* source address — 128 bits                         */
-    uint8_t  dst[16];       /* destination address — 128 bits                    */
+    uint32_t vtc_flow;    /* version (4) | traffic class (8) | flow label (20) */
+    uint16_t payload_len; /* payload length (not including this header)         */
+    uint8_t next_hdr;     /* next header type                                  */
+    uint8_t hop_limit;    /* hop limit (analogous to TTL)                      */
+    uint8_t src[16];      /* source address — 128 bits                         */
+    uint8_t dst[16];      /* destination address — 128 bits                    */
 } __attribute__((packed));
 
-_Static_assert(sizeof(struct nfs_ipv6_hdr) == 40,
-               "nfs_ipv6_hdr must be exactly 40 bytes");
+_Static_assert(sizeof(struct nfs_ipv6_hdr) == 40, "nfs_ipv6_hdr must be exactly 40 bytes");
 
 /* Extract the 4-bit version field (must be 6). */
 uint8_t nfs_ipv6_version(const struct nfs_ipv6_hdr *h);
@@ -43,11 +42,9 @@ int nfs_ipv6_parse(const uint8_t *data, size_t len, struct nfs_ipv6_hdr *hdr);
 /* Build a 40-byte IPv6 header into out.
  * Sets version = 6.
  * Returns 40 on success, -1 on error (e.g. out_sz < 40). */
-int nfs_ipv6_build(uint8_t tc, uint32_t flow_label,
-                   uint8_t next_hdr, uint8_t hop_limit,
-                   const uint8_t src[16], const uint8_t dst[16],
-                   uint16_t payload_len,
-                   uint8_t *out, size_t out_sz);
+int nfs_ipv6_build(uint8_t tc, uint32_t flow_label, uint8_t next_hdr, uint8_t hop_limit,
+                   const uint8_t src[16], const uint8_t dst[16], uint16_t payload_len, uint8_t *out,
+                   size_t out_sz);
 
 /* Format a 128-bit IPv6 address as full form:
  *   "2001:0db8:0000:0000:0000:0000:0000:0001"

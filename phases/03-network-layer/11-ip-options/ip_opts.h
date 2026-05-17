@@ -20,21 +20,21 @@
  * --------------------------------------------------------------- */
 
 /* Well-known option types */
-#define NFS_IPOPT_EOL   0       /* End of Options List */
-#define NFS_IPOPT_NOP   1       /* No Operation */
-#define NFS_IPOPT_RR    7       /* Record Route */
-#define NFS_IPOPT_TS    68      /* Internet Timestamp (0x44) */
-#define NFS_IPOPT_LSRR  131    /* Loose Source and Record Route (0x83) */
-#define NFS_IPOPT_SSRR  137    /* Strict Source and Record Route (0x89) */
+#define NFS_IPOPT_EOL  0   /* End of Options List */
+#define NFS_IPOPT_NOP  1   /* No Operation */
+#define NFS_IPOPT_RR   7   /* Record Route */
+#define NFS_IPOPT_TS   68  /* Internet Timestamp (0x44) */
+#define NFS_IPOPT_LSRR 131 /* Loose Source and Record Route (0x83) */
+#define NFS_IPOPT_SSRR 137 /* Strict Source and Record Route (0x89) */
 
 /* Maximum option data size (40 bytes max for all options combined,
  * minus type and length bytes gives 38 for the largest single option). */
-#define NFS_IPOPT_MAX_DATA  38
+#define NFS_IPOPT_MAX_DATA 38
 
 struct nfs_ip_option {
     uint8_t type;
-    uint8_t length;                     /* Total length including type+length bytes (0 for EOL/NOP) */
-    uint8_t data[NFS_IPOPT_MAX_DATA];   /* Option data (length - 2 bytes used) */
+    uint8_t length;                   /* Total length including type+length bytes (0 for EOL/NOP) */
+    uint8_t data[NFS_IPOPT_MAX_DATA]; /* Option data (length - 2 bytes used) */
 };
 
 /* Parse options from raw bytes.
@@ -42,8 +42,7 @@ struct nfs_ip_option {
  * Parsed options are written to `opts` (at most `max_opts`).
  * `*nfound` is set to the number of options parsed.
  * Returns 0 on success, -1 on malformed input. */
-int nfs_ip_opts_parse(const uint8_t *data, size_t len,
-                      struct nfs_ip_option *opts, size_t max_opts,
+int nfs_ip_opts_parse(const uint8_t *data, size_t len, struct nfs_ip_option *opts, size_t max_opts,
                       size_t *nfound);
 
 /* Build a Record Route option.

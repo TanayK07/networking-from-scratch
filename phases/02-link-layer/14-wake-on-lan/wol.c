@@ -1,10 +1,9 @@
 #include "wol.h"
+#include <ctype.h>
 #include <stdio.h>
 #include <string.h>
-#include <ctype.h>
 
-int nfs_wol_build(const uint8_t mac[6], uint8_t *out, size_t out_sz)
-{
+int nfs_wol_build(const uint8_t mac[6], uint8_t *out, size_t out_sz) {
     if (!mac || !out || out_sz < NFS_WOL_MAGIC_SIZE)
         return -1;
 
@@ -18,10 +17,8 @@ int nfs_wol_build(const uint8_t mac[6], uint8_t *out, size_t out_sz)
     return NFS_WOL_MAGIC_SIZE;
 }
 
-int nfs_wol_build_with_password(const uint8_t mac[6],
-                                const uint8_t *password, size_t pw_len,
-                                uint8_t *out, size_t out_sz)
-{
+int nfs_wol_build_with_password(const uint8_t mac[6], const uint8_t *password, size_t pw_len,
+                                uint8_t *out, size_t out_sz) {
     if (pw_len != 0 && pw_len != 4 && pw_len != 6)
         return -1;
 
@@ -42,8 +39,7 @@ int nfs_wol_build_with_password(const uint8_t mac[6],
     return (int)total;
 }
 
-int nfs_wol_validate(const uint8_t *pkt, size_t len, uint8_t mac_out[6])
-{
+int nfs_wol_validate(const uint8_t *pkt, size_t len, uint8_t mac_out[6]) {
     if (!pkt || !mac_out || len < NFS_WOL_MAGIC_SIZE)
         return -1;
 
@@ -67,16 +63,17 @@ int nfs_wol_validate(const uint8_t *pkt, size_t len, uint8_t mac_out[6])
 }
 
 /* Parse a single hex digit, return value 0-15 or -1. */
-static int hex_val(char c)
-{
-    if (c >= '0' && c <= '9') return c - '0';
-    if (c >= 'a' && c <= 'f') return c - 'a' + 10;
-    if (c >= 'A' && c <= 'F') return c - 'A' + 10;
+static int hex_val(char c) {
+    if (c >= '0' && c <= '9')
+        return c - '0';
+    if (c >= 'a' && c <= 'f')
+        return c - 'a' + 10;
+    if (c >= 'A' && c <= 'F')
+        return c - 'A' + 10;
     return -1;
 }
 
-int nfs_wol_mac_parse(const char *str, uint8_t mac[6])
-{
+int nfs_wol_mac_parse(const char *str, uint8_t mac[6]) {
     if (!str || !mac)
         return -1;
 
@@ -104,12 +101,11 @@ int nfs_wol_mac_parse(const char *str, uint8_t mac[6])
     return 0;
 }
 
-int nfs_wol_mac_format(const uint8_t mac[6], char *buf, size_t sz)
-{
+int nfs_wol_mac_format(const uint8_t mac[6], char *buf, size_t sz) {
     if (!mac || !buf || sz < 18)
         return -1;
 
-    snprintf(buf, sz, "%02x:%02x:%02x:%02x:%02x:%02x",
-             mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+    snprintf(buf, sz, "%02x:%02x:%02x:%02x:%02x:%02x", mac[0], mac[1], mac[2], mac[3], mac[4],
+             mac[5]);
     return 0;
 }

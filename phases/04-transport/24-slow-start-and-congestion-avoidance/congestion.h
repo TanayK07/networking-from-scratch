@@ -21,14 +21,14 @@
  *                   cwnd = ssthresh + 3*MSS.
  * --------------------------------------------------------------- */
 
-#define NFS_CONG_SLOW_START  0
-#define NFS_CONG_AVOIDANCE   1
+#define NFS_CONG_SLOW_START 0
+#define NFS_CONG_AVOIDANCE  1
 
 struct nfs_cong_state {
-    uint32_t cwnd;      /* congestion window (bytes) */
-    uint32_t ssthresh;  /* slow start threshold (bytes) */
-    uint32_t mss;       /* maximum segment size (bytes) */
-    int      phase;     /* NFS_CONG_SLOW_START or NFS_CONG_AVOIDANCE */
+    uint32_t cwnd;     /* congestion window (bytes) */
+    uint32_t ssthresh; /* slow start threshold (bytes) */
+    uint32_t mss;      /* maximum segment size (bytes) */
+    int phase;         /* NFS_CONG_SLOW_START or NFS_CONG_AVOIDANCE */
 };
 
 /* Initialize: cwnd = MSS (1 segment), ssthresh = 65535.

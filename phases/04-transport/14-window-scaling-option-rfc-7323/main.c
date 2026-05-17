@@ -4,8 +4,7 @@
 /* Demonstrate TCP window scaling: compute shifts, build/parse options,
  * and show effective window sizes. */
 
-int main(void)
-{
+int main(void) {
     char buf[128];
 
     printf("=== TCP Window Scaling (RFC 7323) Demo ===\n\n");
@@ -25,8 +24,8 @@ int main(void)
         uint8_t shift = nfs_wscale_compute(sizes[i]);
         uint16_t compressed = nfs_wscale_compress(sizes[i], shift);
         uint32_t restored = nfs_wscale_apply(compressed, shift);
-        printf("  desired=%10u  shift=%u  header=%u  restored=%u\n",
-               sizes[i], shift, compressed, restored);
+        printf("  desired=%10u  shift=%u  header=%u  restored=%u\n", sizes[i], shift, compressed,
+               restored);
     }
 
     /* Build and parse an option */

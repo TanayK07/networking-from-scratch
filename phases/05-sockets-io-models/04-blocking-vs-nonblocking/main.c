@@ -6,8 +6,7 @@
 #include <stdio.h>
 #include <string.h>
 
-int main(void)
-{
+int main(void) {
     struct nfs_nb_ctx ctx;
     nfs_nb_init(&ctx);
 

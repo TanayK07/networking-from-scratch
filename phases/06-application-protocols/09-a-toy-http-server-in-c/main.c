@@ -4,16 +4,14 @@
 #include <stdio.h>
 #include <string.h>
 
-int main(void)
-{
+int main(void) {
     /* Parse a sample HTTP request */
-    const char *raw_req =
-        "GET /index.html HTTP/1.1\r\n"
-        "Host: www.example.com\r\n"
-        "User-Agent: nfs-demo/1.0\r\n"
-        "Accept: text/html\r\n"
-        "Connection: keep-alive\r\n"
-        "\r\n";
+    const char *raw_req = "GET /index.html HTTP/1.1\r\n"
+                          "Host: www.example.com\r\n"
+                          "User-Agent: nfs-demo/1.0\r\n"
+                          "Accept: text/html\r\n"
+                          "Connection: keep-alive\r\n"
+                          "\r\n";
 
     printf("=== Request Parsing ===\n");
     struct nfs_http_request req;

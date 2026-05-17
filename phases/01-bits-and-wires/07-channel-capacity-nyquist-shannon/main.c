@@ -7,15 +7,14 @@
 #include "channel.h"
 #include <stdio.h>
 
-int main(void)
-{
+int main(void) {
     printf("=== Channel Capacity: Nyquist & Shannon ===\n\n");
 
     /* --- 1. Nyquist: noiseless channel capacity --- */
     printf("1) Nyquist Theorem (noiseless channel)\n");
     printf("   C = 2 * B * log2(M)\n\n");
 
-    double bw = 3100.0;  /* voice-band telephone line */
+    double bw = 3100.0; /* voice-band telephone line */
 
     double c2 = nfs_nyquist_capacity(bw, 2);
     printf("   Voice-band (%g Hz), 2 levels:  %8.0f bps\n", bw, c2);

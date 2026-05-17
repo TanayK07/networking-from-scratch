@@ -16,37 +16,31 @@
 
 /* ---------- TTL operations ------------------------------------------- */
 
-int nfs_ttl_decrement(struct nfs_ipv4_hdr *hdr)
-{
+int nfs_ttl_decrement(struct nfs_ipv4_hdr *hdr) {
     if (hdr->ttl == 0)
         return -1;
 
     hdr->ttl--;
 
     if (hdr->ttl == 0)
-        return 0;   /* Time Exceeded -- router should send ICMP */
+        return 0; /* Time Exceeded -- router should send ICMP */
 
     return (int)hdr->ttl;
 }
 
-void nfs_ttl_set(struct nfs_ipv4_hdr *hdr, uint8_t ttl)
-{
+void nfs_ttl_set(struct nfs_ipv4_hdr *hdr, uint8_t ttl) {
     hdr->ttl = ttl;
 }
 
-uint8_t nfs_ttl_get(const struct nfs_ipv4_hdr *hdr)
-{
+uint8_t nfs_ttl_get(const struct nfs_ipv4_hdr *hdr) {
     return hdr->ttl;
 }
 
 /* ---------- traceroute simulation ------------------------------------ */
 
-int nfs_traceroute_sim(uint32_t src, uint32_t dst,
-                       const uint32_t *hops, size_t nhops,
-                       struct nfs_traceroute_hop *results,
-                       size_t max_results)
-{
-    (void)src;  /* src is conceptual -- the probes originate here */
+int nfs_traceroute_sim(uint32_t src, uint32_t dst, const uint32_t *hops, size_t nhops,
+                       struct nfs_traceroute_hop *results, size_t max_results) {
+    (void)src; /* src is conceptual -- the probes originate here */
 
     int recorded = 0;
 
@@ -58,7 +52,7 @@ int nfs_traceroute_sim(uint32_t src, uint32_t dst,
      *   If we pass all hops and still have TTL > 0, the packet
      *   reaches the destination.
      */
-    for (size_t probe_ttl = 1; ; probe_ttl++) {
+    for (size_t probe_ttl = 1;; probe_ttl++) {
         if ((size_t)recorded >= max_results)
             break;
 
@@ -76,9 +70,9 @@ int nfs_traceroute_sim(uint32_t src, uint32_t dst,
             ttl--;
             if (ttl == 0) {
                 /* Time Exceeded at this router */
-                results[recorded].hop_num      = recorded + 1;
-                results[recorded].responder_ip  = hops[i];
-                results[recorded].reached_dest  = 0;
+                results[recorded].hop_num = recorded + 1;
+                results[recorded].responder_ip = hops[i];
+                results[recorded].reached_dest = 0;
                 recorded++;
                 expired = 1;
                 break;
@@ -94,11 +88,11 @@ int nfs_traceroute_sim(uint32_t src, uint32_t dst,
          * does not decrement TTL -- it receives the packet
          * and responds (e.g., ICMP Port Unreachable for UDP traceroute).
          */
-        results[recorded].hop_num      = recorded + 1;
-        results[recorded].responder_ip  = dst;
-        results[recorded].reached_dest  = 1;
+        results[recorded].hop_num = recorded + 1;
+        results[recorded].responder_ip = dst;
+        results[recorded].reached_dest = 1;
         recorded++;
-        break;  /* traceroute complete */
+        break; /* traceroute complete */
     }
 
     return recorded;

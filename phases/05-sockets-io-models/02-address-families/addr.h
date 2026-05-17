@@ -1,11 +1,11 @@
 #ifndef NFS_ADDR_H
 #define NFS_ADDR_H
 
+#include <netinet/in.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <sys/socket.h>
 #include <sys/un.h>
-#include <netinet/in.h>
 
 /* ---------------------------------------------------------------
  * Address Families
@@ -28,18 +28,15 @@
 
 /* Build a sockaddr_in from IPv4 dotted-decimal string and port.
  * Returns 0 on success, -1 on error. */
-int nfs_addr_build_inet(const char *ip_str, uint16_t port,
-                        struct sockaddr_in *addr);
+int nfs_addr_build_inet(const char *ip_str, uint16_t port, struct sockaddr_in *addr);
 
 /* Build a sockaddr_in6 from IPv6 colon-hex string and port.
  * Returns 0 on success, -1 on error. */
-int nfs_addr_build_inet6(const char *ip6_str, uint16_t port,
-                         struct sockaddr_in6 *addr);
+int nfs_addr_build_inet6(const char *ip6_str, uint16_t port, struct sockaddr_in6 *addr);
 
 /* Build a sockaddr_in6 with scope_id and flowinfo. */
-int nfs_addr_build_inet6_full(const char *ip6_str, uint16_t port,
-                              uint32_t flowinfo, uint32_t scope_id,
-                              struct sockaddr_in6 *addr);
+int nfs_addr_build_inet6_full(const char *ip6_str, uint16_t port, uint32_t flowinfo,
+                              uint32_t scope_id, struct sockaddr_in6 *addr);
 
 /* Build a sockaddr_un from a path string.
  * Returns 0 on success, -1 on error (path too long). */
@@ -48,20 +45,16 @@ int nfs_addr_build_unix(const char *path, struct sockaddr_un *addr);
 /* ---- Parse / format functions ---- */
 
 /* Format a sockaddr_in to "IP:port" string. Returns `out`. */
-char *nfs_addr_format_inet(const struct sockaddr_in *addr,
-                           char *out, size_t out_sz);
+char *nfs_addr_format_inet(const struct sockaddr_in *addr, char *out, size_t out_sz);
 
 /* Format a sockaddr_in6 to "[IPv6]:port" string. Returns `out`. */
-char *nfs_addr_format_inet6(const struct sockaddr_in6 *addr,
-                            char *out, size_t out_sz);
+char *nfs_addr_format_inet6(const struct sockaddr_in6 *addr, char *out, size_t out_sz);
 
 /* Format a sockaddr_un to its path. Returns `out`. */
-char *nfs_addr_format_unix(const struct sockaddr_un *addr,
-                           char *out, size_t out_sz);
+char *nfs_addr_format_unix(const struct sockaddr_un *addr, char *out, size_t out_sz);
 
 /* Format any sockaddr (generic). Returns `out`. */
-char *nfs_addr_format(const struct sockaddr *sa, socklen_t sa_len,
-                      char *out, size_t out_sz);
+char *nfs_addr_format(const struct sockaddr *sa, socklen_t sa_len, char *out, size_t out_sz);
 
 /* ---- Comparison functions ---- */
 

@@ -9,8 +9,7 @@
 #include <stdio.h>
 #include <string.h>
 
-int main(void)
-{
+int main(void) {
     printf("=== IPv6 Header Demo (RFC 8200) ===\n\n");
 
     /* Source: 2001:0db8:0000:0000:0000:0000:0000:0001 */
@@ -29,8 +28,7 @@ int main(void)
      *   Payload Len   = 1024
      */
     uint8_t wire[40];
-    int rc = nfs_ipv6_build(0x2E, 0x12345, 6, 64, src, dst, 1024,
-                            wire, sizeof(wire));
+    int rc = nfs_ipv6_build(0x2E, 0x12345, 6, 64, src, dst, 1024, wire, sizeof(wire));
     if (rc < 0) {
         fprintf(stderr, "Build failed!\n");
         return 1;
@@ -50,8 +48,7 @@ int main(void)
     printf("Traffic Class:  0x%02x\n", nfs_ipv6_traffic_class(&hdr));
     printf("Flow Label:     0x%05x\n", nfs_ipv6_flow_label(&hdr));
     printf("Payload Length: %u\n", ntohs(hdr.payload_len));
-    printf("Next Header:    %u (%s)\n", hdr.next_hdr,
-           nfs_ipv6_next_hdr_name(hdr.next_hdr));
+    printf("Next Header:    %u (%s)\n", hdr.next_hdr, nfs_ipv6_next_hdr_name(hdr.next_hdr));
     printf("Hop Limit:      %u\n", hdr.hop_limit);
 
     char src_str[40], dst_str[40];

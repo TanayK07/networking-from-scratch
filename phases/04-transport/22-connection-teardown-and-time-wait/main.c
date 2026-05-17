@@ -9,15 +9,12 @@
 
 #include <stdio.h>
 
-static void print_state(const char *label, const struct nfs_tcp_conn *c)
-{
-    printf("  %-20s -> %s  (local_seq=%u, remote_seq=%u)\n",
-           label, nfs_conn_state_name(c->state),
+static void print_state(const char *label, const struct nfs_tcp_conn *c) {
+    printf("  %-20s -> %s  (local_seq=%u, remote_seq=%u)\n", label, nfs_conn_state_name(c->state),
            c->local_seq, c->remote_seq);
 }
 
-int main(void)
-{
+int main(void) {
     printf("=== TCP Connection Teardown Demo ===\n\n");
 
     /* Scenario 1: Active close */
@@ -27,13 +24,13 @@ int main(void)
         nfs_conn_init(&c, 1000, 2000, 30.0);
         print_state("init", &c);
 
-        nfs_conn_close(&c);               /* send FIN */
+        nfs_conn_close(&c); /* send FIN */
         print_state("close()", &c);
 
-        nfs_conn_recv_ack(&c);            /* FIN ACKed */
+        nfs_conn_recv_ack(&c); /* FIN ACKed */
         print_state("recv ACK", &c);
 
-        nfs_conn_recv_fin(&c);            /* peer's FIN */
+        nfs_conn_recv_fin(&c); /* peer's FIN */
         c.time_wait_start = 100.0;
         print_state("recv FIN", &c);
 
@@ -54,13 +51,13 @@ int main(void)
         nfs_conn_init(&c, 5000, 6000, 30.0);
         print_state("init", &c);
 
-        nfs_conn_recv_fin(&c);            /* client sent FIN */
+        nfs_conn_recv_fin(&c); /* client sent FIN */
         print_state("recv FIN", &c);
 
-        nfs_conn_close(&c);               /* application closes */
+        nfs_conn_close(&c); /* application closes */
         print_state("close()", &c);
 
-        nfs_conn_recv_ack(&c);            /* our FIN ACKed */
+        nfs_conn_recv_ack(&c); /* our FIN ACKed */
         print_state("recv ACK", &c);
     }
 
@@ -71,13 +68,13 @@ int main(void)
         nfs_conn_init(&c, 8000, 9000, 60.0);
         print_state("init", &c);
 
-        nfs_conn_close(&c);               /* we send FIN */
+        nfs_conn_close(&c); /* we send FIN */
         print_state("close()", &c);
 
-        nfs_conn_recv_fin(&c);            /* peer also sent FIN */
+        nfs_conn_recv_fin(&c); /* peer also sent FIN */
         print_state("recv FIN", &c);
 
-        nfs_conn_recv_ack(&c);            /* our FIN ACKed */
+        nfs_conn_recv_ack(&c); /* our FIN ACKed */
         c.time_wait_start = 0.0;
         print_state("recv ACK", &c);
 

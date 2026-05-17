@@ -17,23 +17,23 @@
 
 /* Wire configuration — all impairment parameters */
 typedef struct {
-    double   ber;           /* Bit Error Rate: probability of flipping each bit (0.0-1.0) */
-    double   drop_prob;     /* Frame drop probability (0.0-1.0) */
-    uint32_t delay_us;      /* Base propagation delay in microseconds */
-    uint32_t jitter_us;     /* Jitter std deviation in microseconds (added to delay) */
-    double   reorder_prob;  /* Probability of swapping adjacent frames (0.0-1.0) */
-    uint32_t seed;          /* RNG seed for reproducibility */
+    double ber;          /* Bit Error Rate: probability of flipping each bit (0.0-1.0) */
+    double drop_prob;    /* Frame drop probability (0.0-1.0) */
+    uint32_t delay_us;   /* Base propagation delay in microseconds */
+    uint32_t jitter_us;  /* Jitter std deviation in microseconds (added to delay) */
+    double reorder_prob; /* Probability of swapping adjacent frames (0.0-1.0) */
+    uint32_t seed;       /* RNG seed for reproducibility */
 } nfs_wire_cfg_t;
 
 /* Wire state — configuration + statistics + PRNG state */
 typedef struct {
     nfs_wire_cfg_t cfg;
-    uint64_t tx_frames;     /* frames submitted */
-    uint64_t rx_frames;     /* frames delivered */
-    uint64_t dropped;       /* frames dropped */
-    uint64_t bit_errors;    /* total bits flipped */
-    uint64_t reordered;     /* frames reordered */
-    uint32_t rng_state;     /* PRNG state (xorshift32) */
+    uint64_t tx_frames;  /* frames submitted */
+    uint64_t rx_frames;  /* frames delivered */
+    uint64_t dropped;    /* frames dropped */
+    uint64_t bit_errors; /* total bits flipped */
+    uint64_t reordered;  /* frames reordered */
+    uint32_t rng_state;  /* PRNG state (xorshift32) */
 } nfs_wire_t;
 
 /* ---- Initialization ---- */
@@ -78,8 +78,8 @@ int nfs_wire_should_reorder(nfs_wire_t *w);
  * Returns:  0 = frame delivered
  *           1 = frame dropped
  *          -1 = error (NULL pointer, buffer too small) */
-int nfs_wire_transmit(nfs_wire_t *w, const uint8_t *in, size_t in_len,
-                      uint8_t *out, size_t out_sz, size_t *out_len);
+int nfs_wire_transmit(nfs_wire_t *w, const uint8_t *in, size_t in_len, uint8_t *out, size_t out_sz,
+                      size_t *out_len);
 
 /* ---- Statistics ---- */
 

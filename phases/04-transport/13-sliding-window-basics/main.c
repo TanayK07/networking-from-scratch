@@ -8,22 +8,18 @@
 #include <stdio.h>
 #include <string.h>
 
-static void print_window(const struct nfs_send_window *w)
-{
-    printf("  base=%u  next_seq=%u  in_flight=%u  available=%u  can_send=%d\n",
-           w->base, w->next_seq,
-           nfs_send_window_in_flight(w),
-           nfs_send_window_available(w),
+static void print_window(const struct nfs_send_window *w) {
+    printf("  base=%u  next_seq=%u  in_flight=%u  available=%u  can_send=%d\n", w->base,
+           w->next_seq, nfs_send_window_in_flight(w), nfs_send_window_available(w),
            nfs_send_window_can_send(w));
 }
 
-int main(void)
-{
+int main(void) {
     printf("=== TCP Sliding Window Demo ===\n\n");
 
     struct nfs_send_window w;
     uint32_t isn = 1000;
-    uint32_t win_size = 4;  /* small window for demo */
+    uint32_t win_size = 4; /* small window for demo */
 
     nfs_send_window_init(&w, isn, win_size, 64);
 

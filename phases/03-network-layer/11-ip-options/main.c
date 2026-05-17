@@ -2,15 +2,13 @@
 #include <stdio.h>
 #include <string.h>
 
-static void print_hex(const uint8_t *data, size_t len)
-{
+static void print_hex(const uint8_t *data, size_t len) {
     for (size_t i = 0; i < len; i++)
         printf("%02x ", data[i]);
     printf("\n");
 }
 
-static void demo(void)
-{
+static void demo(void) {
     printf("=== IP Options Demo ===\n\n");
 
     /* Build a Record Route option with 4 hops */
@@ -39,8 +37,8 @@ static void demo(void)
     nfs_ip_opts_parse(rr, (size_t)rr_len, opts, 10, &nfound);
     printf("\nParsed %zu option(s) from Record Route:\n", nfound);
     for (size_t i = 0; i < nfound; i++) {
-        printf("  [%zu] type=%u (%s), length=%u\n",
-               i, opts[i].type, nfs_ip_opt_name(opts[i].type), opts[i].length);
+        printf("  [%zu] type=%u (%s), length=%u\n", i, opts[i].type, nfs_ip_opt_name(opts[i].type),
+               opts[i].length);
     }
 
     /* Parse a NOP+EOL stream */
@@ -52,8 +50,7 @@ static void demo(void)
     }
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     (void)argc;
     (void)argv;
     demo();

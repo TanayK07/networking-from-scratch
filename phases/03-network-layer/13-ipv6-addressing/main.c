@@ -2,8 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-static void demo(void)
-{
+static void demo(void) {
     printf("=== IPv6 Addressing Demo ===\n\n");
 
     /* Test various address types */
@@ -11,26 +10,20 @@ static void demo(void)
         const char *label;
         uint8_t addr[16];
     } addrs[] = {
-        {"Loopback (::1)",
-         {0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,1}},
-        {"Unspecified (::)",
-         {0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0}},
+        {"Loopback (::1)", {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+        {"Unspecified (::)", {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
         {"Link-local",
-         {0xFE,0x80,0,0, 0,0,0,0, 0x02,0x1A,0x2B,0xFF, 0xFE,0x3C,0x4D,0x5E}},
-        {"Multicast (ff02::1)",
-         {0xFF,0x02,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,1}},
+         {0xFE, 0x80, 0, 0, 0, 0, 0, 0, 0x02, 0x1A, 0x2B, 0xFF, 0xFE, 0x3C, 0x4D, 0x5E}},
+        {"Multicast (ff02::1)", {0xFF, 0x02, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
         {"Global unicast (2001:db8::1)",
-         {0x20,0x01,0x0D,0xB8, 0,0,0,0, 0,0,0,0, 0,0,0,1}},
-        {"ULA (fd00::1)",
-         {0xFD,0x00,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,1}},
+         {0x20, 0x01, 0x0D, 0xB8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
+        {"ULA (fd00::1)", {0xFD, 0x00, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
     };
 
     for (int i = 0; i < 6; i++) {
         char buf[64];
         nfs_ipv6_addr_format(addrs[i].addr, buf, sizeof(buf));
-        printf("%-30s  %s  type=%s\n",
-               addrs[i].label, buf,
-               nfs_ipv6_addr_type_str(addrs[i].addr));
+        printf("%-30s  %s  type=%s\n", addrs[i].label, buf, nfs_ipv6_addr_type_str(addrs[i].addr));
     }
 
     /* EUI-64 from MAC */
@@ -50,8 +43,7 @@ static void demo(void)
     printf("  Solicited-node: %s\n", buf);
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     (void)argc;
     (void)argv;
     demo();

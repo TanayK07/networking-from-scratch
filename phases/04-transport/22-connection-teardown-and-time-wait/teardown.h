@@ -36,17 +36,16 @@ enum nfs_tcp_teardown_state {
 
 /* Connection context for teardown tracking. */
 struct nfs_tcp_conn {
-    int      state;           /* enum nfs_tcp_teardown_state */
-    uint32_t local_seq;       /* local sequence number */
-    uint32_t remote_seq;      /* remote sequence number */
-    double   time_wait_start; /* timestamp when TIME_WAIT was entered */
-    double   msl;             /* Maximum Segment Lifetime (seconds) */
+    int state;              /* enum nfs_tcp_teardown_state */
+    uint32_t local_seq;     /* local sequence number */
+    uint32_t remote_seq;    /* remote sequence number */
+    double time_wait_start; /* timestamp when TIME_WAIT was entered */
+    double msl;             /* Maximum Segment Lifetime (seconds) */
 };
 
 /* Initialize a connection in ESTABLISHED state.
  * msl = Maximum Segment Lifetime in seconds (typically 30-120s). */
-void nfs_conn_init(struct nfs_tcp_conn *c, uint32_t local_seq,
-                   uint32_t remote_seq, double msl);
+void nfs_conn_init(struct nfs_tcp_conn *c, uint32_t local_seq, uint32_t remote_seq, double msl);
 
 /* Initiate active close (application calls close()).
  * ESTABLISHED -> FIN_WAIT_1  (send FIN)

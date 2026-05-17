@@ -9,36 +9,32 @@
  * 'used' and consumed from offset 0 (with a memmove to compact).
  * --------------------------------------------------------------- */
 
-void nfs_recv_window_init(struct nfs_recv_window *w, size_t capacity)
-{
+void nfs_recv_window_init(struct nfs_recv_window *w, size_t capacity) {
     if (!w)
         return;
-    w->buffer   = calloc(1, capacity);
+    w->buffer = calloc(1, capacity);
     w->capacity = capacity;
-    w->used     = 0;
-    w->rcv_nxt  = 0;
+    w->used = 0;
+    w->rcv_nxt = 0;
 }
 
-void nfs_recv_window_free(struct nfs_recv_window *w)
-{
+void nfs_recv_window_free(struct nfs_recv_window *w) {
     if (!w)
         return;
     free(w->buffer);
-    w->buffer   = NULL;
+    w->buffer = NULL;
     w->capacity = 0;
-    w->used     = 0;
+    w->used = 0;
 }
 
-uint32_t nfs_recv_window_advertised(const struct nfs_recv_window *w)
-{
+uint32_t nfs_recv_window_advertised(const struct nfs_recv_window *w) {
     if (!w)
         return 0;
     return (uint32_t)(w->capacity - w->used);
 }
 
-int nfs_recv_window_receive(struct nfs_recv_window *w, uint32_t seq,
-                            const uint8_t *data, size_t len)
-{
+int nfs_recv_window_receive(struct nfs_recv_window *w, uint32_t seq, const uint8_t *data,
+                            size_t len) {
     if (!w || !w->buffer)
         return -1;
 
@@ -59,15 +55,13 @@ int nfs_recv_window_receive(struct nfs_recv_window *w, uint32_t seq,
 
     size_t accept = len < space ? len : space;
     memcpy(w->buffer + w->used, data, accept);
-    w->used    += accept;
+    w->used += accept;
     w->rcv_nxt += (uint32_t)accept;
 
     return (int)accept;
 }
 
-size_t nfs_recv_window_read(struct nfs_recv_window *w, uint8_t *out,
-                            size_t max)
-{
+size_t nfs_recv_window_read(struct nfs_recv_window *w, uint8_t *out, size_t max) {
     if (!w || !w->buffer || !out)
         return 0;
 
@@ -86,8 +80,7 @@ size_t nfs_recv_window_read(struct nfs_recv_window *w, uint8_t *out,
     return to_read;
 }
 
-int nfs_recv_window_is_zero(const struct nfs_recv_window *w)
-{
+int nfs_recv_window_is_zero(const struct nfs_recv_window *w) {
     if (!w)
         return 1;
     return (w->capacity - w->used) == 0 ? 1 : 0;
@@ -97,28 +90,25 @@ int nfs_recv_window_is_zero(const struct nfs_recv_window *w)
  * Zero-window probe timer.
  * --------------------------------------------------------------- */
 
-void nfs_zwp_init(struct nfs_zwp *z, double interval)
-{
+void nfs_zwp_init(struct nfs_zwp *z, double interval) {
     if (!z)
         return;
-    z->active          = 0;
-    z->interval        = interval;
+    z->active = 0;
+    z->interval = interval;
     z->last_probe_time = 0.0;
-    z->probe_count     = 0;
+    z->probe_count = 0;
 }
 
-int nfs_zwp_start(struct nfs_zwp *z, double now)
-{
+int nfs_zwp_start(struct nfs_zwp *z, double now) {
     if (!z)
         return -1;
-    z->active          = 1;
+    z->active = 1;
     z->last_probe_time = now;
-    z->probe_count     = 0;
+    z->probe_count = 0;
     return 0;
 }
 
-int nfs_zwp_check(struct nfs_zwp *z, double now)
-{
+int nfs_zwp_check(struct nfs_zwp *z, double now) {
     if (!z || !z->active)
         return 0;
 
@@ -130,11 +120,10 @@ int nfs_zwp_check(struct nfs_zwp *z, double now)
     return 0;
 }
 
-void nfs_zwp_stop(struct nfs_zwp *z)
-{
+void nfs_zwp_stop(struct nfs_zwp *z) {
     if (!z)
         return;
-    z->active          = 0;
-    z->probe_count     = 0;
+    z->active = 0;
+    z->probe_count = 0;
     z->last_probe_time = 0.0;
 }

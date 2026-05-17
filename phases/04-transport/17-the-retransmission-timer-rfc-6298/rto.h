@@ -27,18 +27,18 @@
  *     On retransmit timeout, RTO = min(RTO * 2, RTO_MAX)
  * --------------------------------------------------------------- */
 
-#define NFS_RTO_MIN   1.0    /* seconds (RFC 6298 Section 2.4) */
-#define NFS_RTO_MAX  60.0    /* seconds (RFC 6298 Section 2.5) */
-#define NFS_RTO_K     4.0    /* variance multiplier */
-#define NFS_RTO_ALPHA 0.125  /* 1/8 — SRTT smoothing factor */
-#define NFS_RTO_BETA  0.25   /* 1/4 — RTTVAR smoothing factor */
-#define NFS_RTO_G     0.0    /* clock granularity (0 = fine-grained) */
+#define NFS_RTO_MIN   1.0   /* seconds (RFC 6298 Section 2.4) */
+#define NFS_RTO_MAX   60.0  /* seconds (RFC 6298 Section 2.5) */
+#define NFS_RTO_K     4.0   /* variance multiplier */
+#define NFS_RTO_ALPHA 0.125 /* 1/8 — SRTT smoothing factor */
+#define NFS_RTO_BETA  0.25  /* 1/4 — RTTVAR smoothing factor */
+#define NFS_RTO_G     0.0   /* clock granularity (0 = fine-grained) */
 
 struct nfs_rto_state {
-    double srtt;        /* smoothed RTT */
-    double rttvar;      /* RTT variance */
-    double rto;         /* current retransmission timeout */
-    int    initialized; /* has at least one RTT measurement? */
+    double srtt;     /* smoothed RTT */
+    double rttvar;   /* RTT variance */
+    double rto;      /* current retransmission timeout */
+    int initialized; /* has at least one RTT measurement? */
 };
 
 /* Initialize the RTO state. RTO starts at 1.0 second (RFC 6298 2.1). */

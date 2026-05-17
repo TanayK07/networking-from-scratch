@@ -8,13 +8,13 @@
  * TCP Option Kind constants (RFC 9293, IANA TCP Option Kind Numbers).
  * --------------------------------------------------------------- */
 
-#define NFS_TCPOPT_EOL        0   /* End of Option List */
-#define NFS_TCPOPT_NOP        1   /* No-Operation (padding) */
-#define NFS_TCPOPT_MSS        2   /* Maximum Segment Size (RFC 9293) */
-#define NFS_TCPOPT_WSCALE     3   /* Window Scale (RFC 7323) */
-#define NFS_TCPOPT_SACK_PERM  4   /* SACK Permitted (RFC 2018) */
-#define NFS_TCPOPT_SACK       5   /* SACK blocks (RFC 2018) */
-#define NFS_TCPOPT_TIMESTAMPS 8   /* Timestamps (RFC 7323) */
+#define NFS_TCPOPT_EOL        0 /* End of Option List */
+#define NFS_TCPOPT_NOP        1 /* No-Operation (padding) */
+#define NFS_TCPOPT_MSS        2 /* Maximum Segment Size (RFC 9293) */
+#define NFS_TCPOPT_WSCALE     3 /* Window Scale (RFC 7323) */
+#define NFS_TCPOPT_SACK_PERM  4 /* SACK Permitted (RFC 2018) */
+#define NFS_TCPOPT_SACK       5 /* SACK blocks (RFC 2018) */
+#define NFS_TCPOPT_TIMESTAMPS 8 /* Timestamps (RFC 7323) */
 
 /* Maximum number of SACK block pairs in a single SACK option.
  * With a 40-byte option space: (40 - 2 header) / 8 = 4 blocks max,
@@ -27,17 +27,17 @@
 
 struct nfs_tcp_option {
     uint8_t kind;
-    uint8_t length;     /* total length including kind and length bytes */
+    uint8_t length; /* total length including kind and length bytes */
     union {
-        uint16_t mss;           /* kind=2: MSS value (host order) */
-        uint8_t  wscale;        /* kind=3: shift count */
+        uint16_t mss;   /* kind=2: MSS value (host order) */
+        uint8_t wscale; /* kind=3: shift count */
         struct {
-            uint32_t ts_val;    /* kind=8: timestamp value */
-            uint32_t ts_ecr;    /* kind=8: timestamp echo reply */
+            uint32_t ts_val; /* kind=8: timestamp value */
+            uint32_t ts_ecr; /* kind=8: timestamp echo reply */
         } timestamps;
         struct {
             uint32_t blocks[8]; /* left0, right0, left1, right1, ... */
-            size_t   nblocks;   /* number of block pairs */
+            size_t nblocks;     /* number of block pairs */
         } sack;
     } data;
 };
@@ -53,9 +53,8 @@ struct nfs_tcp_option {
  * max_opts = capacity of opts array
  * nfound   = set to number of parsed options
  * Returns 0 on success, -1 on malformed options. */
-int nfs_tcp_opts_parse(const uint8_t *data, size_t len,
-                       struct nfs_tcp_option *opts, size_t max_opts,
-                       size_t *nfound);
+int nfs_tcp_opts_parse(const uint8_t *data, size_t len, struct nfs_tcp_option *opts,
+                       size_t max_opts, size_t *nfound);
 
 /* ---------------------------------------------------------------
  * Building individual options
@@ -71,8 +70,7 @@ int nfs_tcp_opts_build_wscale(uint8_t shift, uint8_t *out, size_t out_sz);
 
 /* Build Timestamps option (kind=8, len=10, two 4-byte values).
  * Returns bytes written, or -1 on insufficient space. */
-int nfs_tcp_opts_build_timestamps(uint32_t ts_val, uint32_t ts_ecr,
-                                  uint8_t *out, size_t out_sz);
+int nfs_tcp_opts_build_timestamps(uint32_t ts_val, uint32_t ts_ecr, uint8_t *out, size_t out_sz);
 
 /* Build SACK Permitted option (kind=4, len=2).
  * Returns bytes written, or -1 on insufficient space. */

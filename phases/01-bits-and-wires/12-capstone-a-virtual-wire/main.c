@@ -2,15 +2,13 @@
 #include <stdio.h>
 #include <string.h>
 
-static void print_hex(const uint8_t *data, size_t len)
-{
+static void print_hex(const uint8_t *data, size_t len) {
     for (size_t i = 0; i < len; i++)
         printf("%02x ", data[i]);
     printf("\n");
 }
 
-static void demo_clean_wire(void)
-{
+static void demo_clean_wire(void) {
     printf("=== Clean Wire (no impairments) ===\n");
 
     nfs_wire_cfg_t cfg = {0};
@@ -29,12 +27,10 @@ static void demo_clean_wire(void)
     printf("Output: ");
     print_hex(out, out_len);
     printf("Result: %s\n", rc == 0 ? "delivered" : "dropped");
-    printf("Match:  %s\n\n",
-           memcmp(frame, out, sizeof(frame)) == 0 ? "YES" : "NO");
+    printf("Match:  %s\n\n", memcmp(frame, out, sizeof(frame)) == 0 ? "YES" : "NO");
 }
 
-static void demo_noisy_wire(void)
-{
+static void demo_noisy_wire(void) {
     printf("=== Noisy Wire (BER = 0.01) ===\n");
 
     nfs_wire_cfg_t cfg = {0};
@@ -59,8 +55,7 @@ static void demo_noisy_wire(void)
     printf("Stats:  %s\n\n", stats);
 }
 
-static void demo_lossy_wire(void)
-{
+static void demo_lossy_wire(void) {
     printf("=== Lossy Wire (drop_prob = 0.3) ===\n");
 
     nfs_wire_cfg_t cfg = {0};
@@ -75,8 +70,7 @@ static void demo_lossy_wire(void)
     int delivered = 0, dropped_count = 0;
 
     for (int i = 0; i < 20; i++) {
-        int rc = nfs_wire_transmit(&wire, frame, sizeof(frame),
-                                   out, sizeof(out), &out_len);
+        int rc = nfs_wire_transmit(&wire, frame, sizeof(frame), out, sizeof(out), &out_len);
         printf("  Frame %2d: %s\n", i + 1, rc == 0 ? "delivered" : "DROPPED");
         if (rc == 0)
             delivered++;
@@ -88,8 +82,7 @@ static void demo_lossy_wire(void)
     printf("Loss rate: %.2f\n\n", nfs_wire_loss_rate(&wire));
 }
 
-static void demo_delay_jitter(void)
-{
+static void demo_delay_jitter(void) {
     printf("=== Delay + Jitter (1000us +/- 200us) ===\n");
 
     nfs_wire_cfg_t cfg = {0};
@@ -106,18 +99,15 @@ static void demo_delay_jitter(void)
     printf("\n");
 }
 
-static void demo_full_channel(void)
-{
+static void demo_full_channel(void) {
     printf("=== Full Channel (BER=0.001, drop=0.05, delay=500us, jitter=50us) ===\n");
 
-    nfs_wire_cfg_t cfg = {
-        .ber = 0.001,
-        .drop_prob = 0.05,
-        .delay_us = 500,
-        .jitter_us = 50,
-        .reorder_prob = 0.02,
-        .seed = 42
-    };
+    nfs_wire_cfg_t cfg = {.ber = 0.001,
+                          .drop_prob = 0.05,
+                          .delay_us = 500,
+                          .jitter_us = 50,
+                          .reorder_prob = 0.02,
+                          .seed = 42};
     nfs_wire_t wire;
     nfs_wire_init(&wire, &cfg);
 
@@ -136,8 +126,7 @@ static void demo_full_channel(void)
     printf("After 100 frames:\n  %s\n\n", stats);
 }
 
-int main(void)
-{
+int main(void) {
     printf("Virtual Wire Simulator - Capstone Demo\n");
     printf("=======================================\n\n");
 

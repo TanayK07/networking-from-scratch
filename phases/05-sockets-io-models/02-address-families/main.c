@@ -4,8 +4,7 @@
 #include "addr.h"
 #include <stdio.h>
 
-int main(void)
-{
+int main(void) {
     char str[NFS_ADDR_STR_MAX];
 
     printf("=== Address Families ===\n\n");
@@ -21,8 +20,7 @@ int main(void)
 
     struct sockaddr_in lo4;
     nfs_addr_build_inet("127.0.0.1", 80, &lo4);
-    printf("  %s (loopback=%d)\n\n",
-           nfs_addr_format_inet(&lo4, str, sizeof(str)),
+    printf("  %s (loopback=%d)\n\n", nfs_addr_format_inet(&lo4, str, sizeof(str)),
            nfs_addr_is_loopback4(&lo4));
 
     /* AF_INET6 */
@@ -35,8 +33,7 @@ int main(void)
 
     struct sockaddr_in6 lo6;
     nfs_addr_build_inet6("::1", 0, &lo6);
-    printf("  %s (loopback=%d)\n\n",
-           nfs_addr_format_inet6(&lo6, str, sizeof(str)),
+    printf("  %s (loopback=%d)\n\n", nfs_addr_format_inet6(&lo6, str, sizeof(str)),
            nfs_addr_is_loopback6(&lo6));
 
     /* AF_UNIX */

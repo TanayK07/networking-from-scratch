@@ -16,16 +16,16 @@
  */
 
 /* Entry states. */
-#define NFS_ARP_INCOMPLETE  0
-#define NFS_ARP_REACHABLE   1
-#define NFS_ARP_STALE       2
-#define NFS_ARP_FAILED      3
+#define NFS_ARP_INCOMPLETE 0
+#define NFS_ARP_REACHABLE  1
+#define NFS_ARP_STALE      2
+#define NFS_ARP_FAILED     3
 
 struct nfs_arp_entry {
-    uint32_t ip;            /* IPv4 address, host byte order */
-    uint8_t  mac[6];
-    int      state;
-    time_t   timestamp;     /* time of last state change */
+    uint32_t ip; /* IPv4 address, host byte order */
+    uint8_t mac[6];
+    int state;
+    time_t timestamp; /* time of last state change */
 };
 
 struct nfs_arp_cache {
@@ -45,12 +45,10 @@ void nfs_arp_cache_free(struct nfs_arp_cache *c);
  * If the IP already exists, update its MAC, state, and timestamp.
  * Returns 0 on success, -1 if the cache is full (new entry only).
  */
-int nfs_arp_cache_insert(struct nfs_arp_cache *c, uint32_t ip,
-                         const uint8_t mac[6], int state);
+int nfs_arp_cache_insert(struct nfs_arp_cache *c, uint32_t ip, const uint8_t mac[6], int state);
 
 /* Look up by IP.  Returns pointer to internal entry, or NULL. */
-const struct nfs_arp_entry *nfs_arp_cache_lookup(
-    const struct nfs_arp_cache *c, uint32_t ip);
+const struct nfs_arp_entry *nfs_arp_cache_lookup(const struct nfs_arp_cache *c, uint32_t ip);
 
 /* Remove entry by IP.  Returns 0 on success, -1 if not found. */
 int nfs_arp_cache_remove(struct nfs_arp_cache *c, uint32_t ip);
@@ -64,8 +62,7 @@ int nfs_arp_cache_remove(struct nfs_arp_cache *c, uint32_t ip);
 int nfs_arp_cache_age(struct nfs_arp_cache *c, int timeout_sec);
 
 /* Format all entries into a human-readable string. */
-void nfs_arp_cache_format(const struct nfs_arp_cache *c,
-                          char *buf, size_t sz);
+void nfs_arp_cache_format(const struct nfs_arp_cache *c, char *buf, size_t sz);
 
 /* Helper: return a human-readable state name. */
 const char *nfs_arp_state_name(int state);

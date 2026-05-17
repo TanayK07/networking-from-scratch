@@ -17,16 +17,16 @@
  * --------------------------------------------------------------- */
 
 /* Traditional UDP message size limit (RFC 1035) */
-#define NFS_DNS_UDP_MAX     512
+#define NFS_DNS_UDP_MAX 512
 
 /* Maximum TCP DNS message size (practical limit) */
-#define NFS_DNS_TCP_MAX     65535
+#define NFS_DNS_TCP_MAX 65535
 
 /* DNS header size */
-#define NFS_DNS_HDR_SIZE    12
+#define NFS_DNS_HDR_SIZE 12
 
 /* TCP length prefix size */
-#define NFS_DNS_TCP_PREFIX  2
+#define NFS_DNS_TCP_PREFIX 2
 
 /* DNS header (wire format, network byte order). */
 struct __attribute__((packed)) nfs_dns_transport_hdr {
@@ -38,16 +38,14 @@ struct __attribute__((packed)) nfs_dns_transport_hdr {
     uint16_t arcount;
 };
 
-_Static_assert(sizeof(struct nfs_dns_transport_hdr) == 12,
-               "DNS header must be 12 bytes");
+_Static_assert(sizeof(struct nfs_dns_transport_hdr) == 12, "DNS header must be 12 bytes");
 
 /* --- TCP framing ------------------------------------------------ */
 
 /* Add a 2-byte TCP length prefix to a DNS message.
  * Writes the framed message to `out` (2 + msg_len bytes).
  * Returns the total framed length, or -1 on error. */
-int nfs_dns_tcp_frame(const uint8_t *msg, uint16_t msg_len,
-                      uint8_t *out, size_t out_sz);
+int nfs_dns_tcp_frame(const uint8_t *msg, uint16_t msg_len, uint8_t *out, size_t out_sz);
 
 /* Extract a DNS message from a TCP-framed buffer.
  * Reads the 2-byte length prefix, validates it, and sets
@@ -55,8 +53,8 @@ int nfs_dns_tcp_frame(const uint8_t *msg, uint16_t msg_len,
  * message length.
  * Returns the total bytes consumed (2 + message length), or
  * -1 on error (including incomplete data). */
-int nfs_dns_tcp_unframe(const uint8_t *data, size_t data_len,
-                        const uint8_t **msg_out, uint16_t *msg_len);
+int nfs_dns_tcp_unframe(const uint8_t *data, size_t data_len, const uint8_t **msg_out,
+                        uint16_t *msg_len);
 
 /* --- Truncation detection --------------------------------------- */
 
@@ -87,9 +85,8 @@ int nfs_dns_fits_tcp(size_t msg_len);
  * the header counts and sets TC -- the caller must handle
  * the actual section truncation. For this lesson we implement
  * a simpler approach: just keep the header + question. */
-int nfs_dns_truncate_response(const uint8_t *msg, size_t msg_len,
-                              uint16_t max_size,
-                              uint8_t *out, size_t out_sz);
+int nfs_dns_truncate_response(const uint8_t *msg, size_t msg_len, uint16_t max_size, uint8_t *out,
+                              size_t out_sz);
 
 /* --- Multi-message TCP stream parsing --------------------------- */
 
@@ -97,8 +94,7 @@ int nfs_dns_truncate_response(const uint8_t *msg, size_t msg_len,
  * For each message found, stores the offset and length.
  * Returns the number of complete messages found, or -1 on error.
  * `offsets` and `lengths` arrays must have at least `max_msgs` entries. */
-int nfs_dns_tcp_parse_stream(const uint8_t *data, size_t data_len,
-                             size_t *offsets, uint16_t *lengths,
-                             int max_msgs);
+int nfs_dns_tcp_parse_stream(const uint8_t *data, size_t data_len, size_t *offsets,
+                             uint16_t *lengths, int max_msgs);
 
 #endif /* NFS_DNS_TRANSPORT_H */

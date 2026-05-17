@@ -2,15 +2,15 @@
  * slaac.c -- SLAAC (Stateless Address Autoconfiguration) implementation
  */
 #include "slaac.h"
-#include <string.h>
 #include <stdio.h>
+#include <string.h>
 
-int nfs_slaac_eui64(const uint8_t *mac, uint8_t *eui64)
-{
-    if (!mac || !eui64) return -1;
+int nfs_slaac_eui64(const uint8_t *mac, uint8_t *eui64) {
+    if (!mac || !eui64)
+        return -1;
 
     /* OUI (3 bytes) + 0xFF 0xFE + NIC (3 bytes) */
-    eui64[0] = mac[0] ^ 0x02;  /* flip U/L bit */
+    eui64[0] = mac[0] ^ 0x02; /* flip U/L bit */
     eui64[1] = mac[1];
     eui64[2] = mac[2];
     eui64[3] = 0xFF;
@@ -22,15 +22,17 @@ int nfs_slaac_eui64(const uint8_t *mac, uint8_t *eui64)
     return 0;
 }
 
-int nfs_slaac_generate_addr(const uint8_t *prefix, uint8_t prefix_len,
-                            const uint8_t *mac, uint8_t *addr_out)
-{
-    if (!prefix || !mac || !addr_out) return -1;
-    if (prefix_len > 128) return -1;
+int nfs_slaac_generate_addr(const uint8_t *prefix, uint8_t prefix_len, const uint8_t *mac,
+                            uint8_t *addr_out) {
+    if (!prefix || !mac || !addr_out)
+        return -1;
+    if (prefix_len > 128)
+        return -1;
 
     /* Generate EUI-64 interface ID */
     uint8_t eui64[8];
-    if (nfs_slaac_eui64(mac, eui64) < 0) return -1;
+    if (nfs_slaac_eui64(mac, eui64) < 0)
+        return -1;
 
     /* Start with the prefix */
     memcpy(addr_out, prefix, 16);
@@ -82,16 +84,17 @@ int nfs_slaac_generate_addr(const uint8_t *prefix, uint8_t prefix_len,
     return 0;
 }
 
-int nfs_slaac_validate_prefix(const uint8_t *prefix, uint8_t prefix_len,
-                              int reject_linklocal)
-{
-    if (!prefix) return 0;
+int nfs_slaac_validate_prefix(const uint8_t *prefix, uint8_t prefix_len, int reject_linklocal) {
+    if (!prefix)
+        return 0;
 
     /* Must be /64 for SLAAC */
-    if (prefix_len != 64) return 0;
+    if (prefix_len != 64)
+        return 0;
 
     /* Must not be multicast (ff00::/8) */
-    if (prefix[0] == 0xFF) return 0;
+    if (prefix[0] == 0xFF)
+        return 0;
 
     /* Optionally reject link-local (fe80::/10) */
     if (reject_linklocal) {
@@ -102,18 +105,20 @@ int nfs_slaac_validate_prefix(const uint8_t *prefix, uint8_t prefix_len,
     /* Must not be loopback (::1) */
     uint8_t loopback[16] = {0};
     loopback[15] = 1;
-    if (memcmp(prefix, loopback, 16) == 0) return 0;
+    if (memcmp(prefix, loopback, 16) == 0)
+        return 0;
 
     /* Must not be all zeros (::) */
     uint8_t zeros[16] = {0};
-    if (memcmp(prefix, zeros, 16) == 0) return 0;
+    if (memcmp(prefix, zeros, 16) == 0)
+        return 0;
 
     return 1;
 }
 
-int nfs_slaac_linklocal(const uint8_t *mac, uint8_t *addr_out)
-{
-    if (!mac || !addr_out) return -1;
+int nfs_slaac_linklocal(const uint8_t *mac, uint8_t *addr_out) {
+    if (!mac || !addr_out)
+        return -1;
 
     /* fe80::/64 prefix */
     memset(addr_out, 0, 16);
@@ -124,9 +129,9 @@ int nfs_slaac_linklocal(const uint8_t *mac, uint8_t *addr_out)
     return nfs_slaac_eui64(mac, addr_out + 8);
 }
 
-int nfs_slaac_solicited_node(const uint8_t *addr, uint8_t *mcast_out)
-{
-    if (!addr || !mcast_out) return -1;
+int nfs_slaac_solicited_node(const uint8_t *addr, uint8_t *mcast_out) {
+    if (!addr || !mcast_out)
+        return -1;
 
     /* ff02::1:ffXX:XXXX */
     memset(mcast_out, 0, 16);
@@ -142,19 +147,17 @@ int nfs_slaac_solicited_node(const uint8_t *addr, uint8_t *mcast_out)
     return 0;
 }
 
-char *nfs_slaac_format_ipv6(const uint8_t *addr, char *out, size_t out_sz)
-{
+char *nfs_slaac_format_ipv6(const uint8_t *addr, char *out, size_t out_sz) {
     if (!addr || !out || out_sz < 40) {
-        if (out && out_sz > 0) out[0] = '\0';
+        if (out && out_sz > 0)
+            out[0] = '\0';
         return out;
     }
 
     snprintf(out, out_sz,
              "%02x%02x:%02x%02x:%02x%02x:%02x%02x:"
              "%02x%02x:%02x%02x:%02x%02x:%02x%02x",
-             addr[0], addr[1], addr[2], addr[3],
-             addr[4], addr[5], addr[6], addr[7],
-             addr[8], addr[9], addr[10], addr[11],
-             addr[12], addr[13], addr[14], addr[15]);
+             addr[0], addr[1], addr[2], addr[3], addr[4], addr[5], addr[6], addr[7], addr[8],
+             addr[9], addr[10], addr[11], addr[12], addr[13], addr[14], addr[15]);
     return out;
 }

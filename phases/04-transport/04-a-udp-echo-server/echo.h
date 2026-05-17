@@ -15,7 +15,7 @@
  * Max payload: 65507 bytes (UDP max: 65535 - 8 UDP header - 20 IP)
  * --------------------------------------------------------------- */
 
-#define NFS_ECHO_MAX_PAYLOAD  65507
+#define NFS_ECHO_MAX_PAYLOAD 65507
 
 /* Statistics tracked by the echo server. */
 struct nfs_echo_stats {
@@ -27,8 +27,8 @@ struct nfs_echo_stats {
 /* Opaque echo server context. */
 struct nfs_echo_server {
     struct nfs_echo_stats stats;
-    int                   running;      /* 1 = initialized, 0 = not */
-    uint16_t              max_payload;  /* configurable max payload */
+    int running;          /* 1 = initialized, 0 = not */
+    uint16_t max_payload; /* configurable max payload */
 };
 
 /* Initialize an echo server context.
@@ -41,14 +41,12 @@ int nfs_echo_init(struct nfs_echo_server *srv, uint16_t max_payload);
  * out/out_max: buffer for echo response
  * out_len:     on success, set to number of bytes written to out
  * Returns 0 on success, -1 on error (NULL ptrs, too large, etc). */
-int nfs_echo_process(struct nfs_echo_server *srv,
-                     const uint8_t *in, size_t in_len,
-                     uint8_t *out, size_t out_max, size_t *out_len);
+int nfs_echo_process(struct nfs_echo_server *srv, const uint8_t *in, size_t in_len, uint8_t *out,
+                     size_t out_max, size_t *out_len);
 
 /* Retrieve accumulated statistics.
  * Returns 0 on success, -1 if srv or out is NULL. */
-int nfs_echo_stats(const struct nfs_echo_server *srv,
-                   struct nfs_echo_stats *out);
+int nfs_echo_stats(const struct nfs_echo_server *srv, struct nfs_echo_stats *out);
 
 /* Reset statistics to zero. Returns 0 on success. */
 int nfs_echo_reset_stats(struct nfs_echo_server *srv);

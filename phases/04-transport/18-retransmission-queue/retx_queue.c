@@ -11,28 +11,25 @@
  * front of the queue is removed.
  * --------------------------------------------------------------- */
 
-void nfs_retx_queue_init(struct nfs_retx_queue *q, size_t capacity)
-{
+void nfs_retx_queue_init(struct nfs_retx_queue *q, size_t capacity) {
     if (!q)
         return;
     q->segments = calloc(capacity, sizeof(struct nfs_retx_seg));
-    q->count    = 0;
+    q->count = 0;
     q->capacity = capacity;
 }
 
-void nfs_retx_queue_free(struct nfs_retx_queue *q)
-{
+void nfs_retx_queue_free(struct nfs_retx_queue *q) {
     if (!q)
         return;
     free(q->segments);
     q->segments = NULL;
-    q->count    = 0;
+    q->count = 0;
     q->capacity = 0;
 }
 
-int nfs_retx_queue_push(struct nfs_retx_queue *q, uint32_t seq,
-                        const uint8_t *data, size_t len, double send_time)
-{
+int nfs_retx_queue_push(struct nfs_retx_queue *q, uint32_t seq, const uint8_t *data, size_t len,
+                        double send_time) {
     if (!q || !q->segments)
         return -1;
     if (q->count >= q->capacity)
@@ -41,9 +38,9 @@ int nfs_retx_queue_push(struct nfs_retx_queue *q, uint32_t seq,
         return -1;
 
     struct nfs_retx_seg *seg = &q->segments[q->count];
-    seg->seq        = seq;
-    seg->data_len   = len;
-    seg->send_time  = send_time;
+    seg->seq = seq;
+    seg->data_len = len;
+    seg->send_time = send_time;
     seg->retx_count = 0;
     if (len > 0)
         memcpy(seg->data, data, len);
@@ -52,8 +49,7 @@ int nfs_retx_queue_push(struct nfs_retx_queue *q, uint32_t seq,
     return 0;
 }
 
-int nfs_retx_queue_ack(struct nfs_retx_queue *q, uint32_t ack_num)
-{
+int nfs_retx_queue_ack(struct nfs_retx_queue *q, uint32_t ack_num) {
     if (!q || !q->segments)
         return 0;
 
@@ -78,9 +74,7 @@ int nfs_retx_queue_ack(struct nfs_retx_queue *q, uint32_t ack_num)
     return removed;
 }
 
-struct nfs_retx_seg *nfs_retx_queue_find(struct nfs_retx_queue *q,
-                                         uint32_t seq)
-{
+struct nfs_retx_seg *nfs_retx_queue_find(struct nfs_retx_queue *q, uint32_t seq) {
     if (!q || !q->segments)
         return NULL;
 
@@ -91,8 +85,7 @@ struct nfs_retx_seg *nfs_retx_queue_find(struct nfs_retx_queue *q,
     return NULL;
 }
 
-int nfs_retx_queue_timeout(struct nfs_retx_queue *q, double now, double rto)
-{
+int nfs_retx_queue_timeout(struct nfs_retx_queue *q, double now, double rto) {
     if (!q || !q->segments)
         return 0;
 
@@ -107,15 +100,13 @@ int nfs_retx_queue_timeout(struct nfs_retx_queue *q, double now, double rto)
     return timed_out;
 }
 
-size_t nfs_retx_queue_size(const struct nfs_retx_queue *q)
-{
+size_t nfs_retx_queue_size(const struct nfs_retx_queue *q) {
     if (!q)
         return 0;
     return q->count;
 }
 
-int nfs_retx_queue_empty(const struct nfs_retx_queue *q)
-{
+int nfs_retx_queue_empty(const struct nfs_retx_queue *q) {
     if (!q)
         return 1;
     return q->count == 0 ? 1 : 0;

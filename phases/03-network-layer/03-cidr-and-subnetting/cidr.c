@@ -4,8 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-int nfs_ip_parse(const char *str, uint32_t *out)
-{
+int nfs_ip_parse(const char *str, uint32_t *out) {
     if (!str || !out)
         return -1;
 
@@ -21,17 +20,12 @@ int nfs_ip_parse(const char *str, uint32_t *out)
     return 0;
 }
 
-void nfs_ip_format(uint32_t ip, char *buf, size_t sz)
-{
-    snprintf(buf, sz, "%u.%u.%u.%u",
-             (ip >> 24) & 0xFF,
-             (ip >> 16) & 0xFF,
-             (ip >> 8)  & 0xFF,
-              ip        & 0xFF);
+void nfs_ip_format(uint32_t ip, char *buf, size_t sz) {
+    snprintf(buf, sz, "%u.%u.%u.%u", (ip >> 24) & 0xFF, (ip >> 16) & 0xFF, (ip >> 8) & 0xFF,
+             ip & 0xFF);
 }
 
-int nfs_cidr_parse(const char *str, struct nfs_cidr *out)
-{
+int nfs_cidr_parse(const char *str, struct nfs_cidr *out) {
     if (!str || !out)
         return -1;
 
@@ -64,26 +58,22 @@ int nfs_cidr_parse(const char *str, struct nfs_cidr *out)
     return 0;
 }
 
-uint32_t nfs_cidr_mask(uint8_t prefix_len)
-{
+uint32_t nfs_cidr_mask(uint8_t prefix_len) {
     if (prefix_len == 0)
         return 0;
     return 0xFFFFFFFFU << (32 - prefix_len);
 }
 
-uint32_t nfs_cidr_network(const struct nfs_cidr *c)
-{
+uint32_t nfs_cidr_network(const struct nfs_cidr *c) {
     return c->addr & nfs_cidr_mask(c->prefix_len);
 }
 
-uint32_t nfs_cidr_broadcast(const struct nfs_cidr *c)
-{
+uint32_t nfs_cidr_broadcast(const struct nfs_cidr *c) {
     uint32_t mask = nfs_cidr_mask(c->prefix_len);
     return nfs_cidr_network(c) | ~mask;
 }
 
-uint32_t nfs_cidr_host_count(uint8_t prefix_len)
-{
+uint32_t nfs_cidr_host_count(uint8_t prefix_len) {
     if (prefix_len >= 32)
         return 1;
     if (prefix_len == 31)
@@ -95,14 +85,12 @@ uint32_t nfs_cidr_host_count(uint8_t prefix_len)
     return total - 2;
 }
 
-int nfs_cidr_contains(const struct nfs_cidr *net, uint32_t ip)
-{
+int nfs_cidr_contains(const struct nfs_cidr *net, uint32_t ip) {
     uint32_t mask = nfs_cidr_mask(net->prefix_len);
     return (ip & mask) == (net->addr & mask);
 }
 
-int nfs_cidr_overlap(const struct nfs_cidr *a, const struct nfs_cidr *b)
-{
+int nfs_cidr_overlap(const struct nfs_cidr *a, const struct nfs_cidr *b) {
     /* Two CIDRs overlap if and only if one contains the network address
      * of the other (using the shorter prefix). Equivalently, use the
      * shorter prefix to compare both network addresses. */
@@ -111,8 +99,7 @@ int nfs_cidr_overlap(const struct nfs_cidr *a, const struct nfs_cidr *b)
     return (a->addr & mask) == (b->addr & mask);
 }
 
-void nfs_cidr_format(const struct nfs_cidr *c, char *buf, size_t sz)
-{
+void nfs_cidr_format(const struct nfs_cidr *c, char *buf, size_t sz) {
     char ip_buf[16];
     nfs_ip_format(c->addr, ip_buf, sizeof(ip_buf));
     snprintf(buf, sz, "%s/%u", ip_buf, c->prefix_len);

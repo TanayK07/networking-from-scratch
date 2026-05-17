@@ -1,10 +1,8 @@
 #include "ip_opts.h"
 #include <string.h>
 
-int nfs_ip_opts_parse(const uint8_t *data, size_t len,
-                      struct nfs_ip_option *opts, size_t max_opts,
-                      size_t *nfound)
-{
+int nfs_ip_opts_parse(const uint8_t *data, size_t len, struct nfs_ip_option *opts, size_t max_opts,
+                      size_t *nfound) {
     if (!data || !opts || !nfound)
         return -1;
 
@@ -19,7 +17,7 @@ int nfs_ip_opts_parse(const uint8_t *data, size_t len,
 
         /* End of Options List */
         if (type == NFS_IPOPT_EOL) {
-            opts[*nfound].type   = NFS_IPOPT_EOL;
+            opts[*nfound].type = NFS_IPOPT_EOL;
             opts[*nfound].length = 0;
             (*nfound)++;
             break;
@@ -27,7 +25,7 @@ int nfs_ip_opts_parse(const uint8_t *data, size_t len,
 
         /* No Operation (single byte, no length) */
         if (type == NFS_IPOPT_NOP) {
-            opts[*nfound].type   = NFS_IPOPT_NOP;
+            opts[*nfound].type = NFS_IPOPT_NOP;
             opts[*nfound].length = 0;
             (*nfound)++;
             pos++;
@@ -36,7 +34,7 @@ int nfs_ip_opts_parse(const uint8_t *data, size_t len,
 
         /* Multi-byte option: type + length + data */
         if (pos + 1 >= len)
-            return -1;  /* Truncated: no length byte */
+            return -1; /* Truncated: no length byte */
 
         uint8_t opt_len = data[pos + 1];
 
@@ -48,7 +46,7 @@ int nfs_ip_opts_parse(const uint8_t *data, size_t len,
         if (pos + opt_len > len)
             return -1;
 
-        opts[*nfound].type   = type;
+        opts[*nfound].type = type;
         opts[*nfound].length = opt_len;
 
         size_t data_len = opt_len - 2;
@@ -63,8 +61,7 @@ int nfs_ip_opts_parse(const uint8_t *data, size_t len,
     return 0;
 }
 
-int nfs_ip_opts_build_rr(int max_hops, uint8_t *out, size_t out_sz)
-{
+int nfs_ip_opts_build_rr(int max_hops, uint8_t *out, size_t out_sz) {
     if (!out || max_hops < 1)
         return -1;
 
@@ -78,14 +75,13 @@ int nfs_ip_opts_build_rr(int max_hops, uint8_t *out, size_t out_sz)
 
     out[0] = NFS_IPOPT_RR;
     out[1] = (uint8_t)total;
-    out[2] = 4;  /* Pointer: first slot */
+    out[2] = 4; /* Pointer: first slot */
     memset(out + 3, 0, (size_t)(max_hops * 4));
 
     return total;
 }
 
-int nfs_ip_opts_build_ts(int max_entries, uint8_t *out, size_t out_sz)
-{
+int nfs_ip_opts_build_ts(int max_entries, uint8_t *out, size_t out_sz) {
     if (!out || max_entries < 1)
         return -1;
 
@@ -99,15 +95,14 @@ int nfs_ip_opts_build_ts(int max_entries, uint8_t *out, size_t out_sz)
 
     out[0] = NFS_IPOPT_TS;
     out[1] = (uint8_t)total;
-    out[2] = 5;  /* Pointer: first timestamp slot */
-    out[3] = 0;  /* overflow(4 bits) | flag(4 bits): timestamps only */
+    out[2] = 5; /* Pointer: first timestamp slot */
+    out[3] = 0; /* overflow(4 bits) | flag(4 bits): timestamps only */
     memset(out + 4, 0, (size_t)(max_entries * 4));
 
     return total;
 }
 
-int nfs_ip_opts_pad(uint8_t *opts, size_t len, size_t *padded_len)
-{
+int nfs_ip_opts_pad(uint8_t *opts, size_t len, size_t *padded_len) {
     if (!opts || !padded_len)
         return -1;
 
@@ -133,15 +128,21 @@ int nfs_ip_opts_pad(uint8_t *opts, size_t len, size_t *padded_len)
     return 0;
 }
 
-const char *nfs_ip_opt_name(uint8_t type)
-{
+const char *nfs_ip_opt_name(uint8_t type) {
     switch (type) {
-    case NFS_IPOPT_EOL:  return "EOL";
-    case NFS_IPOPT_NOP:  return "NOP";
-    case NFS_IPOPT_RR:   return "Record Route";
-    case NFS_IPOPT_TS:   return "Timestamp";
-    case NFS_IPOPT_LSRR: return "Loose Source Route";
-    case NFS_IPOPT_SSRR: return "Strict Source Route";
-    default:             return "Unknown";
+    case NFS_IPOPT_EOL:
+        return "EOL";
+    case NFS_IPOPT_NOP:
+        return "NOP";
+    case NFS_IPOPT_RR:
+        return "Record Route";
+    case NFS_IPOPT_TS:
+        return "Timestamp";
+    case NFS_IPOPT_LSRR:
+        return "Loose Source Route";
+    case NFS_IPOPT_SSRR:
+        return "Strict Source Route";
+    default:
+        return "Unknown";
     }
 }

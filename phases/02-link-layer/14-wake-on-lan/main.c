@@ -3,8 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-static void hexdump(const uint8_t *data, size_t len)
-{
+static void hexdump(const uint8_t *data, size_t len) {
     for (size_t i = 0; i < len; i++) {
         printf("%02x", data[i]);
         if ((i + 1) % 16 == 0)
@@ -18,8 +17,7 @@ static void hexdump(const uint8_t *data, size_t len)
         printf("\n");
 }
 
-static void usage(const char *prog)
-{
+static void usage(const char *prog) {
     fprintf(stderr, "Usage:\n");
     fprintf(stderr, "  %s build <mac>              -- build magic packet\n", prog);
     fprintf(stderr, "  %s build <mac> <password>   -- build with SecureOn password\n", prog);
@@ -27,8 +25,7 @@ static void usage(const char *prog)
     fprintf(stderr, "\nMAC format: aa:bb:cc:dd:ee:ff or aa-bb-cc-dd-ee-ff\n");
 }
 
-static void demo(void)
-{
+static void demo(void) {
     printf("=== Wake-on-LAN Demo ===\n\n");
 
     uint8_t mac[] = {0x00, 0x1A, 0x2B, 0x3C, 0x4D, 0x5E};
@@ -43,12 +40,10 @@ static void demo(void)
     int rc = nfs_wol_validate(pkt, (size_t)n, extracted);
     char fmt[18];
     nfs_wol_mac_format(extracted, fmt, sizeof(fmt));
-    printf("\nValidation: %s, extracted MAC: %s\n",
-           rc == 0 ? "PASS" : "FAIL", fmt);
+    printf("\nValidation: %s, extracted MAC: %s\n", rc == 0 ? "PASS" : "FAIL", fmt);
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     if (argc < 2) {
         usage(argv[0]);
         return 1;

@@ -1,16 +1,13 @@
 /* What is a Network — implementation. */
 
 #include "network.h"
-#include <string.h>
 #include <arpa/inet.h>
+#include <string.h>
 
 /* ---- Packet build -------------------------------------------- */
 
-int nfs_pkt_build(uint8_t *buf, size_t buf_sz,
-                  uint8_t version, uint8_t type, uint8_t flags,
-                  uint32_t id,
-                  const uint8_t *payload, size_t payload_len)
-{
+int nfs_pkt_build(uint8_t *buf, size_t buf_sz, uint8_t version, uint8_t type, uint8_t flags,
+                  uint32_t id, const uint8_t *payload, size_t payload_len) {
     if (!buf)
         return -1;
     if (payload_len > 0 && !payload)
@@ -22,9 +19,9 @@ int nfs_pkt_build(uint8_t *buf, size_t buf_sz,
 
     struct nfs_pkt_header *h = (struct nfs_pkt_header *)buf;
     h->ver_type = (uint8_t)(((version & 0x0F) << 4) | (type & 0x0F));
-    h->flags    = flags;
-    h->length   = htons((uint16_t)total);
-    h->id       = htonl(id);
+    h->flags = flags;
+    h->length = htons((uint16_t)total);
+    h->id = htonl(id);
 
     if (payload_len > 0)
         memcpy(buf + NFS_PKT_HDR_SIZE, payload, payload_len);
@@ -34,10 +31,8 @@ int nfs_pkt_build(uint8_t *buf, size_t buf_sz,
 
 /* ---- Packet parse -------------------------------------------- */
 
-int nfs_pkt_parse(const uint8_t *buf, size_t buf_len,
-                  struct nfs_pkt_header *hdr,
-                  const uint8_t **payload_out, size_t *payload_len_out)
-{
+int nfs_pkt_parse(const uint8_t *buf, size_t buf_len, struct nfs_pkt_header *hdr,
+                  const uint8_t **payload_out, size_t *payload_len_out) {
     if (!buf || !hdr || !payload_out || !payload_len_out)
         return -1;
 
@@ -52,7 +47,7 @@ int nfs_pkt_parse(const uint8_t *buf, size_t buf_len,
     if (wire_len > buf_len || wire_len < NFS_PKT_HDR_SIZE)
         return -1;
 
-    *payload_out     = buf + NFS_PKT_HDR_SIZE;
+    *payload_out = buf + NFS_PKT_HDR_SIZE;
     *payload_len_out = wire_len - NFS_PKT_HDR_SIZE;
 
     return 0;
@@ -60,10 +55,9 @@ int nfs_pkt_parse(const uint8_t *buf, size_t buf_len,
 
 /* ---- Internet checksum (RFC 1071) ----------------------------- */
 
-uint16_t nfs_inet_checksum(const uint8_t *data, size_t len)
-{
+uint16_t nfs_inet_checksum(const uint8_t *data, size_t len) {
     if (!data || len == 0)
-        return 0xFFFF;  /* all-zeros data => 0xFFFF */
+        return 0xFFFF; /* all-zeros data => 0xFFFF */
 
     uint32_t sum = 0;
 
@@ -89,18 +83,12 @@ uint16_t nfs_inet_checksum(const uint8_t *data, size_t len)
 
 /* ---- Encapsulate / decapsulate -------------------------------- */
 
-int nfs_encapsulate(uint8_t *buf, size_t buf_sz,
-                    uint8_t type, uint8_t flags, uint32_t id,
-                    const uint8_t *payload, size_t payload_len)
-{
-    return nfs_pkt_build(buf, buf_sz,
-                         NFS_PKT_VERSION, type, flags, id,
-                         payload, payload_len);
+int nfs_encapsulate(uint8_t *buf, size_t buf_sz, uint8_t type, uint8_t flags, uint32_t id,
+                    const uint8_t *payload, size_t payload_len) {
+    return nfs_pkt_build(buf, buf_sz, NFS_PKT_VERSION, type, flags, id, payload, payload_len);
 }
 
-int nfs_decapsulate(const uint8_t *buf, size_t buf_len,
-                    struct nfs_pkt_header *hdr,
-                    const uint8_t **payload_out, size_t *payload_len_out)
-{
+int nfs_decapsulate(const uint8_t *buf, size_t buf_len, struct nfs_pkt_header *hdr,
+                    const uint8_t **payload_out, size_t *payload_len_out) {
     return nfs_pkt_parse(buf, buf_len, hdr, payload_out, payload_len_out);
 }

@@ -16,41 +16,36 @@
  * Init / Free
  * --------------------------------------------------------------- */
 
-void nfs_send_window_init(struct nfs_send_window *w, uint32_t isn,
-                          uint32_t win_size, size_t buf_cap)
-{
-    w->base        = isn;
-    w->next_seq    = isn;
+void nfs_send_window_init(struct nfs_send_window *w, uint32_t isn, uint32_t win_size,
+                          size_t buf_cap) {
+    w->base = isn;
+    w->next_seq = isn;
     w->window_size = win_size;
-    w->buf_cap     = buf_cap;
-    w->buffer      = calloc(buf_cap, sizeof(uint8_t));
-    w->acked       = calloc(buf_cap, sizeof(int));
+    w->buf_cap = buf_cap;
+    w->buffer = calloc(buf_cap, sizeof(uint8_t));
+    w->acked = calloc(buf_cap, sizeof(int));
 }
 
-void nfs_send_window_free(struct nfs_send_window *w)
-{
+void nfs_send_window_free(struct nfs_send_window *w) {
     free(w->buffer);
     free(w->acked);
     w->buffer = NULL;
-    w->acked  = NULL;
+    w->acked = NULL;
 }
 
 /* ---------------------------------------------------------------
  * Window queries
  * --------------------------------------------------------------- */
 
-uint32_t nfs_send_window_in_flight(const struct nfs_send_window *w)
-{
+uint32_t nfs_send_window_in_flight(const struct nfs_send_window *w) {
     return w->next_seq - w->base;
 }
 
-uint32_t nfs_send_window_available(const struct nfs_send_window *w)
-{
+uint32_t nfs_send_window_available(const struct nfs_send_window *w) {
     return w->window_size - nfs_send_window_in_flight(w);
 }
 
-int nfs_send_window_can_send(const struct nfs_send_window *w)
-{
+int nfs_send_window_can_send(const struct nfs_send_window *w) {
     return nfs_send_window_in_flight(w) < w->window_size;
 }
 
@@ -58,14 +53,13 @@ int nfs_send_window_can_send(const struct nfs_send_window *w)
  * Send
  * --------------------------------------------------------------- */
 
-int nfs_send_window_send(struct nfs_send_window *w, uint8_t byte)
-{
+int nfs_send_window_send(struct nfs_send_window *w, uint8_t byte) {
     if (!nfs_send_window_can_send(w))
         return -1;
 
     size_t idx = (size_t)(w->next_seq % w->buf_cap);
     w->buffer[idx] = byte;
-    w->acked[idx]  = 0;
+    w->acked[idx] = 0;
     w->next_seq++;
     return 0;
 }
@@ -74,8 +68,7 @@ int nfs_send_window_send(struct nfs_send_window *w, uint8_t byte)
  * ACK processing — cumulative acknowledgement
  * --------------------------------------------------------------- */
 
-int nfs_send_window_ack(struct nfs_send_window *w, uint32_t ack_num)
-{
+int nfs_send_window_ack(struct nfs_send_window *w, uint32_t ack_num) {
     /* ack_num must be within [base, next_seq].
      * ack_num == base means duplicate ACK (0 new bytes).
      * ack_num > next_seq is invalid (acking data we never sent). */
@@ -98,9 +91,8 @@ int nfs_send_window_ack(struct nfs_send_window *w, uint32_t ack_num)
  * Get buffered data for retransmission
  * --------------------------------------------------------------- */
 
-const uint8_t *nfs_send_window_get_data(const struct nfs_send_window *w,
-                                        uint32_t seq, size_t *len)
-{
+const uint8_t *nfs_send_window_get_data(const struct nfs_send_window *w, uint32_t seq,
+                                        size_t *len) {
     /* seq must be within the in-flight range [base, next_seq) */
     if (seq < w->base || seq >= w->next_seq) {
         *len = 0;

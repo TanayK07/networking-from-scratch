@@ -8,13 +8,11 @@
  * Bits are processed MSB-first within each byte.
  * --------------------------------------------------------------- */
 
-size_t nfs_manchester_encode(const uint8_t *data, size_t len,
-                             uint8_t *out, size_t out_sz)
-{
+size_t nfs_manchester_encode(const uint8_t *data, size_t len, uint8_t *out, size_t out_sz) {
     if (!data || !out)
         return 0;
 
-    size_t needed = len * 16;  /* 2 symbols per bit, 8 bits per byte */
+    size_t needed = len * 16; /* 2 symbols per bit, 8 bits per byte */
     if (out_sz < needed)
         return 0;
 
@@ -36,9 +34,7 @@ size_t nfs_manchester_encode(const uint8_t *data, size_t len,
     return idx;
 }
 
-int nfs_manchester_decode(const uint8_t *symbols, size_t sym_len,
-                          uint8_t *out, size_t out_sz)
-{
+int nfs_manchester_decode(const uint8_t *symbols, size_t sym_len, uint8_t *out, size_t out_sz) {
     if (!symbols || !out)
         return -1;
 
@@ -80,9 +76,7 @@ int nfs_manchester_decode(const uint8_t *symbols, size_t sym_len,
  *   Initial level = 0. Bits processed MSB-first.
  * --------------------------------------------------------------- */
 
-size_t nfs_nrzi_encode(const uint8_t *data, size_t len,
-                       uint8_t *out, size_t out_sz)
-{
+size_t nfs_nrzi_encode(const uint8_t *data, size_t len, uint8_t *out, size_t out_sz) {
     if (!data || !out)
         return 0;
 
@@ -96,7 +90,7 @@ size_t nfs_nrzi_encode(const uint8_t *data, size_t len,
         for (int bit = 7; bit >= 0; bit--) {
             int b = (data[i] >> bit) & 1;
             if (b) {
-                level ^= 1;  /* toggle on 1 */
+                level ^= 1; /* toggle on 1 */
             }
             out[idx++] = level;
         }
@@ -104,9 +98,7 @@ size_t nfs_nrzi_encode(const uint8_t *data, size_t len,
     return idx;
 }
 
-int nfs_nrzi_decode(const uint8_t *symbols, size_t sym_len,
-                    uint8_t *out, size_t out_sz)
-{
+int nfs_nrzi_decode(const uint8_t *symbols, size_t sym_len, uint8_t *out, size_t out_sz) {
     if (!symbols || !out)
         return -1;
 
@@ -170,21 +162,19 @@ static const uint8_t encode_4b5b[16] = {
 
 /* Reverse lookup: 5-bit code → nibble. -1 means invalid/unused code. */
 static const int8_t decode_4b5b[32] = {
-    -1, -1, -1, -1, -1, -1, -1, -1,  /* 00000..00111 */
-    -1,  1, 4,  5, -1, -1,  6,  7,   /* 01000..01111 */
-    -1, -1, 8,  9,  2, 3,  0xA, 0xB, /* 10000..10111 */
-    -1, -1, 0xC, 0xD, 0xE, 0xF, 0,  -1 /* 11000..11111 */
+    -1, -1, -1,  -1,  -1,  -1,  -1,  -1,  /* 00000..00111 */
+    -1, 1,  4,   5,   -1,  -1,  6,   7,   /* 01000..01111 */
+    -1, -1, 8,   9,   2,   3,   0xA, 0xB, /* 10000..10111 */
+    -1, -1, 0xC, 0xD, 0xE, 0xF, 0,   -1   /* 11000..11111 */
 };
 
-int nfs_4b5b_encode(uint8_t nibble)
-{
+int nfs_4b5b_encode(uint8_t nibble) {
     if (nibble > 0x0F)
         return -1;
     return encode_4b5b[nibble];
 }
 
-int nfs_4b5b_decode(uint8_t code)
-{
+int nfs_4b5b_decode(uint8_t code) {
     if (code > 0x1F)
         return -1;
     return decode_4b5b[code];

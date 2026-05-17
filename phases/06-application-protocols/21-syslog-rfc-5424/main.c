@@ -2,8 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-int main(void)
-{
+int main(void) {
     char buf[4096];
 
     /* Build a syslog message */
@@ -11,13 +10,13 @@ int main(void)
     memset(&msg, 0, sizeof(msg));
     msg.facility = NFS_SYSLOG_LOCAL0;
     msg.severity = NFS_SYSLOG_INFO;
-    msg.version  = 1;
+    msg.version = 1;
     strncpy(msg.timestamp, "2023-11-14T12:00:00.000Z", sizeof(msg.timestamp) - 1);
-    strncpy(msg.hostname,  "myhost", sizeof(msg.hostname) - 1);
-    strncpy(msg.app_name,  "myapp", sizeof(msg.app_name) - 1);
-    strncpy(msg.procid,    "1234", sizeof(msg.procid) - 1);
-    strncpy(msg.msgid,     "ID47", sizeof(msg.msgid) - 1);
-    strncpy(msg.msg,       "Application started successfully", sizeof(msg.msg) - 1);
+    strncpy(msg.hostname, "myhost", sizeof(msg.hostname) - 1);
+    strncpy(msg.app_name, "myapp", sizeof(msg.app_name) - 1);
+    strncpy(msg.procid, "1234", sizeof(msg.procid) - 1);
+    strncpy(msg.msgid, "ID47", sizeof(msg.msgid) - 1);
+    strncpy(msg.msg, "Application started successfully", sizeof(msg.msg) - 1);
 
     int n = nfs_syslog_build(buf, sizeof(buf), &msg);
     if (n > 0) {
@@ -46,13 +45,13 @@ int main(void)
     memset(&msg, 0, sizeof(msg));
     msg.facility = NFS_SYSLOG_AUTH;
     msg.severity = NFS_SYSLOG_WARNING;
-    msg.version  = 1;
+    msg.version = 1;
     strncpy(msg.timestamp, "2023-11-14T12:01:00Z", sizeof(msg.timestamp) - 1);
-    strncpy(msg.hostname,  "firewall", sizeof(msg.hostname) - 1);
-    strncpy(msg.app_name,  "sshd", sizeof(msg.app_name) - 1);
-    strncpy(msg.procid,    "5678", sizeof(msg.procid) - 1);
-    strncpy(msg.sd,        "[origin ip=\"192.168.1.1\"]", sizeof(msg.sd) - 1);
-    strncpy(msg.msg,       "Failed login attempt", sizeof(msg.msg) - 1);
+    strncpy(msg.hostname, "firewall", sizeof(msg.hostname) - 1);
+    strncpy(msg.app_name, "sshd", sizeof(msg.app_name) - 1);
+    strncpy(msg.procid, "5678", sizeof(msg.procid) - 1);
+    strncpy(msg.sd, "[origin ip=\"192.168.1.1\"]", sizeof(msg.sd) - 1);
+    strncpy(msg.msg, "Failed login attempt", sizeof(msg.msg) - 1);
 
     n = nfs_syslog_build(buf, sizeof(buf), &msg);
     if (n > 0) {

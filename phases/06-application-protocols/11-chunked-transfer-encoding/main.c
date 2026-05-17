@@ -4,8 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 
-int main(void)
-{
+int main(void) {
     /* Encode data into chunks */
     const char *msg = "Hello, World! This is chunked transfer encoding in action.";
     size_t msg_len = strlen(msg);
@@ -14,8 +13,7 @@ int main(void)
     printf("Original: %zu bytes\n", msg_len);
 
     uint8_t encoded[4096];
-    int elen = nfs_chunked_encode((const uint8_t *)msg, msg_len, 16,
-                                   encoded, sizeof(encoded));
+    int elen = nfs_chunked_encode((const uint8_t *)msg, msg_len, 16, encoded, sizeof(encoded));
     if (elen > 0) {
         printf("Encoded (%d bytes):\n%.*s\n", elen, elen, (char *)encoded);
     }
@@ -39,13 +37,13 @@ int main(void)
     size_t pos = 0;
 
     const char *c1 = "chunk one";
-    int n = nfs_chunked_encode_chunk((const uint8_t *)c1, strlen(c1),
-                                      manual + pos, sizeof(manual) - pos);
+    int n = nfs_chunked_encode_chunk((const uint8_t *)c1, strlen(c1), manual + pos,
+                                     sizeof(manual) - pos);
     pos += (size_t)n;
 
     const char *c2 = "chunk two";
-    n = nfs_chunked_encode_chunk((const uint8_t *)c2, strlen(c2),
-                                  manual + pos, sizeof(manual) - pos);
+    n = nfs_chunked_encode_chunk((const uint8_t *)c2, strlen(c2), manual + pos,
+                                 sizeof(manual) - pos);
     pos += (size_t)n;
 
     n = nfs_chunked_encode_last(manual + pos, sizeof(manual) - pos);

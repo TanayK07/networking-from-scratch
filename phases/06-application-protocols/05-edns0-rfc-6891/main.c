@@ -4,17 +4,17 @@
 #include <stdio.h>
 #include <string.h>
 
-static void print_hex(const uint8_t *data, size_t len)
-{
+static void print_hex(const uint8_t *data, size_t len) {
     for (size_t i = 0; i < len; i++) {
         printf("%02x ", data[i]);
-        if ((i + 1) % 16 == 0) printf("\n");
+        if ((i + 1) % 16 == 0)
+            printf("\n");
     }
-    if (len % 16 != 0) printf("\n");
+    if (len % 16 != 0)
+        printf("\n");
 }
 
-int main(void)
-{
+int main(void) {
     /* Build an OPT RR with NSID and Padding options */
     struct nfs_edns_option opts[2];
 
@@ -38,12 +38,11 @@ int main(void)
     printf("Options:          %u\n", parsed.option_count);
 
     for (uint16_t i = 0; i < parsed.option_count; i++) {
-        printf("  Option %u: %s (code=%u, len=%u)\n",
-               i, nfs_edns_option_str(parsed.options[i].code),
-               parsed.options[i].code, parsed.options[i].length);
+        printf("  Option %u: %s (code=%u, len=%u)\n", i,
+               nfs_edns_option_str(parsed.options[i].code), parsed.options[i].code,
+               parsed.options[i].length);
         if (parsed.options[i].code == NFS_EDNS_OPT_NSID) {
-            printf("    NSID: %.*s\n",
-                   parsed.options[i].length, parsed.options[i].data);
+            printf("    NSID: %.*s\n", parsed.options[i].length, parsed.options[i].data);
         }
     }
 

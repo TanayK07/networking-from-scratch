@@ -13,8 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-int main(void)
-{
+int main(void) {
     printf("=== PCAP File Format Demo ===\n\n");
 
     const char *fname = "/tmp/nfs_demo.pcap";
@@ -35,11 +34,13 @@ int main(void)
     uint8_t pkt1[60];
     memset(pkt1, 0, sizeof(pkt1));
     memset(pkt1, 0xFF, 6);
-    pkt1[12] = 0x08; pkt1[13] = 0x00;
+    pkt1[12] = 0x08;
+    pkt1[13] = 0x00;
 
     uint8_t pkt2[100];
     memset(pkt2, 0xAA, sizeof(pkt2));
-    pkt2[12] = 0x08; pkt2[13] = 0x06;
+    pkt2[12] = 0x08;
+    pkt2[13] = 0x06;
 
     nfs_pcap_write_packet(fp, 1700000000, 0, pkt1, sizeof(pkt1));
     nfs_pcap_write_packet(fp, 1700000001, 500000, pkt2, sizeof(pkt2));
@@ -70,8 +71,7 @@ int main(void)
     int rc;
     while ((rc = nfs_pcap_read_packet(fp, &phdr, buf, sizeof(buf))) == 0) {
         pkt_num++;
-        printf("Packet %d: ts=%u.%06u  len=%u  orig=%u\n",
-               pkt_num, phdr.ts_sec, phdr.ts_usec,
+        printf("Packet %d: ts=%u.%06u  len=%u  orig=%u\n", pkt_num, phdr.ts_sec, phdr.ts_usec,
                phdr.incl_len, phdr.orig_len);
     }
     if (rc == -1) {

@@ -26,24 +26,23 @@
 #define NFS_TCB_TIME_WAIT    10
 
 struct nfs_tcb {
-    int      state;         /* TCP state (NFS_TCB_*) */
-    uint32_t snd_una;       /* oldest unacknowledged sequence number */
-    uint32_t snd_nxt;       /* next sequence number to send */
-    uint32_t snd_wnd;       /* send window (bytes peer will accept) */
-    uint32_t rcv_nxt;       /* next expected receive sequence number */
-    uint32_t rcv_wnd;       /* receive window (bytes we will accept) */
-    uint32_t iss;           /* initial send sequence number */
-    uint32_t irs;           /* initial receive sequence number */
+    int state;        /* TCP state (NFS_TCB_*) */
+    uint32_t snd_una; /* oldest unacknowledged sequence number */
+    uint32_t snd_nxt; /* next sequence number to send */
+    uint32_t snd_wnd; /* send window (bytes peer will accept) */
+    uint32_t rcv_nxt; /* next expected receive sequence number */
+    uint32_t rcv_wnd; /* receive window (bytes we will accept) */
+    uint32_t iss;     /* initial send sequence number */
+    uint32_t irs;     /* initial receive sequence number */
     uint16_t local_port;
     uint16_t remote_port;
-    uint32_t local_addr;    /* IPv4 address in host byte order */
+    uint32_t local_addr; /* IPv4 address in host byte order */
     uint32_t remote_addr;
 };
 
 /* Initialize a TCB with the 4-tuple.  All sequence numbers start at 0,
  * state is CLOSED, default windows are 65535. */
-void nfs_tcb_init(struct nfs_tcb *tcb,
-                  uint16_t local_port, uint16_t remote_port,
+void nfs_tcb_init(struct nfs_tcb *tcb, uint16_t local_port, uint16_t remote_port,
                   uint32_t local_addr, uint32_t remote_addr);
 
 /* Set the Initial Send Sequence number.
@@ -73,8 +72,7 @@ void nfs_tcb_format(const struct nfs_tcb *tcb, char *buf, size_t sz);
 
 /* Check if a packet with the given 4-tuple belongs to this connection.
  * Returns 1 if it matches, 0 otherwise. */
-int nfs_tcb_matches(const struct nfs_tcb *tcb,
-                    uint32_t src_addr, uint16_t src_port,
+int nfs_tcb_matches(const struct nfs_tcb *tcb, uint32_t src_addr, uint16_t src_port,
                     uint32_t dst_addr, uint16_t dst_port);
 
 #endif /* NFS_TCB_H */

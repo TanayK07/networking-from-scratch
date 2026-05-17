@@ -1,7 +1,7 @@
 #include "hexdump.h"
+#include <ctype.h>
 #include <stdio.h>
 #include <string.h>
-#include <ctype.h>
 
 /* ---------------------------------------------------------------
  * A single canonical hex-dump line is at most 79 characters + NUL:
@@ -10,11 +10,9 @@
  * --------------------------------------------------------------- */
 
 #define BYTES_PER_LINE 16
-#define MAX_LINE_LEN   80  /* generous upper bound per line */
+#define MAX_LINE_LEN   80 /* generous upper bound per line */
 
-int nfs_hexdump_line(const uint8_t *data, size_t len, size_t offset,
-                     char *out, size_t out_sz)
-{
+int nfs_hexdump_line(const uint8_t *data, size_t len, size_t offset, char *out, size_t out_sz) {
     if (!data || !out || len == 0 || len > BYTES_PER_LINE)
         return -1;
 
@@ -60,8 +58,7 @@ int nfs_hexdump_line(const uint8_t *data, size_t len, size_t offset,
     return (int)(p - out);
 }
 
-int nfs_hexdump(const uint8_t *data, size_t len, char *out, size_t out_sz)
-{
+int nfs_hexdump(const uint8_t *data, size_t len, char *out, size_t out_sz) {
     if (!out)
         return -1;
 
@@ -84,8 +81,7 @@ int nfs_hexdump(const uint8_t *data, size_t len, char *out, size_t out_sz)
         if (chunk > BYTES_PER_LINE)
             chunk = BYTES_PER_LINE;
 
-        int written = nfs_hexdump_line(data + offset, chunk, offset,
-                                       p, remaining);
+        int written = nfs_hexdump_line(data + offset, chunk, offset, p, remaining);
         if (written < 0)
             return -1;
 
@@ -98,16 +94,17 @@ int nfs_hexdump(const uint8_t *data, size_t len, char *out, size_t out_sz)
 }
 
 /* Parse a single hex character to its value (0-15) or -1. */
-static int hex_char_val(char c)
-{
-    if (c >= '0' && c <= '9') return c - '0';
-    if (c >= 'a' && c <= 'f') return c - 'a' + 10;
-    if (c >= 'A' && c <= 'F') return c - 'A' + 10;
+static int hex_char_val(char c) {
+    if (c >= '0' && c <= '9')
+        return c - '0';
+    if (c >= 'a' && c <= 'f')
+        return c - 'a' + 10;
+    if (c >= 'A' && c <= 'F')
+        return c - 'A' + 10;
     return -1;
 }
 
-int nfs_hex_to_bytes(const char *hex, uint8_t *out, size_t max)
-{
+int nfs_hex_to_bytes(const char *hex, uint8_t *out, size_t max) {
     if (!hex || !out)
         return -1;
 
@@ -127,7 +124,7 @@ int nfs_hex_to_bytes(const char *hex, uint8_t *out, size_t max)
         p++;
 
         if (!*p)
-            return -1;  /* Odd number of hex chars */
+            return -1; /* Odd number of hex chars */
 
         int lo = hex_char_val(*p);
         if (lo < 0)

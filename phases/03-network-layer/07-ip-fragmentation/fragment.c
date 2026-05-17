@@ -14,8 +14,7 @@
 /*  Helper: compute IPv4 header checksum (RFC 1071)                    */
 /* ------------------------------------------------------------------ */
 
-static uint16_t ip_checksum(const void *data, size_t len)
-{
+static uint16_t ip_checksum(const void *data, size_t len) {
     const uint8_t *p = (const uint8_t *)data;
     uint32_t sum = 0;
 
@@ -34,30 +33,24 @@ static uint16_t ip_checksum(const void *data, size_t len)
 /*  Flag / offset accessors                                            */
 /* ------------------------------------------------------------------ */
 
-uint16_t nfs_ip_get_flags(uint16_t flags_frag_host)
-{
+uint16_t nfs_ip_get_flags(uint16_t flags_frag_host) {
     return flags_frag_host & 0xE000;
 }
 
-uint16_t nfs_ip_get_frag_offset(uint16_t flags_frag_host)
-{
+uint16_t nfs_ip_get_frag_offset(uint16_t flags_frag_host) {
     return flags_frag_host & NFS_IP_FRAG_OFFSET_MASK;
 }
 
-int nfs_ip_is_fragment(uint16_t flags_frag_host)
-{
-    return (flags_frag_host & NFS_IP_FLAG_MF) ||
-           (flags_frag_host & NFS_IP_FRAG_OFFSET_MASK) != 0;
+int nfs_ip_is_fragment(uint16_t flags_frag_host) {
+    return (flags_frag_host & NFS_IP_FLAG_MF) || (flags_frag_host & NFS_IP_FRAG_OFFSET_MASK) != 0;
 }
 
 /* ------------------------------------------------------------------ */
 /*  Fragmentation                                                      */
 /* ------------------------------------------------------------------ */
 
-int nfs_ip_fragment_packet(const uint8_t *orig_pkt, size_t pkt_len,
-                           uint16_t mtu,
-                           struct nfs_ip_fragment *frags, size_t max_frags)
-{
+int nfs_ip_fragment_packet(const uint8_t *orig_pkt, size_t pkt_len, uint16_t mtu,
+                           struct nfs_ip_fragment *frags, size_t max_frags) {
     if (!orig_pkt || pkt_len < 20 || !frags || max_frags == 0)
         return -1;
 
@@ -146,22 +139,20 @@ int nfs_ip_fragment_packet(const uint8_t *orig_pkt, size_t pkt_len,
 /* ------------------------------------------------------------------ */
 
 /* Comparison function for sorting fragments by offset. */
-static int frag_cmp(const void *a, const void *b)
-{
+static int frag_cmp(const void *a, const void *b) {
     const struct nfs_ip_fragment *fa = (const struct nfs_ip_fragment *)a;
     const struct nfs_ip_fragment *fb = (const struct nfs_ip_fragment *)b;
 
-    uint16_t off_a = nfs_ip_get_frag_offset(
-        ntohs(((const struct nfs_ipv4_hdr *)fa->header)->flags_frag));
-    uint16_t off_b = nfs_ip_get_frag_offset(
-        ntohs(((const struct nfs_ipv4_hdr *)fb->header)->flags_frag));
+    uint16_t off_a =
+        nfs_ip_get_frag_offset(ntohs(((const struct nfs_ipv4_hdr *)fa->header)->flags_frag));
+    uint16_t off_b =
+        nfs_ip_get_frag_offset(ntohs(((const struct nfs_ipv4_hdr *)fb->header)->flags_frag));
 
     return (off_a > off_b) - (off_a < off_b);
 }
 
-int nfs_ip_reassemble(const struct nfs_ip_fragment *frags, size_t nfrags,
-                      uint8_t *out, size_t out_sz)
-{
+int nfs_ip_reassemble(const struct nfs_ip_fragment *frags, size_t nfrags, uint8_t *out,
+                      size_t out_sz) {
     if (!frags || nfrags == 0 || !out || out_sz < 20)
         return -1;
 
@@ -173,8 +164,7 @@ int nfs_ip_reassemble(const struct nfs_ip_fragment *frags, size_t nfrags,
     qsort(sorted, nfrags, sizeof(*sorted), frag_cmp);
 
     /* First fragment must have offset 0. */
-    uint16_t first_ff = ntohs(
-        ((const struct nfs_ipv4_hdr *)sorted[0].header)->flags_frag);
+    uint16_t first_ff = ntohs(((const struct nfs_ipv4_hdr *)sorted[0].header)->flags_frag);
     if (nfs_ip_get_frag_offset(first_ff) != 0) {
         free(sorted);
         return -1;
@@ -185,8 +175,7 @@ int nfs_ip_reassemble(const struct nfs_ip_fragment *frags, size_t nfrags,
     uint16_t expected_offset = 0; /* in 8-byte units */
 
     for (size_t i = 0; i < nfrags; i++) {
-        const struct nfs_ipv4_hdr *fhdr =
-            (const struct nfs_ipv4_hdr *)sorted[i].header;
+        const struct nfs_ipv4_hdr *fhdr = (const struct nfs_ipv4_hdr *)sorted[i].header;
         uint16_t ff = ntohs(fhdr->flags_frag);
         uint16_t off = nfs_ip_get_frag_offset(ff);
 

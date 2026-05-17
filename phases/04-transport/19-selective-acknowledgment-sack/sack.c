@@ -15,8 +15,7 @@
  * Init
  * --------------------------------------------------------------- */
 
-void nfs_sack_init(struct nfs_sack_scoreboard *sb, uint32_t initial_ack)
-{
+void nfs_sack_init(struct nfs_sack_scoreboard *sb, uint32_t initial_ack) {
     memset(sb, 0, sizeof(*sb));
     sb->cum_ack = initial_ack;
 }
@@ -27,8 +26,7 @@ void nfs_sack_init(struct nfs_sack_scoreboard *sb, uint32_t initial_ack)
  * --------------------------------------------------------------- */
 
 /* Sort blocks by left edge ascending. */
-static void sort_blocks(struct nfs_sack_block *blocks, size_t n)
-{
+static void sort_blocks(struct nfs_sack_block *blocks, size_t n) {
     /* Simple insertion sort — n <= 4 */
     for (size_t i = 1; i < n; i++) {
         struct nfs_sack_block tmp = blocks[i];
@@ -42,9 +40,9 @@ static void sort_blocks(struct nfs_sack_block *blocks, size_t n)
 }
 
 /* Merge overlapping and adjacent blocks. Returns new count. */
-static size_t merge_blocks(struct nfs_sack_block *blocks, size_t n)
-{
-    if (n <= 1) return n;
+static size_t merge_blocks(struct nfs_sack_block *blocks, size_t n) {
+    if (n <= 1)
+        return n;
 
     sort_blocks(blocks, n);
 
@@ -62,16 +60,15 @@ static size_t merge_blocks(struct nfs_sack_block *blocks, size_t n)
     return out + 1;
 }
 
-int nfs_sack_add_block(struct nfs_sack_scoreboard *sb, uint32_t left, uint32_t right)
-{
+int nfs_sack_add_block(struct nfs_sack_scoreboard *sb, uint32_t left, uint32_t right) {
     /* Add the new block */
     if (sb->nblocks < NFS_SACK_MAX_BLOCKS) {
-        sb->blocks[sb->nblocks].left  = left;
+        sb->blocks[sb->nblocks].left = left;
         sb->blocks[sb->nblocks].right = right;
         sb->nblocks++;
     } else {
         /* Replace the last block (least recent after we rearrange) */
-        sb->blocks[NFS_SACK_MAX_BLOCKS - 1].left  = left;
+        sb->blocks[NFS_SACK_MAX_BLOCKS - 1].left = left;
         sb->blocks[NFS_SACK_MAX_BLOCKS - 1].right = right;
     }
 
@@ -103,8 +100,7 @@ int nfs_sack_add_block(struct nfs_sack_scoreboard *sb, uint32_t left, uint32_t r
  * Queries
  * --------------------------------------------------------------- */
 
-int nfs_sack_is_sacked(const struct nfs_sack_scoreboard *sb, uint32_t seq)
-{
+int nfs_sack_is_sacked(const struct nfs_sack_scoreboard *sb, uint32_t seq) {
     for (size_t i = 0; i < sb->nblocks; i++) {
         if (seq >= sb->blocks[i].left && seq < sb->blocks[i].right)
             return 1;
@@ -116,8 +112,7 @@ int nfs_sack_is_sacked(const struct nfs_sack_scoreboard *sb, uint32_t seq)
  * Cumulative ACK advancement
  * --------------------------------------------------------------- */
 
-void nfs_sack_advance_cumack(struct nfs_sack_scoreboard *sb, uint32_t new_ack)
-{
+void nfs_sack_advance_cumack(struct nfs_sack_scoreboard *sb, uint32_t new_ack) {
     if (new_ack <= sb->cum_ack)
         return;
 
@@ -140,23 +135,21 @@ void nfs_sack_advance_cumack(struct nfs_sack_scoreboard *sb, uint32_t new_ack)
  * Build SACK option for wire
  * --------------------------------------------------------------- */
 
-int nfs_sack_build_option(const struct nfs_sack_scoreboard *sb,
-                          uint8_t *out, size_t out_sz)
-{
+int nfs_sack_build_option(const struct nfs_sack_scoreboard *sb, uint8_t *out, size_t out_sz) {
     if (sb->nblocks == 0)
         return 0;
 
-    size_t needed = 2 + 8 * sb->nblocks;  /* kind + len + blocks */
+    size_t needed = 2 + 8 * sb->nblocks; /* kind + len + blocks */
     if (out_sz < needed)
         return -1;
 
-    out[0] = 5;  /* SACK kind */
+    out[0] = 5; /* SACK kind */
     out[1] = (uint8_t)needed;
 
     for (size_t i = 0; i < sb->nblocks; i++) {
-        uint32_t left  = htonl(sb->blocks[i].left);
+        uint32_t left = htonl(sb->blocks[i].left);
         uint32_t right = htonl(sb->blocks[i].right);
-        memcpy(&out[2 + i * 8],     &left,  4);
+        memcpy(&out[2 + i * 8], &left, 4);
         memcpy(&out[2 + i * 8 + 4], &right, 4);
     }
 
@@ -167,10 +160,8 @@ int nfs_sack_build_option(const struct nfs_sack_scoreboard *sb,
  * Parse SACK option from wire
  * --------------------------------------------------------------- */
 
-int nfs_sack_parse_option(const uint8_t *data, size_t len,
-                          struct nfs_sack_block *blocks, size_t max_blocks,
-                          size_t *nfound)
-{
+int nfs_sack_parse_option(const uint8_t *data, size_t len, struct nfs_sack_block *blocks,
+                          size_t max_blocks, size_t *nfound) {
     if (len < 2)
         return -1;
 
@@ -191,9 +182,9 @@ int nfs_sack_parse_option(const uint8_t *data, size_t len,
 
     for (size_t i = 0; i < nblocks; i++) {
         uint32_t left, right;
-        memcpy(&left,  &data[2 + i * 8],     4);
+        memcpy(&left, &data[2 + i * 8], 4);
         memcpy(&right, &data[2 + i * 8 + 4], 4);
-        blocks[i].left  = ntohl(left);
+        blocks[i].left = ntohl(left);
         blocks[i].right = ntohl(right);
     }
 
@@ -205,9 +196,8 @@ int nfs_sack_parse_option(const uint8_t *data, size_t len,
  * Find retransmission holes
  * --------------------------------------------------------------- */
 
-size_t nfs_sack_holes(const struct nfs_sack_scoreboard *sb,
-                      struct nfs_sack_block *holes, size_t max_holes)
-{
+size_t nfs_sack_holes(const struct nfs_sack_scoreboard *sb, struct nfs_sack_block *holes,
+                      size_t max_holes) {
     if (sb->nblocks == 0)
         return 0;
 
@@ -222,7 +212,7 @@ size_t nfs_sack_holes(const struct nfs_sack_scoreboard *sb,
 
     for (size_t i = 0; i < sb->nblocks && nholes < max_holes; i++) {
         if (sorted[i].left > cursor) {
-            holes[nholes].left  = cursor;
+            holes[nholes].left = cursor;
             holes[nholes].right = sorted[i].left;
             nholes++;
         }

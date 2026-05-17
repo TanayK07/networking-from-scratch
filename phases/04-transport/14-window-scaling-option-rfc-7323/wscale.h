@@ -15,9 +15,9 @@
  * TCP option format:  Kind=3, Length=3, Shift count (1 byte)
  * --------------------------------------------------------------- */
 
-#define NFS_WSCALE_MAX      14      /* maximum shift count per RFC 7323 */
-#define NFS_WSCALE_OPT_KIND 3       /* TCP option kind for window scale */
-#define NFS_WSCALE_OPT_LEN  3       /* TCP option length */
+#define NFS_WSCALE_MAX      14 /* maximum shift count per RFC 7323 */
+#define NFS_WSCALE_OPT_KIND 3  /* TCP option kind for window scale */
+#define NFS_WSCALE_OPT_LEN  3  /* TCP option length */
 
 /* Apply window scaling: effective_window = (uint32_t)window << shift. */
 uint32_t nfs_wscale_apply(uint16_t window, uint8_t shift);
@@ -39,8 +39,7 @@ int nfs_wscale_build_option(uint8_t shift, uint8_t *out, size_t out_sz);
  * Expects kind=3, len=3, shift.
  * Writes the shift to *shift_out.
  * Returns 0 on success, -1 on error. */
-int nfs_wscale_parse_option(const uint8_t *data, size_t len,
-                            uint8_t *shift_out);
+int nfs_wscale_parse_option(const uint8_t *data, size_t len, uint8_t *shift_out);
 
 /* Validate a shift count: returns 1 if shift <= 14, 0 otherwise. */
 int nfs_wscale_valid(uint8_t shift);

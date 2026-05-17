@@ -1,19 +1,16 @@
 #include "rdt.h"
 #include <string.h>
 
-void nfs_rdt_sender_init(struct nfs_rdt_sender *s, uint32_t window_size)
-{
+void nfs_rdt_sender_init(struct nfs_rdt_sender *s, uint32_t window_size) {
     memset(s, 0, sizeof(*s));
     s->window_size = (window_size > 0) ? window_size : 1;
 }
 
-void nfs_rdt_sender_free(struct nfs_rdt_sender *s)
-{
+void nfs_rdt_sender_free(struct nfs_rdt_sender *s) {
     memset(s, 0, sizeof(*s));
 }
 
-int nfs_rdt_send(struct nfs_rdt_sender *s, const uint8_t *data, size_t len)
-{
+int nfs_rdt_send(struct nfs_rdt_sender *s, const uint8_t *data, size_t len) {
     if (!data || len == 0 || len > NFS_RDT_MAX_DATA)
         return -1;
 
@@ -39,8 +36,7 @@ int nfs_rdt_send(struct nfs_rdt_sender *s, const uint8_t *data, size_t len)
     return (int)assigned_seq;
 }
 
-int nfs_rdt_ack(struct nfs_rdt_sender *s, uint32_t ack_num)
-{
+int nfs_rdt_ack(struct nfs_rdt_sender *s, uint32_t ack_num) {
     int newly_acked = 0;
 
     /* Cumulative ACK: all segments with seq < ack_num are acknowledged */
@@ -60,8 +56,7 @@ int nfs_rdt_ack(struct nfs_rdt_sender *s, uint32_t ack_num)
     return newly_acked;
 }
 
-int nfs_rdt_timeout(struct nfs_rdt_sender *s)
-{
+int nfs_rdt_timeout(struct nfs_rdt_sender *s) {
     int retransmitted = 0;
 
     /* Go-Back-N: retransmit all unacked segments in the window */
@@ -79,20 +74,16 @@ int nfs_rdt_timeout(struct nfs_rdt_sender *s)
     return retransmitted;
 }
 
-int nfs_rdt_in_flight(const struct nfs_rdt_sender *s)
-{
+int nfs_rdt_in_flight(const struct nfs_rdt_sender *s) {
     return (int)(s->count - s->base);
 }
 
-void nfs_rdt_receiver_init(struct nfs_rdt_receiver *r)
-{
+void nfs_rdt_receiver_init(struct nfs_rdt_receiver *r) {
     memset(r, 0, sizeof(*r));
 }
 
-int nfs_rdt_receive(struct nfs_rdt_receiver *r,
-                    const struct nfs_rdt_segment *seg,
-                    uint32_t *ack_out)
-{
+int nfs_rdt_receive(struct nfs_rdt_receiver *r, const struct nfs_rdt_segment *seg,
+                    uint32_t *ack_out) {
     if (!seg || !ack_out)
         return -1;
 

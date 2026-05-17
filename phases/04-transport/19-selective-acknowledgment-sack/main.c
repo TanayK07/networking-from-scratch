@@ -8,16 +8,14 @@
 
 #include <stdio.h>
 
-static void print_scoreboard(const struct nfs_sack_scoreboard *sb)
-{
+static void print_scoreboard(const struct nfs_sack_scoreboard *sb) {
     printf("  cum_ack=%u, %zu blocks:", sb->cum_ack, sb->nblocks);
     for (size_t i = 0; i < sb->nblocks; i++)
         printf(" [%u, %u)", sb->blocks[i].left, sb->blocks[i].right);
     printf("\n");
 }
 
-int main(void)
-{
+int main(void) {
     printf("=== TCP SACK Scoreboard Demo ===\n\n");
 
     struct nfs_sack_scoreboard sb;

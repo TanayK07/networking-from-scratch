@@ -2,8 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-int main(void)
-{
+int main(void) {
     printf("=== Berkeley Sockets API Helpers ===\n\n");
 
     /* Build a sockaddr_in */

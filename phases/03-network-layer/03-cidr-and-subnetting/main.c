@@ -3,8 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     if (argc < 2) {
         fprintf(stderr, "Usage: %s <CIDR> [ip-to-check]\n", argv[0]);
         fprintf(stderr, "  Example: %s 192.168.1.0/24 192.168.1.42\n", argv[0]);
@@ -41,10 +40,7 @@ int main(int argc, char *argv[])
             return 1;
         }
         nfs_ip_format(ip, ip_buf, sizeof(ip_buf));
-        printf("IP %s %s in %s\n",
-               ip_buf,
-               nfs_cidr_contains(&cidr, ip) ? "is" : "is NOT",
-               buf);
+        printf("IP %s %s in %s\n", ip_buf, nfs_cidr_contains(&cidr, ip) ? "is" : "is NOT", buf);
     }
 
     return 0;

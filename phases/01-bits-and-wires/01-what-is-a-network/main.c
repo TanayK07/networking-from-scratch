@@ -5,28 +5,27 @@
  */
 
 #include "network.h"
+#include <arpa/inet.h>
 #include <stdio.h>
 #include <string.h>
-#include <arpa/inet.h>
 
-static void print_hex(const uint8_t *data, size_t len)
-{
+static void print_hex(const uint8_t *data, size_t len) {
     for (size_t i = 0; i < len; i++) {
         printf("%02x ", data[i]);
-        if ((i + 1) % 16 == 0) printf("\n");
+        if ((i + 1) % 16 == 0)
+            printf("\n");
     }
-    if (len % 16 != 0) printf("\n");
+    if (len % 16 != 0)
+        printf("\n");
 }
 
-int main(void)
-{
+int main(void) {
     printf("=== What is a Network ===\n\n");
 
     /* 1. Build a packet */
     const char *msg = "Hello, network!";
     uint8_t buf[256];
-    int total = nfs_pkt_build(buf, sizeof(buf),
-                              NFS_PKT_VERSION, 3, 0x42, 0xDEADBEEF,
+    int total = nfs_pkt_build(buf, sizeof(buf), NFS_PKT_VERSION, 3, 0x42, 0xDEADBEEF,
                               (const uint8_t *)msg, strlen(msg));
     if (total < 0) {
         fprintf(stderr, "Failed to build packet\n");
@@ -52,8 +51,7 @@ int main(void)
     }
 
     /* 3. Internet checksum */
-    uint8_t rfc_data[] = {0x00, 0x01, 0xf2, 0x03,
-                          0xf4, 0xf5, 0xf6, 0xf7};
+    uint8_t rfc_data[] = {0x00, 0x01, 0xf2, 0x03, 0xf4, 0xf5, 0xf6, 0xf7};
     uint16_t cksum = nfs_inet_checksum(rfc_data, sizeof(rfc_data));
     printf("\n3) Internet checksum of RFC 1071 test vector: 0x%04x\n", cksum);
 
@@ -68,17 +66,14 @@ int main(void)
     /* 4. Encapsulate / decapsulate */
     uint8_t enc_buf[256];
     const uint8_t inner[] = "inner data";
-    int enc_len = nfs_encapsulate(enc_buf, sizeof(enc_buf),
-                                  5, 0x01, 42,
-                                  inner, sizeof(inner) - 1);
+    int enc_len = nfs_encapsulate(enc_buf, sizeof(enc_buf), 5, 0x01, 42, inner, sizeof(inner) - 1);
     printf("\n4) Encapsulated packet (%d bytes):\n", enc_len);
     print_hex(enc_buf, (size_t)enc_len);
 
     const uint8_t *dec_payload;
     size_t dec_len;
     struct nfs_pkt_header dec_hdr;
-    if (nfs_decapsulate(enc_buf, (size_t)enc_len,
-                        &dec_hdr, &dec_payload, &dec_len) == 0) {
+    if (nfs_decapsulate(enc_buf, (size_t)enc_len, &dec_hdr, &dec_payload, &dec_len) == 0) {
         printf("   Decapsulated payload: \"%.*s\"\n", (int)dec_len, dec_payload);
     }
 

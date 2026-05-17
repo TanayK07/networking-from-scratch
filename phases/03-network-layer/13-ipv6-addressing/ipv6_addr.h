@@ -36,8 +36,7 @@ const char *nfs_ipv6_addr_type_str(const uint8_t addr[16]);
  *   - Insert 0xFF, 0xFE in the middle of the MAC
  *   - Flip bit 6 (universal/local) of the first byte
  *   - Combine with the prefix (first 8 bytes) */
-void nfs_ipv6_addr_from_eui64(const uint8_t mac[6], const uint8_t prefix[8],
-                               uint8_t addr[16]);
+void nfs_ipv6_addr_from_eui64(const uint8_t mac[6], const uint8_t prefix[8], uint8_t addr[16]);
 
 /* Compute the solicited-node multicast address for `addr`:
  *   ff02::1:ffXX:XXXX   (last 24 bits of addr) */

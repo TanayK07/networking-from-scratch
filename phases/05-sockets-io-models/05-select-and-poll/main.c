@@ -5,8 +5,7 @@
 #include "selectpoll.h"
 #include <stdio.h>
 
-int main(void)
-{
+int main(void) {
     struct nfs_sp_ctx ctx;
     nfs_sp_init(&ctx);
 
@@ -51,8 +50,8 @@ int main(void)
     n = nfs_poll(&ctx, pfds, 3);
     printf("poll returned %d ready fds\n", n);
     for (int i = 0; i < 3; i++) {
-        printf("  fd%d: events=0x%04x revents=0x%04x\n",
-               pfds[i].fd, pfds[i].events, pfds[i].revents);
+        printf("  fd%d: events=0x%04x revents=0x%04x\n", pfds[i].fd, pfds[i].events,
+               pfds[i].revents);
     }
 
     return 0;

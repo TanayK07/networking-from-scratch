@@ -4,18 +4,16 @@
  * Nagle's algorithm implementation.
  * --------------------------------------------------------------- */
 
-void nfs_nagle_init(struct nfs_nagle *n, uint16_t mss)
-{
+void nfs_nagle_init(struct nfs_nagle *n, uint16_t mss) {
     if (!n)
         return;
     n->enabled = 1;
     n->snd_una = 0;
     n->snd_nxt = 0;
-    n->mss     = mss;
+    n->mss = mss;
 }
 
-int nfs_nagle_can_send(const struct nfs_nagle *n, size_t data_len)
-{
+int nfs_nagle_can_send(const struct nfs_nagle *n, size_t data_len) {
     if (!n)
         return 0;
 
@@ -35,26 +33,22 @@ int nfs_nagle_can_send(const struct nfs_nagle *n, size_t data_len)
     return 0;
 }
 
-void nfs_nagle_enable(struct nfs_nagle *n)
-{
+void nfs_nagle_enable(struct nfs_nagle *n) {
     if (n)
         n->enabled = 1;
 }
 
-void nfs_nagle_disable(struct nfs_nagle *n)
-{
+void nfs_nagle_disable(struct nfs_nagle *n) {
     if (n)
         n->enabled = 0;
 }
 
-void nfs_nagle_sent(struct nfs_nagle *n, uint32_t nbytes)
-{
+void nfs_nagle_sent(struct nfs_nagle *n, uint32_t nbytes) {
     if (n)
         n->snd_nxt += nbytes;
 }
 
-void nfs_nagle_acked(struct nfs_nagle *n, uint32_t ack)
-{
+void nfs_nagle_acked(struct nfs_nagle *n, uint32_t ack) {
     if (n)
         n->snd_una = ack;
 }
@@ -63,18 +57,16 @@ void nfs_nagle_acked(struct nfs_nagle *n, uint32_t ack)
  * Delayed ACK implementation.
  * --------------------------------------------------------------- */
 
-void nfs_delayed_ack_init(struct nfs_delayed_ack *da, double delay)
-{
+void nfs_delayed_ack_init(struct nfs_delayed_ack *da, double delay) {
     if (!da)
         return;
-    da->pending   = 0;
-    da->deadline  = 0.0;
-    da->delay     = delay;
+    da->pending = 0;
+    da->deadline = 0.0;
+    da->delay = delay;
     da->seg_count = 0;
 }
 
-int nfs_delayed_ack_receive(struct nfs_delayed_ack *da, double now)
-{
+int nfs_delayed_ack_receive(struct nfs_delayed_ack *da, double now) {
     if (!da)
         return 0;
 
@@ -87,13 +79,12 @@ int nfs_delayed_ack_receive(struct nfs_delayed_ack *da, double now)
     }
 
     /* First segment: start delayed ACK timer */
-    da->pending  = 1;
+    da->pending = 1;
     da->deadline = now + da->delay;
     return 0;
 }
 
-int nfs_delayed_ack_check(struct nfs_delayed_ack *da, double now)
-{
+int nfs_delayed_ack_check(struct nfs_delayed_ack *da, double now) {
     if (!da)
         return 0;
 
@@ -103,11 +94,10 @@ int nfs_delayed_ack_check(struct nfs_delayed_ack *da, double now)
     return 0;
 }
 
-void nfs_delayed_ack_sent(struct nfs_delayed_ack *da)
-{
+void nfs_delayed_ack_sent(struct nfs_delayed_ack *da) {
     if (!da)
         return;
-    da->pending   = 0;
-    da->deadline  = 0.0;
+    da->pending = 0;
+    da->deadline = 0.0;
     da->seg_count = 0;
 }

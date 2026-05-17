@@ -50,8 +50,8 @@ int main(int argc, char **argv) {
         uint32_t size = (uint32_t)strtoul(argv[4], NULL, 0);
 
         int in = nfs_seq_in_window(seq, start, size);
-        printf("0x%08X in [0x%08X, 0x%08X + %u) = %s\n",
-               seq, start, start, size, in ? "true" : "false");
+        printf("0x%08X in [0x%08X, 0x%08X + %u) = %s\n", seq, start, start, size,
+               in ? "true" : "false");
         return 0;
     }
 
@@ -61,8 +61,7 @@ int main(int argc, char **argv) {
         nfs_seq_t hi = parse_seq(argv[4]);
 
         int bet = nfs_seq_between(seq, lo, hi);
-        printf("0x%08X in [0x%08X, 0x%08X] = %s\n",
-               seq, lo, hi, bet ? "true" : "false");
+        printf("0x%08X in [0x%08X, 0x%08X] = %s\n", seq, lo, hi, bet ? "true" : "false");
         return 0;
     }
 

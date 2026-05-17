@@ -15,9 +15,9 @@
  * An optional 4-byte or 6-byte password ("SecureOn") may follow.
  * --------------------------------------------------------------- */
 
-#define NFS_WOL_SYNC_LEN     6
-#define NFS_WOL_MAC_REPEATS  16
-#define NFS_WOL_MAGIC_SIZE   102   /* 6 + 6*16 */
+#define NFS_WOL_SYNC_LEN    6
+#define NFS_WOL_MAC_REPEATS 16
+#define NFS_WOL_MAGIC_SIZE  102 /* 6 + 6*16 */
 
 /* Build a standard magic packet (102 bytes).
  * Returns 102 on success, -1 if out_sz < 102 or args are NULL. */
@@ -26,8 +26,7 @@ int nfs_wol_build(const uint8_t mac[6], uint8_t *out, size_t out_sz);
 /* Build a magic packet with an optional SecureOn password appended.
  * pw_len must be 0 (no password), 4, or 6.
  * Returns total bytes written (102, 106, or 108), or -1 on error. */
-int nfs_wol_build_with_password(const uint8_t mac[6],
-                                const uint8_t *password, size_t pw_len,
+int nfs_wol_build_with_password(const uint8_t mac[6], const uint8_t *password, size_t pw_len,
                                 uint8_t *out, size_t out_sz);
 
 /* Validate a magic packet and extract the target MAC into mac_out.

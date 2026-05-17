@@ -2,8 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-int main(void)
-{
+int main(void) {
     /* Demo: integer encoding/decoding */
     printf("=== HPACK Integer Encoding ===\n");
 
@@ -17,14 +16,14 @@ int main(void)
     /* Encode 1337 with 5-bit prefix */
     n = nfs_hpack_encode_int(buf, sizeof(buf), 1337, 5);
     printf("Encode 1337 (5-bit prefix): %d byte(s) -> ", n);
-    for (int i = 0; i < n; i++) printf("0x%02x ", buf[i]);
+    for (int i = 0; i < n; i++)
+        printf("0x%02x ", buf[i]);
     printf("\n");
 
     /* Decode it back */
     uint64_t val;
     int consumed = nfs_hpack_decode_int(buf, (size_t)n, &val, 5);
-    printf("Decode back: value=%llu, consumed=%d bytes\n",
-           (unsigned long long)val, consumed);
+    printf("Decode back: value=%llu, consumed=%d bytes\n", (unsigned long long)val, consumed);
 
     /* Demo: static table */
     printf("\n=== HPACK Static Table ===\n");

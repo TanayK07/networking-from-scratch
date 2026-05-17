@@ -5,40 +5,40 @@
  * Byte stuffing (PPP, RFC 1662)
  * --------------------------------------------------------------- */
 
-int nfs_byte_stuff(const uint8_t *data, size_t len,
-                   uint8_t *out, size_t out_sz)
-{
+int nfs_byte_stuff(const uint8_t *data, size_t len, uint8_t *out, size_t out_sz) {
     if (!out)
         return -1;
 
     size_t idx = 0;
 
     /* Leading flag */
-    if (idx >= out_sz) return -1;
+    if (idx >= out_sz)
+        return -1;
     out[idx++] = NFS_PPP_FLAG;
 
     /* Escaped payload */
     for (size_t i = 0; i < len; i++) {
         if (data[i] == NFS_PPP_FLAG || data[i] == NFS_PPP_ESCAPE) {
-            if (idx + 2 > out_sz) return -1;
+            if (idx + 2 > out_sz)
+                return -1;
             out[idx++] = NFS_PPP_ESCAPE;
             out[idx++] = data[i] ^ NFS_PPP_XOR;
         } else {
-            if (idx + 1 > out_sz) return -1;
+            if (idx + 1 > out_sz)
+                return -1;
             out[idx++] = data[i];
         }
     }
 
     /* Trailing flag */
-    if (idx >= out_sz) return -1;
+    if (idx >= out_sz)
+        return -1;
     out[idx++] = NFS_PPP_FLAG;
 
     return (int)idx;
 }
 
-int nfs_byte_unstuff(const uint8_t *frame, size_t frame_len,
-                     uint8_t *out, size_t out_sz)
-{
+int nfs_byte_unstuff(const uint8_t *frame, size_t frame_len, uint8_t *out, size_t out_sz) {
     if (!frame || !out)
         return -1;
 
@@ -51,8 +51,8 @@ int nfs_byte_unstuff(const uint8_t *frame, size_t frame_len,
         return -1;
 
     size_t idx = 0;
-    size_t i = 1;  /* skip leading flag */
-    size_t end = frame_len - 1;  /* stop before trailing flag */
+    size_t i = 1;               /* skip leading flag */
+    size_t end = frame_len - 1; /* stop before trailing flag */
 
     while (i < end) {
         if (frame[i] == NFS_PPP_FLAG) {
@@ -61,7 +61,7 @@ int nfs_byte_unstuff(const uint8_t *frame, size_t frame_len,
         } else if (frame[i] == NFS_PPP_ESCAPE) {
             i++;
             if (i >= end)
-                return -1;  /* Escape at end of payload */
+                return -1; /* Escape at end of payload */
             if (idx >= out_sz)
                 return -1;
             out[idx++] = frame[i] ^ NFS_PPP_XOR;
@@ -83,14 +83,12 @@ int nfs_byte_unstuff(const uint8_t *frame, size_t frame_len,
  * --------------------------------------------------------------- */
 
 /* Helper: get bit n from a bit-packed buffer (MSB-first) */
-static inline int get_bit(const uint8_t *data, size_t n)
-{
+static inline int get_bit(const uint8_t *data, size_t n) {
     return (data[n / 8] >> (7 - (n % 8))) & 1;
 }
 
 /* Helper: set bit n in a bit-packed buffer (MSB-first) */
-static inline void set_bit(uint8_t *data, size_t n, int val)
-{
+static inline void set_bit(uint8_t *data, size_t n, int val) {
     size_t byte_idx = n / 8;
     int bit_idx = 7 - (int)(n % 8);
     if (val)
@@ -99,9 +97,7 @@ static inline void set_bit(uint8_t *data, size_t n, int val)
         data[byte_idx] &= (uint8_t)~(1 << bit_idx);
 }
 
-int nfs_bit_stuff(const uint8_t *data, size_t nbits,
-                  uint8_t *out, size_t out_sz)
-{
+int nfs_bit_stuff(const uint8_t *data, size_t nbits, uint8_t *out, size_t out_sz) {
     if (!data || !out)
         return -1;
 
@@ -134,9 +130,7 @@ int nfs_bit_stuff(const uint8_t *data, size_t nbits,
     return (int)out_idx;
 }
 
-int nfs_bit_unstuff(const uint8_t *data, size_t nbits,
-                    uint8_t *out, size_t out_sz)
-{
+int nfs_bit_unstuff(const uint8_t *data, size_t nbits, uint8_t *out, size_t out_sz) {
     if (!data || !out)
         return -1;
 
@@ -151,7 +145,7 @@ int nfs_bit_unstuff(const uint8_t *data, size_t nbits,
         if (consecutive_ones == 5) {
             /* This bit must be a stuffed 0 — skip it */
             if (b != 0)
-                return -1;  /* Invalid: 6+ consecutive 1s */
+                return -1; /* Invalid: 6+ consecutive 1s */
             consecutive_ones = 0;
             continue;
         }
@@ -179,9 +173,7 @@ int nfs_bit_unstuff(const uint8_t *data, size_t nbits,
  *   254 bytes), we write the distance and start a new block.
  * --------------------------------------------------------------- */
 
-int nfs_cobs_encode(const uint8_t *data, size_t len,
-                    uint8_t *out, size_t out_sz)
-{
+int nfs_cobs_encode(const uint8_t *data, size_t len, uint8_t *out, size_t out_sz) {
     if (!data || !out)
         return -1;
 
@@ -223,9 +215,7 @@ int nfs_cobs_encode(const uint8_t *data, size_t len,
     return (int)write_idx;
 }
 
-int nfs_cobs_decode(const uint8_t *data, size_t len,
-                    uint8_t *out, size_t out_sz)
-{
+int nfs_cobs_decode(const uint8_t *data, size_t len, uint8_t *out, size_t out_sz) {
     if (!data || !out)
         return -1;
 
@@ -238,7 +228,7 @@ int nfs_cobs_decode(const uint8_t *data, size_t len,
     while (read_idx < len) {
         uint8_t code = data[read_idx++];
         if (code == 0)
-            return -1;  /* 0x00 should never appear in COBS data */
+            return -1; /* 0x00 should never appear in COBS data */
 
         for (uint8_t i = 1; i < code; i++) {
             if (read_idx >= len)
@@ -246,7 +236,7 @@ int nfs_cobs_decode(const uint8_t *data, size_t len,
             if (write_idx >= out_sz)
                 return -1;
             if (data[read_idx] == 0x00)
-                return -1;  /* 0x00 in data position is invalid COBS */
+                return -1; /* 0x00 in data position is invalid COBS */
             out[write_idx++] = data[read_idx++];
         }
 

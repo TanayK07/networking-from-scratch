@@ -1,52 +1,50 @@
 /* Unit tests for digital modulation: OOK, BPSK, QPSK, 16-QAM. */
 
 #include "../modulation.h"
-#include <stdio.h>
 #include <math.h>
+#include <stdio.h>
 
 static int tests_run = 0;
 static int tests_passed = 0;
 
-#define ASSERT_EQ(expr, expected) \
-    do { \
-        tests_run++; \
-        long long _got = (long long)(expr); \
-        long long _exp = (long long)(expected); \
-        if (_got != _exp) { \
-            fprintf(stderr, "  FAIL %s:%d: %s == 0x%llx, want 0x%llx\n", \
-                    __FILE__, __LINE__, #expr, _got, _exp); \
-            return; \
-        } \
-        tests_passed++; \
+#define ASSERT_EQ(expr, expected)                                                                  \
+    do {                                                                                           \
+        tests_run++;                                                                               \
+        long long _got = (long long)(expr);                                                        \
+        long long _exp = (long long)(expected);                                                    \
+        if (_got != _exp) {                                                                        \
+            fprintf(stderr, "  FAIL %s:%d: %s == 0x%llx, want 0x%llx\n", __FILE__, __LINE__,       \
+                    #expr, _got, _exp);                                                            \
+            return;                                                                                \
+        }                                                                                          \
+        tests_passed++;                                                                            \
     } while (0)
 
-#define ASSERT_TRUE(expr) \
-    do { \
-        tests_run++; \
-        if (!(expr)) { \
-            fprintf(stderr, "  FAIL %s:%d: %s is false\n", \
-                    __FILE__, __LINE__, #expr); \
-            return; \
-        } \
-        tests_passed++; \
+#define ASSERT_TRUE(expr)                                                                          \
+    do {                                                                                           \
+        tests_run++;                                                                               \
+        if (!(expr)) {                                                                             \
+            fprintf(stderr, "  FAIL %s:%d: %s is false\n", __FILE__, __LINE__, #expr);             \
+            return;                                                                                \
+        }                                                                                          \
+        tests_passed++;                                                                            \
     } while (0)
 
-#define ASSERT_NEAR(expr, expected, tol) \
-    do { \
-        tests_run++; \
-        double _got = (double)(expr); \
-        double _exp = (double)(expected); \
-        if (fabs(_got - _exp) > (tol)) { \
-            fprintf(stderr, "  FAIL %s:%d: %s == %.10f, want %.10f (tol %.1e)\n", \
-                    __FILE__, __LINE__, #expr, _got, _exp, (double)(tol)); \
-            return; \
-        } \
-        tests_passed++; \
+#define ASSERT_NEAR(expr, expected, tol)                                                           \
+    do {                                                                                           \
+        tests_run++;                                                                               \
+        double _got = (double)(expr);                                                              \
+        double _exp = (double)(expected);                                                          \
+        if (fabs(_got - _exp) > (tol)) {                                                           \
+            fprintf(stderr, "  FAIL %s:%d: %s == %.10f, want %.10f (tol %.1e)\n", __FILE__,        \
+                    __LINE__, #expr, _got, _exp, (double)(tol));                                   \
+            return;                                                                                \
+        }                                                                                          \
+        tests_passed++;                                                                            \
     } while (0)
 
 /* Helper: count bits that differ between two integers */
-static int hamming_distance(int a, int b)
-{
+static int hamming_distance(int a, int b) {
     int x = a ^ b;
     int count = 0;
     while (x) {
@@ -58,8 +56,7 @@ static int hamming_distance(int a, int b)
 
 /* ---- Test 1: OOK modulate/demodulate roundtrip ---- */
 
-static void test_ook_roundtrip(void)
-{
+static void test_ook_roundtrip(void) {
     for (int bit = 0; bit <= 1; bit++) {
         nfs_symbol_t s = nfs_ook_modulate(bit);
         int dec = nfs_ook_demodulate(s);
@@ -69,8 +66,7 @@ static void test_ook_roundtrip(void)
 
 /* ---- Test 2: OOK symbol values ---- */
 
-static void test_ook_symbol_values(void)
-{
+static void test_ook_symbol_values(void) {
     nfs_symbol_t s0 = nfs_ook_modulate(0);
     ASSERT_NEAR(s0.i, 0.0, 1e-9);
     ASSERT_NEAR(s0.q, 0.0, 1e-9);
@@ -82,8 +78,7 @@ static void test_ook_symbol_values(void)
 
 /* ---- Test 3: BPSK modulate/demodulate roundtrip ---- */
 
-static void test_bpsk_roundtrip(void)
-{
+static void test_bpsk_roundtrip(void) {
     for (int bit = 0; bit <= 1; bit++) {
         nfs_symbol_t s = nfs_bpsk_modulate(bit);
         int dec = nfs_bpsk_demodulate(s);
@@ -93,8 +88,7 @@ static void test_bpsk_roundtrip(void)
 
 /* ---- Test 4: BPSK symbol values ---- */
 
-static void test_bpsk_symbol_values(void)
-{
+static void test_bpsk_symbol_values(void) {
     nfs_symbol_t s0 = nfs_bpsk_modulate(0);
     ASSERT_NEAR(s0.i, +1.0, 1e-9);
     ASSERT_NEAR(s0.q, 0.0, 1e-9);
@@ -106,8 +100,7 @@ static void test_bpsk_symbol_values(void)
 
 /* ---- Test 5: BPSK noise margin ---- */
 
-static void test_bpsk_noise_margin(void)
-{
+static void test_bpsk_noise_margin(void) {
     /* bit 0 -> (+1, 0): adding noise of +/-0.3 should still demodulate to 0 */
     nfs_symbol_t s0_noisy1 = {1.0 + 0.3, 0.0};
     ASSERT_EQ(nfs_bpsk_demodulate(s0_noisy1), 0);
@@ -125,8 +118,7 @@ static void test_bpsk_noise_margin(void)
 
 /* ---- Test 6: QPSK all 4 dibits roundtrip ---- */
 
-static void test_qpsk_roundtrip(void)
-{
+static void test_qpsk_roundtrip(void) {
     for (int d = 0; d < 4; d++) {
         nfs_symbol_t s = nfs_qpsk_modulate(d);
         int dec = nfs_qpsk_demodulate(s);
@@ -136,8 +128,7 @@ static void test_qpsk_roundtrip(void)
 
 /* ---- Test 7: QPSK constellation coordinates ---- */
 
-static void test_qpsk_coordinates(void)
-{
+static void test_qpsk_coordinates(void) {
     const double inv_sqrt2 = 0.70710678118654752;
 
     /* 00 -> 45 deg -> (+1/sqrt2, +1/sqrt2) */
@@ -163,8 +154,7 @@ static void test_qpsk_coordinates(void)
 
 /* ---- Test 8: QPSK Gray coding ---- */
 
-static void test_qpsk_gray_coding(void)
-{
+static void test_qpsk_gray_coding(void) {
     /* Adjacent constellation points (by phase angle) should differ by 1 bit.
      * Order by phase: 00 (45), 01 (135), 11 (225), 10 (315).
      * Adjacent pairs: (00,01), (01,11), (11,10), (10,00) wrap-around. */
@@ -178,8 +168,7 @@ static void test_qpsk_gray_coding(void)
 
 /* ---- Test 9: 16-QAM all 16 nibbles roundtrip ---- */
 
-static void test_qam16_roundtrip(void)
-{
+static void test_qam16_roundtrip(void) {
     for (int n = 0; n < 16; n++) {
         nfs_symbol_t s = nfs_qam16_modulate(n);
         int dec = nfs_qam16_demodulate(s);
@@ -189,8 +178,7 @@ static void test_qam16_roundtrip(void)
 
 /* ---- Test 10: 16-QAM known coordinates ---- */
 
-static void test_qam16_known_coordinates(void)
-{
+static void test_qam16_known_coordinates(void) {
     /* nibble 0b0000 (0) -> I: 00->-3, Q: 00->-3 -> (-3, -3) */
     nfs_symbol_t s0 = nfs_qam16_modulate(0x0);
     ASSERT_NEAR(s0.i, -3.0, 1e-9);
@@ -214,8 +202,7 @@ static void test_qam16_known_coordinates(void)
 
 /* ---- Test 11: 16-QAM Gray coding for I axis ---- */
 
-static void test_qam16_gray_coding(void)
-{
+static void test_qam16_gray_coding(void) {
     /* Gray coding: adjacent I values differ by 1 bit in upper 2 bits.
      * I levels in order: -3 (00), -1 (01), +1 (11), +3 (10).
      * Adjacent pairs: (00,01), (01,11), (11,10). Each should have Hamming dist 1. */
@@ -246,8 +233,7 @@ static void test_qam16_gray_coding(void)
 
 /* ---- Test 12: bits_per_symbol ---- */
 
-static void test_bits_per_symbol(void)
-{
+static void test_bits_per_symbol(void) {
     ASSERT_EQ(nfs_bits_per_symbol(NFS_MOD_OOK), 1);
     ASSERT_EQ(nfs_bits_per_symbol(NFS_MOD_BPSK), 1);
     ASSERT_EQ(nfs_bits_per_symbol(NFS_MOD_QPSK), 2);
@@ -256,8 +242,7 @@ static void test_bits_per_symbol(void)
 
 /* ---- Test 13: bitrate calculation ---- */
 
-static void test_bitrate(void)
-{
+static void test_bitrate(void) {
     ASSERT_NEAR(nfs_bitrate(1000.0, NFS_MOD_QPSK), 2000.0, 1e-9);
     ASSERT_NEAR(nfs_bitrate(1000.0, NFS_MOD_QAM16), 4000.0, 1e-9);
     ASSERT_NEAR(nfs_bitrate(1000.0, NFS_MOD_OOK), 1000.0, 1e-9);
@@ -266,8 +251,7 @@ static void test_bitrate(void)
 
 /* ---- Test 14: Invalid inputs ---- */
 
-static void test_invalid_inputs(void)
-{
+static void test_invalid_inputs(void) {
     /* QPSK: dibit > 3 should produce zero symbol */
     nfs_symbol_t s_bad_qpsk = nfs_qpsk_modulate(4);
     ASSERT_NEAR(s_bad_qpsk.i, 0.0, 1e-9);
@@ -295,8 +279,7 @@ static void test_invalid_inputs(void)
 
 /* ---- Additional: QPSK unit circle verification ---- */
 
-static void test_qpsk_unit_circle(void)
-{
+static void test_qpsk_unit_circle(void) {
     /* All QPSK symbols should lie on the unit circle: |s| = 1 */
     for (int d = 0; d < 4; d++) {
         nfs_symbol_t s = nfs_qpsk_modulate(d);
@@ -307,19 +290,14 @@ static void test_qpsk_unit_circle(void)
 
 /* ---- Additional: 16-QAM coordinate grid verification ---- */
 
-static void test_qam16_grid(void)
-{
+static void test_qam16_grid(void) {
     /* Every 16-QAM symbol should have I and Q from {-3, -1, +1, +3} */
     for (int n = 0; n < 16; n++) {
         nfs_symbol_t s = nfs_qam16_modulate(n);
-        int i_valid = (fabs(s.i - (-3.0)) < 1e-9) ||
-                      (fabs(s.i - (-1.0)) < 1e-9) ||
-                      (fabs(s.i - (+1.0)) < 1e-9) ||
-                      (fabs(s.i - (+3.0)) < 1e-9);
-        int q_valid = (fabs(s.q - (-3.0)) < 1e-9) ||
-                      (fabs(s.q - (-1.0)) < 1e-9) ||
-                      (fabs(s.q - (+1.0)) < 1e-9) ||
-                      (fabs(s.q - (+3.0)) < 1e-9);
+        int i_valid = (fabs(s.i - (-3.0)) < 1e-9) || (fabs(s.i - (-1.0)) < 1e-9) ||
+                      (fabs(s.i - (+1.0)) < 1e-9) || (fabs(s.i - (+3.0)) < 1e-9);
+        int q_valid = (fabs(s.q - (-3.0)) < 1e-9) || (fabs(s.q - (-1.0)) < 1e-9) ||
+                      (fabs(s.q - (+1.0)) < 1e-9) || (fabs(s.q - (+3.0)) < 1e-9);
         ASSERT_TRUE(i_valid);
         ASSERT_TRUE(q_valid);
     }
@@ -327,8 +305,7 @@ static void test_qam16_grid(void)
 
 /* ---- Additional: OOK demodulate at threshold boundary ---- */
 
-static void test_ook_threshold(void)
-{
+static void test_ook_threshold(void) {
     /* Amplitude exactly 0.5 should demodulate to 1 (>= 0.5) */
     nfs_symbol_t at_thresh = {0.5, 0.0};
     ASSERT_EQ(nfs_ook_demodulate(at_thresh), 1);
@@ -338,8 +315,7 @@ static void test_ook_threshold(void)
     ASSERT_EQ(nfs_ook_demodulate(below), 0);
 }
 
-int main(void)
-{
+int main(void) {
     printf("Modulation Tests\n");
 
     test_ook_roundtrip();
@@ -361,7 +337,10 @@ int main(void)
     test_ook_threshold();
 
     printf("\n%d/%d passed\n", tests_passed, tests_run);
-    if (tests_passed == tests_run) { printf("PASS\n"); return 0; }
+    if (tests_passed == tests_run) {
+        printf("PASS\n");
+        return 0;
+    }
     printf("FAIL\n");
     return 1;
 }

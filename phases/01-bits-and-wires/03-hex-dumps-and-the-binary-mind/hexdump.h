@@ -24,8 +24,7 @@ int nfs_hexdump(const uint8_t *data, size_t len, char *out, size_t out_sz);
 /* Format a single hex dump line starting at `offset` within the
  * data.  `len` is the number of bytes available at `data` (1..16).
  * Returns characters written (excluding NUL), or -1 on error. */
-int nfs_hexdump_line(const uint8_t *data, size_t len, size_t offset,
-                     char *out, size_t out_sz);
+int nfs_hexdump_line(const uint8_t *data, size_t len, size_t offset, char *out, size_t out_sz);
 
 /* Parse a hex string (e.g. "4500003c") into raw bytes.
  * Returns the number of bytes written to `out`, or -1 on error.

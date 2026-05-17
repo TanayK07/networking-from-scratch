@@ -3,8 +3,7 @@
 #include "pmtud.h"
 #include <stdio.h>
 
-int main(void)
-{
+int main(void) {
     printf("=== Path MTU Discovery (RFC 1191) ===\n\n");
 
     /* --- Plateau table walk --- */
@@ -22,10 +21,9 @@ int main(void)
     nfs_pmtu_cache_init(&cache, 16);
 
     /* Simulate discovering PMTU to 10.0.0.1 */
-    uint32_t dest = (10u << 24) | 1;  /* 10.0.0.1 */
+    uint32_t dest = (10u << 24) | 1; /* 10.0.0.1 */
     printf("Simulating PMTUD to 10.0.0.1:\n");
-    printf("  Initial lookup: MTU = %u (unknown)\n",
-           nfs_pmtu_cache_lookup(&cache, dest));
+    printf("  Initial lookup: MTU = %u (unknown)\n", nfs_pmtu_cache_lookup(&cache, dest));
 
     /* First packet sent with DF=1, interface MTU 1500 */
     nfs_pmtu_cache_update(&cache, dest, 1500, 0.0);
@@ -33,18 +31,14 @@ int main(void)
            nfs_pmtu_cache_lookup(&cache, dest));
 
     /* ICMP Fragmentation Needed received, next-hop MTU 1006 */
-    printf("  ICMP Frag Needed received!  Trying plateau: %u\n",
-           nfs_pmtu_next_lower(1500));
+    printf("  ICMP Frag Needed received!  Trying plateau: %u\n", nfs_pmtu_next_lower(1500));
     nfs_pmtu_cache_update(&cache, dest, 1006, 1.0);
-    printf("  Cache updated: MTU = %u\n",
-           nfs_pmtu_cache_lookup(&cache, dest));
+    printf("  Cache updated: MTU = %u\n", nfs_pmtu_cache_lookup(&cache, dest));
 
     /* Another ICMP, need to go lower */
-    printf("  Another ICMP!  Trying plateau: %u\n",
-           nfs_pmtu_next_lower(1006));
+    printf("  Another ICMP!  Trying plateau: %u\n", nfs_pmtu_next_lower(1006));
     nfs_pmtu_cache_update(&cache, dest, 508, 2.0);
-    printf("  Cache updated: MTU = %u\n\n",
-           nfs_pmtu_cache_lookup(&cache, dest));
+    printf("  Cache updated: MTU = %u\n\n", nfs_pmtu_cache_lookup(&cache, dest));
 
     /* Add a second destination */
     uint32_t dest2 = (192u << 24) | (168u << 16) | (1u << 8) | 100;
@@ -57,12 +51,9 @@ int main(void)
 
     /* Probe timer check */
     printf("\nProbe timer (600s interval):\n");
-    struct nfs_pmtu_entry e = { .dest = dest, .pmtu = 508,
-                                .last_updated = 2.0 };
-    printf("  At t=100:  should_probe = %d\n",
-           nfs_pmtu_should_probe(&e, 100.0, 600.0));
-    printf("  At t=700:  should_probe = %d\n",
-           nfs_pmtu_should_probe(&e, 700.0, 600.0));
+    struct nfs_pmtu_entry e = {.dest = dest, .pmtu = 508, .last_updated = 2.0};
+    printf("  At t=100:  should_probe = %d\n", nfs_pmtu_should_probe(&e, 100.0, 600.0));
+    printf("  At t=700:  should_probe = %d\n", nfs_pmtu_should_probe(&e, 700.0, 600.0));
 
     nfs_pmtu_cache_free(&cache);
     printf("\nDone.\n");

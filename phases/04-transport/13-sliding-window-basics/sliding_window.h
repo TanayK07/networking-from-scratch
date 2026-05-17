@@ -22,16 +22,16 @@ struct nfs_send_window {
     uint32_t next_seq;    /* next seq to send */
     uint32_t window_size; /* receiver advertised window */
     uint8_t *buffer;      /* circular buffer for unacked data */
-    size_t   buf_cap;     /* capacity of buffer */
-    int     *acked;       /* per-byte ACK tracking (for future selective ACK) */
+    size_t buf_cap;       /* capacity of buffer */
+    int *acked;           /* per-byte ACK tracking (for future selective ACK) */
 };
 
 /* Initialize the send window.
  * isn      = initial sequence number
  * win_size = advertised window size (in bytes)
  * buf_cap  = buffer capacity (must be >= win_size) */
-void nfs_send_window_init(struct nfs_send_window *w, uint32_t isn,
-                          uint32_t win_size, size_t buf_cap);
+void nfs_send_window_init(struct nfs_send_window *w, uint32_t isn, uint32_t win_size,
+                          size_t buf_cap);
 
 /* Free dynamically allocated buffers. */
 void nfs_send_window_free(struct nfs_send_window *w);
@@ -56,7 +56,6 @@ uint32_t nfs_send_window_available(const struct nfs_send_window *w);
 /* Get a pointer to buffered data at the given sequence number.
  * Useful for retransmission. Sets *len to available contiguous bytes.
  * Returns NULL if seq is outside the in-flight range. */
-const uint8_t *nfs_send_window_get_data(const struct nfs_send_window *w,
-                                        uint32_t seq, size_t *len);
+const uint8_t *nfs_send_window_get_data(const struct nfs_send_window *w, uint32_t seq, size_t *len);
 
 #endif /* NFS_SLIDING_WINDOW_H */

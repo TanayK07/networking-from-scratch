@@ -1,26 +1,26 @@
 #include "cookie.h"
-#include <string.h>
-#include <stdlib.h>
 #include <ctype.h>
+#include <stdlib.h>
+#include <string.h>
 
 /* ---------------------------------------------------------------
  * Helpers
  * --------------------------------------------------------------- */
 
 /* Skip leading whitespace. */
-static const char *skip_ws(const char *s)
-{
-    while (*s && (*s == ' ' || *s == '\t')) s++;
+static const char *skip_ws(const char *s) {
+    while (*s && (*s == ' ' || *s == '\t'))
+        s++;
     return s;
 }
 
 /* Case-insensitive compare (C11-safe). */
-static int str_casecmp(const char *a, const char *b)
-{
+static int str_casecmp(const char *a, const char *b) {
     while (*a && *b) {
         int ca = tolower((unsigned char)*a);
         int cb = tolower((unsigned char)*b);
-        if (ca != cb) return ca - cb;
+        if (ca != cb)
+            return ca - cb;
         a++;
         b++;
     }
@@ -28,21 +28,22 @@ static int str_casecmp(const char *a, const char *b)
 }
 
 /* Case-insensitive compare with length. */
-static int str_ncasecmp(const char *a, const char *b, size_t n)
-{
+static int str_ncasecmp(const char *a, const char *b, size_t n) {
     for (size_t i = 0; i < n; i++) {
         int ca = tolower((unsigned char)a[i]);
         int cb = tolower((unsigned char)b[i]);
-        if (ca != cb) return ca - cb;
-        if (ca == 0) return 0;
+        if (ca != cb)
+            return ca - cb;
+        if (ca == 0)
+            return 0;
     }
     return 0;
 }
 
 /* Copy at most max-1 chars from src (length slen) into dst, NUL-terminate. */
-static void copy_field(char *dst, size_t max, const char *src, size_t slen)
-{
-    if (slen >= max) slen = max - 1;
+static void copy_field(char *dst, size_t max, const char *src, size_t slen) {
+    if (slen >= max)
+        slen = max - 1;
     memcpy(dst, src, slen);
     dst[slen] = '\0';
 }
@@ -53,9 +54,7 @@ static void copy_field(char *dst, size_t max, const char *src, size_t slen)
  * Format: name=value[; attr[=val]]*
  * --------------------------------------------------------------- */
 
-int nfs_cookie_parse_set_cookie(const char *header,
-                                struct nfs_cookie *out)
-{
+int nfs_cookie_parse_set_cookie(const char *header, struct nfs_cookie *out) {
     if (!header || !out)
         return -1;
 
@@ -86,7 +85,8 @@ int nfs_cookie_parse_set_cookie(const char *header,
     /* Parse attributes */
     while (*p) {
         p = skip_ws(p);
-        if (*p == '\0') break;
+        if (*p == '\0')
+            break;
 
         /* Find end of this attribute */
         const char *attr_end = strchr(p, ';');
@@ -105,13 +105,13 @@ int nfs_cookie_parse_set_cookie(const char *header,
             const char *v = skip_ws(attr_eq + 1);
             size_t vlen = attr_len - (size_t)(v - p);
             /* Strip trailing whitespace */
-            while (vlen > 0 && (v[vlen-1] == ' ' || v[vlen-1] == '\t'))
+            while (vlen > 0 && (v[vlen - 1] == ' ' || v[vlen - 1] == '\t'))
                 vlen--;
             copy_field(out->domain, sizeof(out->domain), v, vlen);
         } else if (str_ncasecmp(p, "Path", 4) == 0 && attr_eq) {
             const char *v = skip_ws(attr_eq + 1);
             size_t vlen = attr_len - (size_t)(v - p);
-            while (vlen > 0 && (v[vlen-1] == ' ' || v[vlen-1] == '\t'))
+            while (vlen > 0 && (v[vlen - 1] == ' ' || v[vlen - 1] == '\t'))
                 vlen--;
             copy_field(out->path, sizeof(out->path), v, vlen);
         } else if (str_ncasecmp(p, "Max-Age", 7) == 0 && attr_eq) {
@@ -132,7 +132,8 @@ int nfs_cookie_parse_set_cookie(const char *header,
         /* Skip Expires and unknown attributes */
 
         p += attr_len;
-        if (*p == ';') p++;
+        if (*p == ';')
+            p++;
     }
 
     return 0;
@@ -144,8 +145,7 @@ int nfs_cookie_parse_set_cookie(const char *header,
 
 /* Check if a cookie's domain matches the request domain.
  * Simple suffix match: cookie domain ".example.com" matches "www.example.com". */
-static int domain_matches(const char *cookie_domain, const char *request_domain)
-{
+static int domain_matches(const char *cookie_domain, const char *request_domain) {
     if (!cookie_domain[0])
         return 1; /* no domain restriction */
     if (str_casecmp(cookie_domain, request_domain) == 0)
@@ -154,7 +154,8 @@ static int domain_matches(const char *cookie_domain, const char *request_domain)
     /* Suffix match: cookie_domain should be a suffix of request_domain */
     size_t clen = strlen(cookie_domain);
     size_t rlen = strlen(request_domain);
-    if (clen > rlen) return 0;
+    if (clen > rlen)
+        return 0;
 
     /* Check if request_domain ends with cookie_domain */
     const char *suffix = request_domain + rlen - clen;
@@ -170,24 +171,20 @@ static int domain_matches(const char *cookie_domain, const char *request_domain)
 }
 
 /* Check if cookie path matches request path (prefix match). */
-static int path_matches(const char *cookie_path, const char *request_path)
-{
+static int path_matches(const char *cookie_path, const char *request_path) {
     if (!cookie_path[0])
         return 1; /* no path restriction */
     size_t clen = strlen(cookie_path);
     if (strncmp(cookie_path, request_path, clen) == 0) {
         /* Exact match or request_path continues with '/' */
-        if (request_path[clen] == '\0' || request_path[clen] == '/' ||
-            cookie_path[clen - 1] == '/')
+        if (request_path[clen] == '\0' || request_path[clen] == '/' || cookie_path[clen - 1] == '/')
             return 1;
     }
     return 0;
 }
 
-int nfs_cookie_build_header(const struct nfs_cookie_jar *jar,
-                            const char *domain, const char *path,
-                            char *out, size_t out_sz)
-{
+int nfs_cookie_build_header(const struct nfs_cookie_jar *jar, const char *domain, const char *path,
+                            char *out, size_t out_sz) {
     if (!jar || !domain || !path || !out || out_sz == 0)
         return -1;
 
@@ -234,15 +231,13 @@ int nfs_cookie_build_header(const struct nfs_cookie_jar *jar,
  * Cookie jar operations
  * --------------------------------------------------------------- */
 
-void nfs_cookie_jar_init(struct nfs_cookie_jar *jar)
-{
-    if (!jar) return;
+void nfs_cookie_jar_init(struct nfs_cookie_jar *jar) {
+    if (!jar)
+        return;
     jar->count = 0;
 }
 
-int nfs_cookie_jar_add(struct nfs_cookie_jar *jar,
-                       const struct nfs_cookie *cookie)
-{
+int nfs_cookie_jar_add(struct nfs_cookie_jar *jar, const struct nfs_cookie *cookie) {
     if (!jar || !cookie)
         return -1;
 
@@ -263,18 +258,14 @@ int nfs_cookie_jar_add(struct nfs_cookie_jar *jar,
     return 0;
 }
 
-const struct nfs_cookie *nfs_cookie_jar_lookup(const struct nfs_cookie_jar *jar,
-                                               const char *name,
-                                               const char *domain,
-                                               const char *path)
-{
+const struct nfs_cookie *nfs_cookie_jar_lookup(const struct nfs_cookie_jar *jar, const char *name,
+                                               const char *domain, const char *path) {
     if (!jar || !name || !domain || !path)
         return NULL;
 
     for (int i = 0; i < jar->count; i++) {
         const struct nfs_cookie *c = &jar->cookies[i];
-        if (strcmp(c->name, name) == 0 &&
-            str_casecmp(c->domain, domain) == 0 &&
+        if (strcmp(c->name, name) == 0 && str_casecmp(c->domain, domain) == 0 &&
             strcmp(c->path, path) == 0)
             return c;
     }
@@ -282,9 +273,9 @@ const struct nfs_cookie *nfs_cookie_jar_lookup(const struct nfs_cookie_jar *jar,
     return NULL;
 }
 
-int nfs_cookie_jar_expire(struct nfs_cookie_jar *jar)
-{
-    if (!jar) return 0;
+int nfs_cookie_jar_expire(struct nfs_cookie_jar *jar) {
+    if (!jar)
+        return 0;
 
     int removed = 0;
     int i = 0;

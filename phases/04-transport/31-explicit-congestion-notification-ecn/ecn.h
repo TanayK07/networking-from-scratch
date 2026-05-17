@@ -25,38 +25,38 @@
 
 /* ECN codepoints in IP TOS byte (bits 0-1 of the 2 ECN bits) */
 typedef enum {
-    NFS_ECN_NOT_ECT = 0x00,  /* Not ECN-Capable Transport */
-    NFS_ECN_ECT1    = 0x01,  /* ECN-Capable Transport(1) */
-    NFS_ECN_ECT0    = 0x02,  /* ECN-Capable Transport(0) */
-    NFS_ECN_CE      = 0x03,  /* Congestion Experienced */
+    NFS_ECN_NOT_ECT = 0x00, /* Not ECN-Capable Transport */
+    NFS_ECN_ECT1 = 0x01,    /* ECN-Capable Transport(1) */
+    NFS_ECN_ECT0 = 0x02,    /* ECN-Capable Transport(0) */
+    NFS_ECN_CE = 0x03,      /* Congestion Experienced */
 } nfs_ecn_codepoint_t;
 
 /* TCP ECN-related flags */
-#define NFS_TCP_FLAG_NS   0x100  /* Nonce Sum (bit 8) */
-#define NFS_TCP_FLAG_CWR  0x080  /* CWR (bit 7) */
-#define NFS_TCP_FLAG_ECE  0x040  /* ECE (bit 6) */
-#define NFS_TCP_FLAG_SYN  0x002  /* SYN */
-#define NFS_TCP_FLAG_ACK  0x010  /* ACK */
+#define NFS_TCP_FLAG_NS  0x100 /* Nonce Sum (bit 8) */
+#define NFS_TCP_FLAG_CWR 0x080 /* CWR (bit 7) */
+#define NFS_TCP_FLAG_ECE 0x040 /* ECE (bit 6) */
+#define NFS_TCP_FLAG_SYN 0x002 /* SYN */
+#define NFS_TCP_FLAG_ACK 0x010 /* ACK */
 
 /* ECN negotiation state */
 typedef enum {
-    NFS_ECN_STATE_UNKNOWN    = 0,
-    NFS_ECN_STATE_REQUESTED  = 1,  /* SYN sent with ECE+CWR */
-    NFS_ECN_STATE_ACCEPTED   = 2,  /* SYN-ACK with ECE (no CWR) */
-    NFS_ECN_STATE_REJECTED   = 3,  /* SYN-ACK without ECE */
-    NFS_ECN_STATE_ACTIVE     = 4,  /* ECN negotiation complete */
+    NFS_ECN_STATE_UNKNOWN = 0,
+    NFS_ECN_STATE_REQUESTED = 1, /* SYN sent with ECE+CWR */
+    NFS_ECN_STATE_ACCEPTED = 2,  /* SYN-ACK with ECE (no CWR) */
+    NFS_ECN_STATE_REJECTED = 3,  /* SYN-ACK without ECE */
+    NFS_ECN_STATE_ACTIVE = 4,    /* ECN negotiation complete */
 } nfs_ecn_state_t;
 
 /* ---- Minimal IPv4 header for ECN operations ---- */
 
 struct nfs_ecn_ip_hdr {
-    uint8_t  ver_ihl;
-    uint8_t  tos;          /* DSCP (6 bits) | ECN (2 bits) */
+    uint8_t ver_ihl;
+    uint8_t tos; /* DSCP (6 bits) | ECN (2 bits) */
     uint16_t total_len;
     uint16_t id;
     uint16_t flags_frag;
-    uint8_t  ttl;
-    uint8_t  protocol;
+    uint8_t ttl;
+    uint8_t protocol;
     uint16_t checksum;
     uint32_t src_addr;
     uint32_t dst_addr;
@@ -71,7 +71,8 @@ struct nfs_ecn_tcp_hdr {
     uint16_t dst_port;
     uint32_t seq;
     uint32_t ack;
-    uint16_t data_off_flags;  /* data offset (4) | reserved (3) | NS | CWR | ECE | URG | ACK | PSH | RST | SYN | FIN */
+    uint16_t data_off_flags; /* data offset (4) | reserved (3) | NS | CWR | ECE | URG | ACK | PSH |
+                                RST | SYN | FIN */
     uint16_t window;
     uint16_t checksum;
     uint16_t urg_ptr;
@@ -83,7 +84,7 @@ _Static_assert(sizeof(struct nfs_ecn_tcp_hdr) == 20, "TCP header must be 20 byte
 
 struct nfs_ecn_negotiation {
     nfs_ecn_state_t state;
-    int ecn_capable;    /* 1 if ECN was successfully negotiated */
+    int ecn_capable; /* 1 if ECN was successfully negotiated */
 };
 
 /* ---- IP ECN field operations ---- */
@@ -138,8 +139,8 @@ uint16_t nfs_ecn_build_synack_reject_flags(void);
  * `tcp_flags` is the 12-bit TCP flags from the received segment.
  * `is_syn_ack` = 1 if this is a SYN-ACK (responder's reply).
  * Returns new state. */
-nfs_ecn_state_t nfs_ecn_nego_process(struct nfs_ecn_negotiation *nego,
-                                      uint16_t tcp_flags, int is_syn_ack);
+nfs_ecn_state_t nfs_ecn_nego_process(struct nfs_ecn_negotiation *nego, uint16_t tcp_flags,
+                                     int is_syn_ack);
 
 /* Get human-readable name for ECN codepoint. */
 const char *nfs_ecn_codepoint_name(nfs_ecn_codepoint_t ecn);

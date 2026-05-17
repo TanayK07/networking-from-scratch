@@ -30,15 +30,14 @@ int nfs_slaac_eui64(const uint8_t *mac, uint8_t *eui64);
  * `mac` is 6 bytes.
  * `addr_out` receives 16 bytes.
  * Returns 0 on success, -1 on error. */
-int nfs_slaac_generate_addr(const uint8_t *prefix, uint8_t prefix_len,
-                            const uint8_t *mac, uint8_t *addr_out);
+int nfs_slaac_generate_addr(const uint8_t *prefix, uint8_t prefix_len, const uint8_t *mac,
+                            uint8_t *addr_out);
 
 /* Validate that a prefix is suitable for SLAAC.
  * Rules: prefix_len must be exactly 64, prefix must not be link-local
  * (fe80::/10) if reject_linklocal is set, and must not be multicast.
  * Returns 1 if valid, 0 if invalid. */
-int nfs_slaac_validate_prefix(const uint8_t *prefix, uint8_t prefix_len,
-                              int reject_linklocal);
+int nfs_slaac_validate_prefix(const uint8_t *prefix, uint8_t prefix_len, int reject_linklocal);
 
 /* Generate the link-local address (fe80::/64 + EUI-64) from a MAC.
  * `mac` is 6 bytes, `addr_out` receives 16 bytes.

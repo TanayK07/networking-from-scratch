@@ -12,12 +12,12 @@
  * --------------------------------------------------------------- */
 
 struct nfs_reno {
-    uint32_t cwnd;          /* congestion window (bytes)            */
-    uint32_t ssthresh;      /* slow-start threshold                 */
-    uint32_t mss;           /* maximum segment size                 */
-    int      dup_ack_count; /* consecutive duplicate ACKs received  */
-    int      in_recovery;   /* 1 if currently in fast recovery      */
-    uint32_t recover_seq;   /* sequence number that exits recovery  */
+    uint32_t cwnd;        /* congestion window (bytes)            */
+    uint32_t ssthresh;    /* slow-start threshold                 */
+    uint32_t mss;         /* maximum segment size                 */
+    int dup_ack_count;    /* consecutive duplicate ACKs received  */
+    int in_recovery;      /* 1 if currently in fast recovery      */
+    uint32_t recover_seq; /* sequence number that exits recovery  */
 };
 
 /* Initialise a Reno controller: cwnd = mss, ssthresh = 65535. */

@@ -3,13 +3,11 @@
 #include "keepalive.h"
 #include <stdio.h>
 
-int main(void)
-{
+int main(void) {
     printf("=== TCP Keepalive Demo ===\n\n");
 
     struct nfs_keepalive ka;
-    nfs_keepalive_init(&ka, NFS_KA_DEFAULT_IDLE, NFS_KA_DEFAULT_INTERVAL,
-                       NFS_KA_DEFAULT_PROBES);
+    nfs_keepalive_init(&ka, NFS_KA_DEFAULT_IDLE, NFS_KA_DEFAULT_INTERVAL, NFS_KA_DEFAULT_PROBES);
     nfs_keepalive_enable(&ka);
     nfs_keepalive_data_received(&ka, 0.0);
 
@@ -22,8 +20,7 @@ int main(void)
     for (int i = 0; i < 12; i++) {
         t += 800.0;
         int result = nfs_keepalive_check(&ka, t);
-        printf("  t=%.0f: check=%d (probes_sent=%d)\n",
-               t, result, ka.probes_sent);
+        printf("  t=%.0f: check=%d (probes_sent=%d)\n", t, result, ka.probes_sent);
         if (result == -1) {
             printf("  ** Connection declared DEAD **\n");
             break;

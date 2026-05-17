@@ -9,37 +9,34 @@
 
 /* ---- Initialization ---- */
 
-void nfs_wire_init(nfs_wire_t *w, const nfs_wire_cfg_t *cfg)
-{
+void nfs_wire_init(nfs_wire_t *w, const nfs_wire_cfg_t *cfg) {
     if (!w)
         return;
     if (cfg)
         w->cfg = *cfg;
     else
         memset(&w->cfg, 0, sizeof(w->cfg));
-    w->tx_frames  = 0;
-    w->rx_frames  = 0;
-    w->dropped    = 0;
+    w->tx_frames = 0;
+    w->rx_frames = 0;
+    w->dropped = 0;
     w->bit_errors = 0;
-    w->reordered  = 0;
-    w->rng_state  = w->cfg.seed ? w->cfg.seed : 1; /* avoid zero state */
+    w->reordered = 0;
+    w->rng_state = w->cfg.seed ? w->cfg.seed : 1; /* avoid zero state */
 }
 
-void nfs_wire_reset_stats(nfs_wire_t *w)
-{
+void nfs_wire_reset_stats(nfs_wire_t *w) {
     if (!w)
         return;
-    w->tx_frames  = 0;
-    w->rx_frames  = 0;
-    w->dropped    = 0;
+    w->tx_frames = 0;
+    w->rx_frames = 0;
+    w->dropped = 0;
     w->bit_errors = 0;
-    w->reordered  = 0;
+    w->reordered = 0;
 }
 
 /* ---- PRNG (xorshift32) ---- */
 
-uint32_t nfs_wire_rand(nfs_wire_t *w)
-{
+uint32_t nfs_wire_rand(nfs_wire_t *w) {
     uint32_t s = w->rng_state;
     s ^= s << 13;
     s ^= s >> 17;
@@ -48,16 +45,14 @@ uint32_t nfs_wire_rand(nfs_wire_t *w)
     return s;
 }
 
-double nfs_wire_rand_double(nfs_wire_t *w)
-{
+double nfs_wire_rand_double(nfs_wire_t *w) {
     uint32_t r = nfs_wire_rand(w);
     return (double)(r >> 1) / (double)(UINT32_MAX >> 1);
 }
 
 /* ---- Channel impairments ---- */
 
-size_t nfs_wire_apply_ber(nfs_wire_t *w, uint8_t *frame, size_t len)
-{
+size_t nfs_wire_apply_ber(nfs_wire_t *w, uint8_t *frame, size_t len) {
     if (w->cfg.ber <= 0.0 || len == 0)
         return 0;
 
@@ -77,8 +72,7 @@ size_t nfs_wire_apply_ber(nfs_wire_t *w, uint8_t *frame, size_t len)
     return flipped;
 }
 
-int nfs_wire_should_drop(nfs_wire_t *w)
-{
+int nfs_wire_should_drop(nfs_wire_t *w) {
     if (w->cfg.drop_prob <= 0.0)
         return 0;
     if (w->cfg.drop_prob >= 1.0)
@@ -86,8 +80,7 @@ int nfs_wire_should_drop(nfs_wire_t *w)
     return nfs_wire_rand_double(w) < w->cfg.drop_prob ? 1 : 0;
 }
 
-uint32_t nfs_wire_delay_us(nfs_wire_t *w)
-{
+uint32_t nfs_wire_delay_us(nfs_wire_t *w) {
     if (w->cfg.jitter_us == 0)
         return w->cfg.delay_us;
 
@@ -109,8 +102,7 @@ uint32_t nfs_wire_delay_us(nfs_wire_t *w)
     return (uint32_t)total;
 }
 
-int nfs_wire_should_reorder(nfs_wire_t *w)
-{
+int nfs_wire_should_reorder(nfs_wire_t *w) {
     if (w->cfg.reorder_prob <= 0.0)
         return 0;
     if (w->cfg.reorder_prob >= 1.0)
@@ -120,9 +112,8 @@ int nfs_wire_should_reorder(nfs_wire_t *w)
 
 /* ---- Frame transmission ---- */
 
-int nfs_wire_transmit(nfs_wire_t *w, const uint8_t *in, size_t in_len,
-                      uint8_t *out, size_t out_sz, size_t *out_len)
-{
+int nfs_wire_transmit(nfs_wire_t *w, const uint8_t *in, size_t in_len, uint8_t *out, size_t out_sz,
+                      size_t *out_len) {
     if (!w || !out_len)
         return -1;
 
@@ -157,24 +148,19 @@ int nfs_wire_transmit(nfs_wire_t *w, const uint8_t *in, size_t in_len,
 
 /* ---- Statistics ---- */
 
-void nfs_wire_stats_string(const nfs_wire_t *w, char *buf, size_t sz)
-{
+void nfs_wire_stats_string(const nfs_wire_t *w, char *buf, size_t sz) {
     if (!w || !buf || sz == 0)
         return;
     snprintf(buf, sz,
              "TX: %llu  RX: %llu  Dropped: %llu  "
              "Bit errors: %llu  Reordered: %llu  "
              "Loss rate: %.4f",
-             (unsigned long long)w->tx_frames,
-             (unsigned long long)w->rx_frames,
-             (unsigned long long)w->dropped,
-             (unsigned long long)w->bit_errors,
-             (unsigned long long)w->reordered,
-             nfs_wire_loss_rate(w));
+             (unsigned long long)w->tx_frames, (unsigned long long)w->rx_frames,
+             (unsigned long long)w->dropped, (unsigned long long)w->bit_errors,
+             (unsigned long long)w->reordered, nfs_wire_loss_rate(w));
 }
 
-double nfs_wire_loss_rate(const nfs_wire_t *w)
-{
+double nfs_wire_loss_rate(const nfs_wire_t *w) {
     if (!w || w->tx_frames == 0)
         return 0.0;
     return (double)w->dropped / (double)w->tx_frames;

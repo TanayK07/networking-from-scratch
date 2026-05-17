@@ -24,20 +24,20 @@
  * Offset = 2208988800 seconds.
  * --------------------------------------------------------------- */
 
-#define NFS_NTP_PACKET_SIZE  48
+#define NFS_NTP_PACKET_SIZE 48
 
 /* NTP epoch offset from Unix epoch */
-#define NFS_NTP_UNIX_OFFSET  2208988800ULL
+#define NFS_NTP_UNIX_OFFSET 2208988800ULL
 
 /* LI (Leap Indicator) values */
-#define NFS_NTP_LI_NONE      0
-#define NFS_NTP_LI_LAST61    1
-#define NFS_NTP_LI_LAST59    2
-#define NFS_NTP_LI_ALARM     3
+#define NFS_NTP_LI_NONE   0
+#define NFS_NTP_LI_LAST61 1
+#define NFS_NTP_LI_LAST59 2
+#define NFS_NTP_LI_ALARM  3
 
 /* Mode values */
-#define NFS_NTP_MODE_CLIENT   3
-#define NFS_NTP_MODE_SERVER   4
+#define NFS_NTP_MODE_CLIENT 3
+#define NFS_NTP_MODE_SERVER 4
 
 /* NTP 64-bit timestamp: seconds + fraction */
 struct nfs_ntp_ts {
@@ -47,12 +47,12 @@ struct nfs_ntp_ts {
 
 /* Parsed NTP packet */
 struct nfs_ntp_packet {
-    uint8_t  li;           /* Leap Indicator (2 bits) */
-    uint8_t  vn;           /* Version Number (3 bits) */
-    uint8_t  mode;         /* Mode (3 bits) */
-    uint8_t  stratum;
-    int8_t   poll;
-    int8_t   precision;
+    uint8_t li;   /* Leap Indicator (2 bits) */
+    uint8_t vn;   /* Version Number (3 bits) */
+    uint8_t mode; /* Mode (3 bits) */
+    uint8_t stratum;
+    int8_t poll;
+    int8_t precision;
     uint32_t root_delay;
     uint32_t root_dispersion;
     uint32_t ref_id;
@@ -64,13 +64,11 @@ struct nfs_ntp_packet {
 
 /* Parse a 48-byte NTP packet.
  * Returns 0 on success, -1 on error. */
-int nfs_ntp_parse(const uint8_t *buf, size_t len,
-                  struct nfs_ntp_packet *out);
+int nfs_ntp_parse(const uint8_t *buf, size_t len, struct nfs_ntp_packet *out);
 
 /* Build a 48-byte NTP packet into buf (must be >= 48 bytes).
  * Returns bytes written (48), or -1 on error. */
-int nfs_ntp_build(uint8_t *buf, size_t out_sz,
-                  const struct nfs_ntp_packet *pkt);
+int nfs_ntp_build(uint8_t *buf, size_t out_sz, const struct nfs_ntp_packet *pkt);
 
 /* Convert NTP timestamp to Unix seconds (double for sub-second precision). */
 double nfs_ntp_to_unix(const struct nfs_ntp_ts *ts);
@@ -82,16 +80,12 @@ struct nfs_ntp_ts nfs_unix_to_ntp(double unix_time);
  *   t1 = client send (origin), t2 = server receive,
  *   t3 = server transmit,      t4 = client receive
  * offset = ((t2-t1) + (t3-t4)) / 2 */
-double nfs_ntp_offset(const struct nfs_ntp_ts *t1,
-                      const struct nfs_ntp_ts *t2,
-                      const struct nfs_ntp_ts *t3,
-                      const struct nfs_ntp_ts *t4);
+double nfs_ntp_offset(const struct nfs_ntp_ts *t1, const struct nfs_ntp_ts *t2,
+                      const struct nfs_ntp_ts *t3, const struct nfs_ntp_ts *t4);
 
 /* Calculate round-trip time:
  *   rtt = (t4-t1) - (t3-t2) */
-double nfs_ntp_rtt(const struct nfs_ntp_ts *t1,
-                   const struct nfs_ntp_ts *t2,
-                   const struct nfs_ntp_ts *t3,
-                   const struct nfs_ntp_ts *t4);
+double nfs_ntp_rtt(const struct nfs_ntp_ts *t1, const struct nfs_ntp_ts *t2,
+                   const struct nfs_ntp_ts *t3, const struct nfs_ntp_ts *t4);
 
 #endif /* NFS_NTP_H */

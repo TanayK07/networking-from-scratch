@@ -19,7 +19,7 @@
  * --------------------------------------------------------------- */
 
 /* Return codes from nfs_fr_on_ack */
-#define NFS_FR_NORMAL         0
+#define NFS_FR_NORMAL          0
 #define NFS_FR_FAST_RETRANSMIT 1
 #define NFS_FR_RECOVERY_EXIT   2
 
@@ -27,15 +27,14 @@ struct nfs_fr_state {
     uint32_t cwnd;           /* congestion window (bytes) */
     uint32_t ssthresh;       /* slow-start threshold */
     uint32_t mss;            /* maximum segment size */
-    int      dup_ack_count;  /* consecutive duplicate ACKs */
+    int dup_ack_count;       /* consecutive duplicate ACKs */
     uint32_t last_ack;       /* last ACK number received */
-    int      in_recovery;    /* 1 if in fast recovery */
+    int in_recovery;         /* 1 if in fast recovery */
     uint32_t recovery_point; /* snd_nxt at time of entering recovery */
 };
 
 /* Initialise fast-recovery state. */
-void nfs_fr_init(struct nfs_fr_state *s, uint32_t mss,
-                 uint32_t initial_cwnd);
+void nfs_fr_init(struct nfs_fr_state *s, uint32_t mss, uint32_t initial_cwnd);
 
 /* Process an incoming ACK.
  * Returns:

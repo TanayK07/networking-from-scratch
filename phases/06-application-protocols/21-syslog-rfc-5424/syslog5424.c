@@ -1,16 +1,14 @@
 #include "syslog5424.h"
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 
 /* ---------------------------------------------------------------
  * Build a RFC 5424 syslog message.
  * Format: <PRI>VERSION SP TIMESTAMP SP HOSTNAME SP APP-NAME SP PROCID SP MSGID SP SD SP MSG
  * --------------------------------------------------------------- */
 
-int nfs_syslog_build(char *buf, size_t out_sz,
-                     const struct nfs_syslog_msg *msg)
-{
+int nfs_syslog_build(char *buf, size_t out_sz, const struct nfs_syslog_msg *msg) {
     if (!buf || !msg || out_sz == 0)
         return -1;
 
@@ -19,20 +17,20 @@ int nfs_syslog_build(char *buf, size_t out_sz,
         return -1;
 
     /* Use "-" for nil values as per RFC 5424 */
-    const char *ts   = (msg->timestamp[0] != '\0') ? msg->timestamp : "-";
-    const char *host = (msg->hostname[0]  != '\0') ? msg->hostname  : "-";
-    const char *app  = (msg->app_name[0]  != '\0') ? msg->app_name  : "-";
-    const char *pid  = (msg->procid[0]    != '\0') ? msg->procid    : "-";
-    const char *mid  = (msg->msgid[0]     != '\0') ? msg->msgid     : "-";
-    const char *sd   = (msg->sd[0]        != '\0') ? msg->sd        : "-";
+    const char *ts = (msg->timestamp[0] != '\0') ? msg->timestamp : "-";
+    const char *host = (msg->hostname[0] != '\0') ? msg->hostname : "-";
+    const char *app = (msg->app_name[0] != '\0') ? msg->app_name : "-";
+    const char *pid = (msg->procid[0] != '\0') ? msg->procid : "-";
+    const char *mid = (msg->msgid[0] != '\0') ? msg->msgid : "-";
+    const char *sd = (msg->sd[0] != '\0') ? msg->sd : "-";
 
     int n;
     if (msg->msg[0] != '\0') {
-        n = snprintf(buf, out_sz, "<%d>%u %s %s %s %s %s %s %s",
-                     pri, msg->version, ts, host, app, pid, mid, sd, msg->msg);
+        n = snprintf(buf, out_sz, "<%d>%u %s %s %s %s %s %s %s", pri, msg->version, ts, host, app,
+                     pid, mid, sd, msg->msg);
     } else {
-        n = snprintf(buf, out_sz, "<%d>%u %s %s %s %s %s %s",
-                     pri, msg->version, ts, host, app, pid, mid, sd);
+        n = snprintf(buf, out_sz, "<%d>%u %s %s %s %s %s %s", pri, msg->version, ts, host, app, pid,
+                     mid, sd);
     }
 
     if (n < 0 || (size_t)n >= out_sz)
@@ -47,9 +45,7 @@ int nfs_syslog_build(char *buf, size_t out_sz,
 
 /* Helper: read a token delimited by space, advance *pos.
  * Copies at most max-1 chars into dst. */
-static int read_token(const char *buf, size_t len, size_t *pos,
-                      char *dst, size_t max)
-{
+static int read_token(const char *buf, size_t len, size_t *pos, char *dst, size_t max) {
     size_t start = *pos;
     while (*pos < len && buf[*pos] != ' ')
         (*pos)++;
@@ -70,9 +66,7 @@ static int read_token(const char *buf, size_t len, size_t *pos,
     return 0;
 }
 
-int nfs_syslog_parse(const char *buf, size_t len,
-                     struct nfs_syslog_msg *out)
-{
+int nfs_syslog_parse(const char *buf, size_t len, struct nfs_syslog_msg *out) {
     if (!buf || !out || len == 0)
         return -1;
 
@@ -162,12 +156,18 @@ int nfs_syslog_parse(const char *buf, size_t len,
     }
 
     /* Replace "-" tokens with empty strings */
-    if (strcmp(out->timestamp, "-") == 0) out->timestamp[0] = '\0';
-    if (strcmp(out->hostname, "-") == 0)  out->hostname[0]  = '\0';
-    if (strcmp(out->app_name, "-") == 0)  out->app_name[0]  = '\0';
-    if (strcmp(out->procid, "-") == 0)    out->procid[0]    = '\0';
-    if (strcmp(out->msgid, "-") == 0)     out->msgid[0]     = '\0';
-    if (strcmp(out->sd, "-") == 0)        out->sd[0]        = '\0';
+    if (strcmp(out->timestamp, "-") == 0)
+        out->timestamp[0] = '\0';
+    if (strcmp(out->hostname, "-") == 0)
+        out->hostname[0] = '\0';
+    if (strcmp(out->app_name, "-") == 0)
+        out->app_name[0] = '\0';
+    if (strcmp(out->procid, "-") == 0)
+        out->procid[0] = '\0';
+    if (strcmp(out->msgid, "-") == 0)
+        out->msgid[0] = '\0';
+    if (strcmp(out->sd, "-") == 0)
+        out->sd[0] = '\0';
 
     return 0;
 }
@@ -176,25 +176,20 @@ int nfs_syslog_parse(const char *buf, size_t len,
  * Name lookups
  * --------------------------------------------------------------- */
 
-const char *nfs_syslog_facility_name(uint8_t facility)
-{
-    static const char *names[] = {
-        "kern", "user", "mail", "daemon", "auth", "syslog",
-        "lpr", "news", "uucp", "cron", "authpriv", "ftp",
-        "ntp", "audit", "alert", "clock",
-        "local0", "local1", "local2", "local3",
-        "local4", "local5", "local6", "local7"
-    };
-    if (facility > 23) return "unknown";
+const char *nfs_syslog_facility_name(uint8_t facility) {
+    static const char *names[] = {"kern",   "user",   "mail",   "daemon", "auth",     "syslog",
+                                  "lpr",    "news",   "uucp",   "cron",   "authpriv", "ftp",
+                                  "ntp",    "audit",  "alert",  "clock",  "local0",   "local1",
+                                  "local2", "local3", "local4", "local5", "local6",   "local7"};
+    if (facility > 23)
+        return "unknown";
     return names[facility];
 }
 
-const char *nfs_syslog_severity_name(uint8_t severity)
-{
-    static const char *names[] = {
-        "emerg", "alert", "crit", "err",
-        "warning", "notice", "info", "debug"
-    };
-    if (severity > 7) return "unknown";
+const char *nfs_syslog_severity_name(uint8_t severity) {
+    static const char *names[] = {"emerg",   "alert",  "crit", "err",
+                                  "warning", "notice", "info", "debug"};
+    if (severity > 7)
+        return "unknown";
     return names[severity];
 }

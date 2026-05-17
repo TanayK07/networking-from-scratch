@@ -5,8 +5,7 @@
  * Preamble & SFD (IEEE 802.3)
  * --------------------------------------------------------------- */
 
-int nfs_preamble_generate(uint8_t *out, size_t out_sz)
-{
+int nfs_preamble_generate(uint8_t *out, size_t out_sz) {
     if (!out || out_sz < NFS_PREAMBLE_TOTAL)
         return 0;
 
@@ -15,8 +14,7 @@ int nfs_preamble_generate(uint8_t *out, size_t out_sz)
     return NFS_PREAMBLE_TOTAL;
 }
 
-int nfs_preamble_detect(const uint8_t *data, size_t len)
-{
+int nfs_preamble_detect(const uint8_t *data, size_t len) {
     if (!data || len < NFS_PREAMBLE_TOTAL)
         return -1;
 
@@ -40,14 +38,12 @@ int nfs_preamble_detect(const uint8_t *data, size_t len)
  * Interframe Gap (IFG)
  * --------------------------------------------------------------- */
 
-int nfs_ifg_bytes(int speed_mbps)
-{
+int nfs_ifg_bytes(int speed_mbps) {
     (void)speed_mbps;
     return NFS_IFG_BYTES;
 }
 
-int nfs_ifg_ns(int speed_mbps)
-{
+int nfs_ifg_ns(int speed_mbps) {
     if (speed_mbps <= 0)
         return 0;
 
@@ -71,8 +67,7 @@ int nfs_ifg_ns(int speed_mbps)
  * --------------------------------------------------------------- */
 
 /* Count number of 1-bits in the lower 10 bits of a value. */
-static int count_ones_10(uint16_t val)
-{
+static int count_ones_10(uint16_t val) {
     int count = 0;
     for (int i = 0; i < 10; i++) {
         if (val & (1 << i))
@@ -81,8 +76,7 @@ static int count_ones_10(uint16_t val)
     return count;
 }
 
-int nfs_rd_update(int current_rd, uint16_t symbol_10bit)
-{
+int nfs_rd_update(int current_rd, uint16_t symbol_10bit) {
     int ones = count_ones_10(symbol_10bit);
     if (ones > 5)
         return 1;
@@ -91,13 +85,11 @@ int nfs_rd_update(int current_rd, uint16_t symbol_10bit)
     return current_rd;
 }
 
-int nfs_8b10b_dc_balanced(uint16_t symbol)
-{
+int nfs_8b10b_dc_balanced(uint16_t symbol) {
     return count_ones_10(symbol) == 5 ? 1 : 0;
 }
 
-int nfs_is_comma(uint16_t symbol)
-{
+int nfs_is_comma(uint16_t symbol) {
     uint16_t masked = symbol & 0x3FF; /* keep only lower 10 bits */
     return (masked == NFS_K28_5_RDN || masked == NFS_K28_5_RDP) ? 1 : 0;
 }
@@ -106,30 +98,25 @@ int nfs_is_comma(uint16_t symbol)
  * Frame overhead and efficiency
  * --------------------------------------------------------------- */
 
-int nfs_wire_frame_overhead(void)
-{
+int nfs_wire_frame_overhead(void) {
     /* preamble(7) + SFD(1) + header(14) + FCS(4) + IFG(12) = 38 */
-    return NFS_PREAMBLE_LEN + NFS_SFD_LEN + NFS_ETH_HEADER
-         + NFS_FCS_SIZE + NFS_IFG_BYTES;
+    return NFS_PREAMBLE_LEN + NFS_SFD_LEN + NFS_ETH_HEADER + NFS_FCS_SIZE + NFS_IFG_BYTES;
 }
 
-double nfs_wire_efficiency(size_t payload_size)
-{
+double nfs_wire_efficiency(size_t payload_size) {
     double total = (double)payload_size + (double)nfs_wire_frame_overhead();
     if (total <= 0.0)
         return 0.0;
     return (double)payload_size / total;
 }
 
-int nfs_min_frame_size(void)
-{
+int nfs_min_frame_size(void) {
     /* Minimum Ethernet frame (L2, without preamble/SFD/IFG):
      * header(14) + min_payload(46) + FCS(4) = 64 bytes */
     return NFS_ETH_HEADER + NFS_MIN_PAYLOAD + NFS_FCS_SIZE;
 }
 
-int nfs_max_frame_size(void)
-{
+int nfs_max_frame_size(void) {
     /* Maximum standard Ethernet frame (L2):
      * header(14) + max_payload(1500) + FCS(4) = 1518 bytes */
     return NFS_ETH_HEADER + NFS_MAX_PAYLOAD + NFS_FCS_SIZE;
@@ -139,8 +126,7 @@ int nfs_max_frame_size(void)
  * Bit time and frame timing
  * --------------------------------------------------------------- */
 
-int nfs_bit_time_ns(int speed_mbps)
-{
+int nfs_bit_time_ns(int speed_mbps) {
     if (speed_mbps <= 0)
         return 0;
     /* 1 bit at N Mbps = 1000/N ns.
@@ -148,11 +134,9 @@ int nfs_bit_time_ns(int speed_mbps)
     return 1000 / speed_mbps;
 }
 
-long long nfs_frame_time_ns(size_t frame_bytes, int speed_mbps)
-{
+long long nfs_frame_time_ns(size_t frame_bytes, int speed_mbps) {
     int bt = nfs_bit_time_ns(speed_mbps);
     /* total bytes on wire = frame + preamble(8) + IFG(12) */
-    long long total_bits = (long long)(frame_bytes + NFS_PREAMBLE_TOTAL
-                                       + NFS_IFG_BYTES) * 8;
+    long long total_bits = (long long)(frame_bytes + NFS_PREAMBLE_TOTAL + NFS_IFG_BYTES) * 8;
     return total_bits * bt;
 }

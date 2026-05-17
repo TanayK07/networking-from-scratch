@@ -45,13 +45,11 @@ uint8_t nfs_hamming74_syndrome(uint8_t codeword);
 /* Encode a byte buffer.  Each input byte produces 2 codewords
  * (high nibble first, then low nibble).
  * Returns the number of codeword bytes written. */
-size_t nfs_hamming_encode_buf(const uint8_t *data, size_t len,
-                              uint8_t *out, size_t out_sz);
+size_t nfs_hamming_encode_buf(const uint8_t *data, size_t len, uint8_t *out, size_t out_sz);
 
 /* Decode a buffer of codewords back to data bytes.
  * code_len must be even (2 codewords per output byte).
  * Returns the number of data bytes decoded, or -1 on error. */
-int nfs_hamming_decode_buf(const uint8_t *codes, size_t code_len,
-                           uint8_t *out, size_t out_sz);
+int nfs_hamming_decode_buf(const uint8_t *codes, size_t code_len, uint8_t *out, size_t out_sz);
 
 #endif /* NFS_HAMMING_H */

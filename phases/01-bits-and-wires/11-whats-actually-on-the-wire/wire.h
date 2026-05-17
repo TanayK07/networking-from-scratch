@@ -25,24 +25,24 @@
  * --------------------------------------------------------------- */
 
 /* ---- Preamble & SFD constants ---- */
-#define NFS_PREAMBLE_BYTE   0xAA
-#define NFS_SFD_BYTE        0xAB
-#define NFS_PREAMBLE_LEN    7
-#define NFS_SFD_LEN         1
-#define NFS_PREAMBLE_TOTAL  8
+#define NFS_PREAMBLE_BYTE  0xAA
+#define NFS_SFD_BYTE       0xAB
+#define NFS_PREAMBLE_LEN   7
+#define NFS_SFD_LEN        1
+#define NFS_PREAMBLE_TOTAL 8
 
 /* ---- Interframe Gap ---- */
-#define NFS_IFG_BYTES       12
+#define NFS_IFG_BYTES 12
 
 /* ---- 8b/10b K28.5 comma symbols (10-bit values) ---- */
-#define NFS_K28_5_RDN       0x0FA   /* 00 1111 1010 */
-#define NFS_K28_5_RDP       0x305   /* 11 0000 0101 */
+#define NFS_K28_5_RDN 0x0FA /* 00 1111 1010 */
+#define NFS_K28_5_RDP 0x305 /* 11 0000 0101 */
 
 /* ---- Ethernet frame size constants ---- */
-#define NFS_MIN_PAYLOAD     46
-#define NFS_MAX_PAYLOAD     1500
-#define NFS_ETH_HEADER      14
-#define NFS_FCS_SIZE         4
+#define NFS_MIN_PAYLOAD 46
+#define NFS_MAX_PAYLOAD 1500
+#define NFS_ETH_HEADER  14
+#define NFS_FCS_SIZE    4
 
 /* ---- Preamble ---- */
 

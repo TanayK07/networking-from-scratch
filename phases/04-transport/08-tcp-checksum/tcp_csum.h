@@ -22,11 +22,11 @@
  * --------------------------------------------------------------- */
 
 struct nfs_ipv4_pseudo_hdr {
-    uint32_t src_addr;    /* source IP, network byte order      */
-    uint32_t dst_addr;    /* destination IP, network byte order  */
-    uint8_t  zero;        /* must be zero                        */
-    uint8_t  protocol;    /* IP protocol number (6 = TCP)        */
-    uint16_t tcp_length;  /* TCP segment length, network order   */
+    uint32_t src_addr;   /* source IP, network byte order      */
+    uint32_t dst_addr;   /* destination IP, network byte order  */
+    uint8_t zero;        /* must be zero                        */
+    uint8_t protocol;    /* IP protocol number (6 = TCP)        */
+    uint16_t tcp_length; /* TCP segment length, network order   */
 } __attribute__((packed));
 
 _Static_assert(sizeof(struct nfs_ipv4_pseudo_hdr) == 12,
@@ -46,13 +46,13 @@ uint16_t nfs_internet_checksum(const void *data, size_t len);
  * tcp_segment: pointer to the complete TCP segment (header + payload).
  * tcp_len: total length of the TCP segment in bytes.
  * Returns the checksum in host byte order. */
-uint16_t nfs_tcp_checksum(uint32_t src_ip, uint32_t dst_ip,
-                          const uint8_t *tcp_segment, size_t tcp_len);
+uint16_t nfs_tcp_checksum(uint32_t src_ip, uint32_t dst_ip, const uint8_t *tcp_segment,
+                          size_t tcp_len);
 
 /* Verify TCP checksum.
  * Returns 1 if valid, 0 if invalid. */
-int nfs_tcp_verify_checksum(uint32_t src_ip, uint32_t dst_ip,
-                            const uint8_t *tcp_segment, size_t tcp_len);
+int nfs_tcp_verify_checksum(uint32_t src_ip, uint32_t dst_ip, const uint8_t *tcp_segment,
+                            size_t tcp_len);
 
 /* Incremental checksum: accumulate partial sum over a buffer.
  * seed = 0 for the first call, or a previous partial sum.

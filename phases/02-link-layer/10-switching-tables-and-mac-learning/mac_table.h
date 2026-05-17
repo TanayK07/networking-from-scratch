@@ -19,8 +19,8 @@
 
 struct nfs_fdb_entry {
     uint8_t mac[6];
-    int     port;
-    time_t  last_seen;
+    int port;
+    time_t last_seen;
 };
 
 struct nfs_fdb {
@@ -53,8 +53,8 @@ int nfs_fdb_age(struct nfs_fdb *fdb, int max_age_sec);
  *   - Known unicast: single port (unless it equals src_port).
  *   - Unknown / broadcast: flood all ports 0..num_ports-1 except src_port.
  * Returns the number of ports written to out_ports. */
-int nfs_fdb_forward(const struct nfs_fdb *fdb, const uint8_t dst_mac[6],
-                    int src_port, int *out_ports, int num_ports);
+int nfs_fdb_forward(const struct nfs_fdb *fdb, const uint8_t dst_mac[6], int src_port,
+                    int *out_ports, int num_ports);
 
 /* Format the FDB contents into a human-readable string.
  * Returns the number of characters written (excluding NUL). */

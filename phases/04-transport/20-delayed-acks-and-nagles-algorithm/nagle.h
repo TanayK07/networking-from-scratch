@@ -15,10 +15,10 @@
  * --------------------------------------------------------------- */
 
 struct nfs_nagle {
-    int      enabled;   /* 1 = Nagle on (default), 0 = TCP_NODELAY */
-    uint32_t snd_una;   /* oldest unacknowledged sequence number */
-    uint32_t snd_nxt;   /* next sequence number to send */
-    uint16_t mss;       /* maximum segment size */
+    int enabled;      /* 1 = Nagle on (default), 0 = TCP_NODELAY */
+    uint32_t snd_una; /* oldest unacknowledged sequence number */
+    uint32_t snd_nxt; /* next sequence number to send */
+    uint16_t mss;     /* maximum segment size */
 };
 
 /* Initialise Nagle state.  Enabled by default. */
@@ -49,10 +49,10 @@ void nfs_nagle_acked(struct nfs_nagle *n, uint32_t ack);
  * --------------------------------------------------------------- */
 
 struct nfs_delayed_ack {
-    int    pending;     /* ACK waiting to be sent */
-    double deadline;    /* when the delayed ACK timer fires */
-    double delay;       /* configured delay (typically 200ms) */
-    int    seg_count;   /* segments received since last ACK */
+    int pending;     /* ACK waiting to be sent */
+    double deadline; /* when the delayed ACK timer fires */
+    double delay;    /* configured delay (typically 200ms) */
+    int seg_count;   /* segments received since last ACK */
 };
 
 /* Initialise delayed ACK state with given delay in seconds. */

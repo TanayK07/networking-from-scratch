@@ -34,17 +34,12 @@
 
 /* I/Q symbol representation */
 typedef struct {
-    double i;  /* in-phase component */
-    double q;  /* quadrature component */
+    double i; /* in-phase component */
+    double q; /* quadrature component */
 } nfs_symbol_t;
 
 /* Modulation scheme enumeration */
-typedef enum {
-    NFS_MOD_OOK,
-    NFS_MOD_BPSK,
-    NFS_MOD_QPSK,
-    NFS_MOD_QAM16
-} nfs_mod_scheme_t;
+typedef enum { NFS_MOD_OOK, NFS_MOD_BPSK, NFS_MOD_QPSK, NFS_MOD_QAM16 } nfs_mod_scheme_t;
 
 /* ---- OOK (On-Off Keying) ---- */
 

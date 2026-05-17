@@ -8,7 +8,7 @@
  * The address is stored in HOST byte order for ease of bit manipulation. */
 struct nfs_cidr {
     uint32_t addr;
-    uint8_t  prefix_len;
+    uint8_t prefix_len;
 };
 
 /* Parse a CIDR string "10.0.0.0/24" into a struct nfs_cidr.

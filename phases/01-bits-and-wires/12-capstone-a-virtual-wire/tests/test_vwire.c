@@ -9,41 +9,40 @@
 static int tests_run = 0;
 static int tests_passed = 0;
 
-#define ASSERT_EQ(expr, expected) \
-    do { \
-        tests_run++; \
-        long long _got = (long long)(expr); \
-        long long _exp = (long long)(expected); \
-        if (_got != _exp) { \
-            fprintf(stderr, "  FAIL %s:%d: %s == 0x%llx, want 0x%llx\n", \
-                    __FILE__, __LINE__, #expr, _got, _exp); \
-            return; \
-        } \
-        tests_passed++; \
+#define ASSERT_EQ(expr, expected)                                                                  \
+    do {                                                                                           \
+        tests_run++;                                                                               \
+        long long _got = (long long)(expr);                                                        \
+        long long _exp = (long long)(expected);                                                    \
+        if (_got != _exp) {                                                                        \
+            fprintf(stderr, "  FAIL %s:%d: %s == 0x%llx, want 0x%llx\n", __FILE__, __LINE__,       \
+                    #expr, _got, _exp);                                                            \
+            return;                                                                                \
+        }                                                                                          \
+        tests_passed++;                                                                            \
     } while (0)
 
-#define ASSERT_TRUE(expr) \
-    do { \
-        tests_run++; \
-        if (!(expr)) { \
-            fprintf(stderr, "  FAIL %s:%d: %s is false\n", \
-                    __FILE__, __LINE__, #expr); \
-            return; \
-        } \
-        tests_passed++; \
+#define ASSERT_TRUE(expr)                                                                          \
+    do {                                                                                           \
+        tests_run++;                                                                               \
+        if (!(expr)) {                                                                             \
+            fprintf(stderr, "  FAIL %s:%d: %s is false\n", __FILE__, __LINE__, #expr);             \
+            return;                                                                                \
+        }                                                                                          \
+        tests_passed++;                                                                            \
     } while (0)
 
-#define ASSERT_NEAR(expr, expected, tol) \
-    do { \
-        tests_run++; \
-        double _got = (double)(expr); \
-        double _exp = (double)(expected); \
-        if ((_got - _exp) > (tol) || (_exp - _got) > (tol)) { \
-            fprintf(stderr, "  FAIL %s:%d: %s == %.6f, want %.6f\n", \
-                    __FILE__, __LINE__, #expr, _got, _exp); \
-            return; \
-        } \
-        tests_passed++; \
+#define ASSERT_NEAR(expr, expected, tol)                                                           \
+    do {                                                                                           \
+        tests_run++;                                                                               \
+        double _got = (double)(expr);                                                              \
+        double _exp = (double)(expected);                                                          \
+        if ((_got - _exp) > (tol) || (_exp - _got) > (tol)) {                                      \
+            fprintf(stderr, "  FAIL %s:%d: %s == %.6f, want %.6f\n", __FILE__, __LINE__, #expr,    \
+                    _got, _exp);                                                                   \
+            return;                                                                                \
+        }                                                                                          \
+        tests_passed++;                                                                            \
     } while (0)
 
 /* ================================================================
@@ -51,8 +50,7 @@ static int tests_passed = 0;
  * ================================================================ */
 
 /* Test 1: Init with zero config */
-static void test_init_zero_config(void)
-{
+static void test_init_zero_config(void) {
     printf("  test_init_zero_config...\n");
     nfs_wire_cfg_t cfg = {0};
     cfg.seed = 1;
@@ -72,17 +70,14 @@ static void test_init_zero_config(void)
 }
 
 /* Test 2: Init preserves config */
-static void test_init_preserves_config(void)
-{
+static void test_init_preserves_config(void) {
     printf("  test_init_preserves_config...\n");
-    nfs_wire_cfg_t cfg = {
-        .ber = 0.01,
-        .drop_prob = 0.05,
-        .delay_us = 1000,
-        .jitter_us = 200,
-        .reorder_prob = 0.03,
-        .seed = 42
-    };
+    nfs_wire_cfg_t cfg = {.ber = 0.01,
+                          .drop_prob = 0.05,
+                          .delay_us = 1000,
+                          .jitter_us = 200,
+                          .reorder_prob = 0.03,
+                          .seed = 42};
     nfs_wire_t w;
     nfs_wire_init(&w, &cfg);
 
@@ -99,8 +94,7 @@ static void test_init_preserves_config(void)
  * ================================================================ */
 
 /* Test 3: BER=0, no bits flipped */
-static void test_ber_zero(void)
-{
+static void test_ber_zero(void) {
     printf("  test_ber_zero...\n");
     nfs_wire_cfg_t cfg = {0};
     cfg.seed = 42;
@@ -117,8 +111,7 @@ static void test_ber_zero(void)
 }
 
 /* Test 4: BER=1.0, every bit flipped (bitwise NOT) */
-static void test_ber_one(void)
-{
+static void test_ber_one(void) {
     printf("  test_ber_one...\n");
     nfs_wire_cfg_t cfg = {0};
     cfg.ber = 1.0;
@@ -137,8 +130,7 @@ static void test_ber_one(void)
 }
 
 /* Test 5: BER=0.5 statistical, 1000 bytes, seed=42 */
-static void test_ber_half_statistical(void)
-{
+static void test_ber_half_statistical(void) {
     printf("  test_ber_half_statistical...\n");
     nfs_wire_cfg_t cfg = {0};
     cfg.ber = 0.5;
@@ -157,8 +149,7 @@ static void test_ber_half_statistical(void)
 }
 
 /* Test 6: BER preserves frame length */
-static void test_ber_preserves_length(void)
-{
+static void test_ber_preserves_length(void) {
     printf("  test_ber_preserves_length...\n");
     nfs_wire_cfg_t cfg = {0};
     cfg.ber = 0.1;
@@ -177,8 +168,7 @@ static void test_ber_preserves_length(void)
 }
 
 /* Test 7: Small BER on small frame, deterministic count */
-static void test_small_ber_deterministic(void)
-{
+static void test_small_ber_deterministic(void) {
     printf("  test_small_ber_deterministic...\n");
     nfs_wire_cfg_t cfg = {0};
     cfg.ber = 0.01;
@@ -199,8 +189,7 @@ static void test_small_ber_deterministic(void)
  * ================================================================ */
 
 /* Test 8: drop_prob=0, never drops */
-static void test_drop_zero(void)
-{
+static void test_drop_zero(void) {
     printf("  test_drop_zero...\n");
     nfs_wire_cfg_t cfg = {0};
     cfg.seed = 42;
@@ -221,8 +210,7 @@ static void test_drop_zero(void)
 }
 
 /* Test 9: drop_prob=1.0, always drops */
-static void test_drop_one(void)
-{
+static void test_drop_one(void) {
     printf("  test_drop_one...\n");
     nfs_wire_cfg_t cfg = {0};
     cfg.drop_prob = 1.0;
@@ -244,8 +232,7 @@ static void test_drop_one(void)
 }
 
 /* Test 10: drop_prob=0.5 statistical */
-static void test_drop_half_statistical(void)
-{
+static void test_drop_half_statistical(void) {
     printf("  test_drop_half_statistical...\n");
     nfs_wire_cfg_t cfg = {0};
     cfg.drop_prob = 0.5;
@@ -273,8 +260,7 @@ static void test_drop_half_statistical(void)
  * ================================================================ */
 
 /* Test 11: Zero delay, zero jitter */
-static void test_delay_zero(void)
-{
+static void test_delay_zero(void) {
     printf("  test_delay_zero...\n");
     nfs_wire_cfg_t cfg = {0};
     cfg.seed = 42;
@@ -286,8 +272,7 @@ static void test_delay_zero(void)
 }
 
 /* Test 12: Fixed delay, no jitter */
-static void test_delay_fixed(void)
-{
+static void test_delay_fixed(void) {
     printf("  test_delay_fixed...\n");
     nfs_wire_cfg_t cfg = {0};
     cfg.delay_us = 1000;
@@ -303,8 +288,7 @@ static void test_delay_fixed(void)
 }
 
 /* Test 13: Delay with jitter */
-static void test_delay_with_jitter(void)
-{
+static void test_delay_with_jitter(void) {
     printf("  test_delay_with_jitter...\n");
     nfs_wire_cfg_t cfg = {0};
     cfg.delay_us = 1000;
@@ -330,8 +314,7 @@ static void test_delay_with_jitter(void)
  * ================================================================ */
 
 /* Test 14: reorder_prob=0 */
-static void test_reorder_zero(void)
-{
+static void test_reorder_zero(void) {
     printf("  test_reorder_zero...\n");
     nfs_wire_cfg_t cfg = {0};
     cfg.seed = 42;
@@ -344,8 +327,7 @@ static void test_reorder_zero(void)
 }
 
 /* Test 15: reorder_prob=1.0 */
-static void test_reorder_one(void)
-{
+static void test_reorder_one(void) {
     printf("  test_reorder_one...\n");
     nfs_wire_cfg_t cfg = {0};
     cfg.reorder_prob = 1.0;
@@ -363,8 +345,7 @@ static void test_reorder_one(void)
  * ================================================================ */
 
 /* Test 16: Clean wire, frame passes unchanged */
-static void test_transmit_clean(void)
-{
+static void test_transmit_clean(void) {
     printf("  test_transmit_clean...\n");
     nfs_wire_cfg_t cfg = {0};
     cfg.seed = 42;
@@ -382,8 +363,7 @@ static void test_transmit_clean(void)
 }
 
 /* Test 17: Drop-only wire, no corruption */
-static void test_transmit_drop_only(void)
-{
+static void test_transmit_drop_only(void) {
     printf("  test_transmit_drop_only...\n");
     nfs_wire_cfg_t cfg = {0};
     cfg.drop_prob = 0.5;
@@ -397,8 +377,7 @@ static void test_transmit_drop_only(void)
 
     int delivered = 0;
     for (int i = 0; i < 100; i++) {
-        int rc = nfs_wire_transmit(&w, frame, sizeof(frame),
-                                   out, sizeof(out), &out_len);
+        int rc = nfs_wire_transmit(&w, frame, sizeof(frame), out, sizeof(out), &out_len);
         if (rc == 0) {
             /* Delivered frame must match original (no BER) */
             ASSERT_EQ(out_len, sizeof(frame));
@@ -412,8 +391,7 @@ static void test_transmit_drop_only(void)
 }
 
 /* Test 18: BER-only wire, delivered but possibly corrupted */
-static void test_transmit_ber_only(void)
-{
+static void test_transmit_ber_only(void) {
     printf("  test_transmit_ber_only...\n");
     nfs_wire_cfg_t cfg = {0};
     cfg.ber = 0.1;
@@ -426,14 +404,13 @@ static void test_transmit_ber_only(void)
     size_t out_len;
 
     int rc = nfs_wire_transmit(&w, frame, sizeof(frame), out, sizeof(out), &out_len);
-    ASSERT_EQ(rc, 0);  /* always delivered (no drops) */
+    ASSERT_EQ(rc, 0); /* always delivered (no drops) */
     ASSERT_EQ(out_len, sizeof(frame));
     ASSERT_TRUE(w.bit_errors > 0); /* with BER=0.1, very likely some errors */
 }
 
 /* Test 19: Full stats tracking */
-static void test_transmit_stats_tracking(void)
-{
+static void test_transmit_stats_tracking(void) {
     printf("  test_transmit_stats_tracking...\n");
     nfs_wire_cfg_t cfg = {0};
     cfg.drop_prob = 1.0;
@@ -473,8 +450,7 @@ static void test_transmit_stats_tracking(void)
  * ================================================================ */
 
 /* Test 20: Deterministic — same seed, same sequence */
-static void test_prng_deterministic(void)
-{
+static void test_prng_deterministic(void) {
     printf("  test_prng_deterministic...\n");
     nfs_wire_cfg_t cfg = {0};
     cfg.seed = 42;
@@ -488,8 +464,7 @@ static void test_prng_deterministic(void)
 }
 
 /* Test 21: Different seeds produce different sequences */
-static void test_prng_different_seeds(void)
-{
+static void test_prng_different_seeds(void) {
     printf("  test_prng_different_seeds...\n");
     nfs_wire_cfg_t cfg1 = {0};
     cfg1.seed = 42;
@@ -509,8 +484,7 @@ static void test_prng_different_seeds(void)
 }
 
 /* Test 22: xorshift32 known value with seed=1 */
-static void test_prng_known_value(void)
-{
+static void test_prng_known_value(void) {
     printf("  test_prng_known_value...\n");
     nfs_wire_cfg_t cfg = {0};
     cfg.seed = 1;
@@ -530,8 +504,7 @@ static void test_prng_known_value(void)
 }
 
 /* Test 23: rand_double range [0.0, 1.0) */
-static void test_prng_double_range(void)
-{
+static void test_prng_double_range(void) {
     printf("  test_prng_double_range...\n");
     nfs_wire_cfg_t cfg = {0};
     cfg.seed = 42;
@@ -550,8 +523,7 @@ static void test_prng_double_range(void)
  * ================================================================ */
 
 /* Test 24: NULL frame pointer returns -1 */
-static void test_null_frame(void)
-{
+static void test_null_frame(void) {
     printf("  test_null_frame...\n");
     nfs_wire_cfg_t cfg = {0};
     cfg.seed = 42;
@@ -566,8 +538,7 @@ static void test_null_frame(void)
 }
 
 /* Test 25: Zero-length frame, valid, no BER applied */
-static void test_zero_length_frame(void)
-{
+static void test_zero_length_frame(void) {
     printf("  test_zero_length_frame...\n");
     nfs_wire_cfg_t cfg = {0};
     cfg.ber = 0.5;
@@ -578,8 +549,7 @@ static void test_zero_length_frame(void)
     uint8_t out[16];
     size_t out_len;
 
-    int rc = nfs_wire_transmit(&w, (const uint8_t *)"", 0,
-                               out, sizeof(out), &out_len);
+    int rc = nfs_wire_transmit(&w, (const uint8_t *)"", 0, out, sizeof(out), &out_len);
     ASSERT_EQ(rc, 0);
     ASSERT_EQ(out_len, 0);
     ASSERT_EQ(w.bit_errors, 0);
@@ -588,8 +558,7 @@ static void test_zero_length_frame(void)
 }
 
 /* Test 26: Very large frame (65535 bytes), clean wire */
-static void test_large_frame(void)
-{
+static void test_large_frame(void) {
     printf("  test_large_frame...\n");
     nfs_wire_cfg_t cfg = {0};
     cfg.seed = 42;
@@ -618,8 +587,7 @@ static void test_large_frame(void)
  * Additional: loss rate and stats string
  * ================================================================ */
 
-static void test_loss_rate(void)
-{
+static void test_loss_rate(void) {
     printf("  test_loss_rate...\n");
     nfs_wire_cfg_t cfg = {0};
     cfg.seed = 42;
@@ -635,8 +603,7 @@ static void test_loss_rate(void)
     ASSERT_NEAR(nfs_wire_loss_rate(&w), 0.25, 1e-10);
 }
 
-static void test_stats_string(void)
-{
+static void test_stats_string(void) {
     printf("  test_stats_string...\n");
     nfs_wire_cfg_t cfg = {0};
     cfg.seed = 42;
@@ -662,8 +629,7 @@ static void test_stats_string(void)
  * Main
  * ================================================================ */
 
-int main(void)
-{
+int main(void) {
     printf("=== Virtual Wire Tests ===\n");
 
     /* Basic config/init */

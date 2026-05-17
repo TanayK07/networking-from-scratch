@@ -2,15 +2,13 @@
 #include <stdio.h>
 #include <string.h>
 
-static void print_hex(const uint8_t *data, size_t len)
-{
+static void print_hex(const uint8_t *data, size_t len) {
     for (size_t i = 0; i < len; i++)
         printf("%02x ", data[i]);
     printf("\n");
 }
 
-static void demo_byte_stuffing(void)
-{
+static void demo_byte_stuffing(void) {
     printf("=== PPP Byte Stuffing (RFC 1662) ===\n");
 
     /* Payload containing flag and escape bytes */
@@ -30,12 +28,11 @@ static void demo_byte_stuffing(void)
     print_hex(recovered, (size_t)rlen);
 
     printf("Roundtrip: %s\n\n",
-           (rlen == (int)sizeof(data) && memcmp(data, recovered, sizeof(data)) == 0)
-               ? "OK" : "FAIL");
+           (rlen == (int)sizeof(data) && memcmp(data, recovered, sizeof(data)) == 0) ? "OK"
+                                                                                     : "FAIL");
 }
 
-static void demo_bit_stuffing(void)
-{
+static void demo_bit_stuffing(void) {
     printf("=== HDLC Bit Stuffing ===\n");
 
     /* Data with five consecutive 1s: 0xFF = 11111111 */
@@ -44,7 +41,8 @@ static void demo_bit_stuffing(void)
     uint8_t recovered[4];
 
     printf("Original bits: ");
-    for (int i = 7; i >= 0; i--) printf("%d", (data[0] >> i) & 1);
+    for (int i = 7; i >= 0; i--)
+        printf("%d", (data[0] >> i) & 1);
     printf(" (0x%02X)\n", data[0]);
 
     int nbits = nfs_bit_stuff(data, 8, stuffed, sizeof(stuffed));
@@ -59,12 +57,10 @@ static void demo_bit_stuffing(void)
     for (int i = 0; i < rbits; i++) {
         printf("%d", (recovered[i / 8] >> (7 - (i % 8))) & 1);
     }
-    printf("\nRoundtrip: %s\n\n",
-           (rbits == 8 && recovered[0] == data[0]) ? "OK" : "FAIL");
+    printf("\nRoundtrip: %s\n\n", (rbits == 8 && recovered[0] == data[0]) ? "OK" : "FAIL");
 }
 
-static void demo_cobs(void)
-{
+static void demo_cobs(void) {
     printf("=== COBS Encoding ===\n");
 
     uint8_t data[] = {0x00, 0x11, 0x00, 0x00, 0x22};
@@ -83,12 +79,10 @@ static void demo_cobs(void)
     print_hex(decoded, (size_t)dlen);
 
     printf("Roundtrip: %s\n",
-           (dlen == (int)sizeof(data) && memcmp(data, decoded, sizeof(data)) == 0)
-               ? "OK" : "FAIL");
+           (dlen == (int)sizeof(data) && memcmp(data, decoded, sizeof(data)) == 0) ? "OK" : "FAIL");
 }
 
-int main(void)
-{
+int main(void) {
     demo_byte_stuffing();
     demo_bit_stuffing();
     demo_cobs();

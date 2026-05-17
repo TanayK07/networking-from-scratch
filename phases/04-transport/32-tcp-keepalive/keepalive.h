@@ -20,26 +20,24 @@
  * This forces the peer to ACK with its current state.
  * --------------------------------------------------------------- */
 
-#define NFS_KA_DEFAULT_IDLE     7200.0   /* seconds */
-#define NFS_KA_DEFAULT_INTERVAL 75.0     /* seconds */
+#define NFS_KA_DEFAULT_IDLE     7200.0 /* seconds */
+#define NFS_KA_DEFAULT_INTERVAL 75.0   /* seconds */
 #define NFS_KA_DEFAULT_PROBES   9
 
 /* Minimum TCP header size (no options) */
-#define NFS_TCP_HDR_MIN         20
+#define NFS_TCP_HDR_MIN 20
 
 struct nfs_keepalive {
-    double idle_timeout;    /* seconds idle before first probe */
-    double interval;        /* seconds between probes */
-    int    max_probes;      /* max probes before declaring dead */
-    double last_data_time;  /* timestamp of last data activity */
-    int    probes_sent;     /* probes sent since last data */
-    int    enabled;         /* 1 = enabled, 0 = disabled */
+    double idle_timeout;   /* seconds idle before first probe */
+    double interval;       /* seconds between probes */
+    int max_probes;        /* max probes before declaring dead */
+    double last_data_time; /* timestamp of last data activity */
+    int probes_sent;       /* probes sent since last data */
+    int enabled;           /* 1 = enabled, 0 = disabled */
 };
 
 /* Initialize with given parameters. Disabled by default. */
-void nfs_keepalive_init(struct nfs_keepalive *ka,
-                        double idle_timeout,
-                        double interval,
+void nfs_keepalive_init(struct nfs_keepalive *ka, double idle_timeout, double interval,
                         int max_probes);
 
 /* Enable keepalive on this connection. */
@@ -66,11 +64,9 @@ int nfs_keepalive_is_dead(const struct nfs_keepalive *ka);
  * The probe has seq = seq_minus_one (snd_una - 1), no payload.
  * Writes a minimal 20-byte TCP header into out[].
  * Returns 20 on success, -1 if out_sz < 20. */
-int nfs_keepalive_build_probe(uint32_t seq_minus_one,
-                              uint8_t *out, size_t out_sz);
+int nfs_keepalive_build_probe(uint32_t seq_minus_one, uint8_t *out, size_t out_sz);
 
 /* Format keepalive state into buf. */
-void nfs_keepalive_format(const struct nfs_keepalive *ka,
-                          char *buf, size_t sz);
+void nfs_keepalive_format(const struct nfs_keepalive *ka, char *buf, size_t sz);
 
 #endif /* NFS_KEEPALIVE_H */

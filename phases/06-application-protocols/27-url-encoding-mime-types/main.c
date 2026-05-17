@@ -2,8 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-int main(void)
-{
+int main(void) {
     char buf[1024];
 
     printf("=== URL Encoding ===\n");

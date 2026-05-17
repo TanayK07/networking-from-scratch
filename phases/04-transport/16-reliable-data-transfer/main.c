@@ -4,8 +4,7 @@
 
 /* Demonstrate Stop-and-Wait and Go-Back-N reliable data transfer. */
 
-static void demo_stop_and_wait(void)
-{
+static void demo_stop_and_wait(void) {
     printf("--- Stop-and-Wait (window=1) ---\n");
     struct nfs_rdt_sender sender;
     struct nfs_rdt_receiver receiver;
@@ -32,8 +31,7 @@ static void demo_stop_and_wait(void)
     nfs_rdt_sender_free(&sender);
 }
 
-static void demo_go_back_n(void)
-{
+static void demo_go_back_n(void) {
     printf("--- Go-Back-N (window=4) ---\n");
     struct nfs_rdt_sender sender;
     struct nfs_rdt_receiver receiver;
@@ -72,8 +70,7 @@ static void demo_go_back_n(void)
     nfs_rdt_sender_free(&sender);
 }
 
-int main(void)
-{
+int main(void) {
     printf("=== Reliable Data Transfer Demo ===\n\n");
     demo_stop_and_wait();
     demo_go_back_n();

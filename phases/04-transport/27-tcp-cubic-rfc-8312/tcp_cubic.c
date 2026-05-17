@@ -4,21 +4,19 @@
 #include <math.h>
 #include <string.h>
 
-void nfs_cubic_init(struct nfs_cubic *c, uint32_t mss)
-{
+void nfs_cubic_init(struct nfs_cubic *c, uint32_t mss) {
     memset(c, 0, sizeof(*c));
-    c->mss         = mss;
-    c->cwnd        = mss;
-    c->ssthresh    = 65535;
-    c->C           = 0.4;
-    c->beta        = 0.7;
-    c->epoch_start = -1.0;  /* no epoch yet */
-    c->wmax        = 0.0;
-    c->K           = 0.0;
+    c->mss = mss;
+    c->cwnd = mss;
+    c->ssthresh = 65535;
+    c->C = 0.4;
+    c->beta = 0.7;
+    c->epoch_start = -1.0; /* no epoch yet */
+    c->wmax = 0.0;
+    c->K = 0.0;
 }
 
-void nfs_cubic_on_ack(struct nfs_cubic *c, double now)
-{
+void nfs_cubic_on_ack(struct nfs_cubic *c, double now) {
     c->last_time = now;
 
     if (c->cwnd < c->ssthresh) {
@@ -62,9 +60,11 @@ void nfs_cubic_on_ack(struct nfs_cubic *c, double now)
          * segments, so spread the increase across all ACKs in the
          * window.  Increment = (target - cwnd) / (cwnd / mss). */
         uint32_t segs = c->cwnd / c->mss;
-        if (segs == 0) segs = 1;
+        if (segs == 0)
+            segs = 1;
         uint32_t inc = (target - c->cwnd) / segs;
-        if (inc == 0) inc = 1;
+        if (inc == 0)
+            inc = 1;
         c->cwnd += inc;
     } else {
         /* TCP-friendliness: at minimum grow by 1 byte per ACK
@@ -73,8 +73,7 @@ void nfs_cubic_on_ack(struct nfs_cubic *c, double now)
     }
 }
 
-void nfs_cubic_on_loss(struct nfs_cubic *c, double now)
-{
+void nfs_cubic_on_loss(struct nfs_cubic *c, double now) {
     /* Record Wmax. */
     c->wmax = (double)c->cwnd;
 
@@ -83,21 +82,19 @@ void nfs_cubic_on_loss(struct nfs_cubic *c, double now)
     if (new_ssthresh < 2 * c->mss)
         new_ssthresh = 2 * c->mss;
 
-    c->ssthresh    = new_ssthresh;
-    c->cwnd        = new_ssthresh;
+    c->ssthresh = new_ssthresh;
+    c->cwnd = new_ssthresh;
     c->epoch_start = now;
 
     /* Compute K for the new epoch. */
     c->K = cbrt(c->wmax * (1.0 - c->beta) / c->C);
 }
 
-uint32_t nfs_cubic_cwnd(const struct nfs_cubic *c)
-{
+uint32_t nfs_cubic_cwnd(const struct nfs_cubic *c) {
     return c->cwnd;
 }
 
-const char *nfs_cubic_phase(const struct nfs_cubic *c)
-{
+const char *nfs_cubic_phase(const struct nfs_cubic *c) {
     if (c->cwnd < c->ssthresh)
         return "slow_start";
     return "congestion_avoidance";

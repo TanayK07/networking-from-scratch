@@ -33,8 +33,8 @@ struct nfs_sack_block {
 
 struct nfs_sack_scoreboard {
     struct nfs_sack_block blocks[NFS_SACK_MAX_BLOCKS];
-    size_t   nblocks;     /* number of active SACK blocks */
-    uint32_t cum_ack;     /* cumulative ACK (everything below is received) */
+    size_t nblocks;   /* number of active SACK blocks */
+    uint32_t cum_ack; /* cumulative ACK (everything below is received) */
 };
 
 /* Initialize the scoreboard with an initial cumulative ACK. */
@@ -57,22 +57,20 @@ void nfs_sack_advance_cumack(struct nfs_sack_scoreboard *sb, uint32_t new_ack);
  * Format: kind=5, len=2+8*nblocks, then nblocks pairs of (left, right)
  * in network byte order.
  * Returns bytes written, or -1 if buffer too small. */
-int nfs_sack_build_option(const struct nfs_sack_scoreboard *sb,
-                          uint8_t *out, size_t out_sz);
+int nfs_sack_build_option(const struct nfs_sack_scoreboard *sb, uint8_t *out, size_t out_sz);
 
 /* Parse a SACK option from wire bytes.
  * data points to the option starting at kind byte.
  * Fills blocks array, sets *nfound.
  * Returns 0 on success, -1 on error. */
-int nfs_sack_parse_option(const uint8_t *data, size_t len,
-                          struct nfs_sack_block *blocks, size_t max_blocks,
-                          size_t *nfound);
+int nfs_sack_parse_option(const uint8_t *data, size_t len, struct nfs_sack_block *blocks,
+                          size_t max_blocks, size_t *nfound);
 
 /* Find holes between cum_ack and SACK blocks (these need retransmission).
  * A hole is a gap [hole.left, hole.right) between cum_ack and a SACK block,
  * or between two SACK blocks.
  * Returns the number of holes found. */
-size_t nfs_sack_holes(const struct nfs_sack_scoreboard *sb,
-                      struct nfs_sack_block *holes, size_t max_holes);
+size_t nfs_sack_holes(const struct nfs_sack_scoreboard *sb, struct nfs_sack_block *holes,
+                      size_t max_holes);
 
 #endif /* NFS_SACK_H */

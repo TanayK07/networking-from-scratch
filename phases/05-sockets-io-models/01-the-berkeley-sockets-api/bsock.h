@@ -17,35 +17,31 @@
  * --------------------------------------------------------------- */
 
 /* AF_INET constant (matches POSIX) */
-#define NFS_AF_INET  2
+#define NFS_AF_INET 2
 
 /* Our portable sockaddr_in (matches layout of struct sockaddr_in). */
 struct nfs_sockaddr_in {
     uint16_t sin_family;
-    uint16_t sin_port;     /* network byte order */
-    uint32_t sin_addr;     /* network byte order */
-    uint8_t  sin_zero[8];  /* padding to 16 bytes */
+    uint16_t sin_port;   /* network byte order */
+    uint32_t sin_addr;   /* network byte order */
+    uint8_t sin_zero[8]; /* padding to 16 bytes */
 } __attribute__((packed));
 
-_Static_assert(sizeof(struct nfs_sockaddr_in) == 16,
-               "nfs_sockaddr_in must be 16 bytes");
+_Static_assert(sizeof(struct nfs_sockaddr_in) == 16, "nfs_sockaddr_in must be 16 bytes");
 
 /* Build a sockaddr_in from an IPv4 dotted-quad string and port.
  * Returns 0 on success, -1 on error. */
-int nfs_sockaddr_in_build(struct nfs_sockaddr_in *sa,
-                          const char *ip_str, uint16_t port);
+int nfs_sockaddr_in_build(struct nfs_sockaddr_in *sa, const char *ip_str, uint16_t port);
 
 /* Parse a sockaddr_in into an IP string and port.
  * ip_buf must be at least 16 bytes.
  * Returns 0 on success, -1 on error. */
-int nfs_sockaddr_in_parse(const struct nfs_sockaddr_in *sa,
-                          char *ip_buf, size_t ip_buf_sz,
+int nfs_sockaddr_in_parse(const struct nfs_sockaddr_in *sa, char *ip_buf, size_t ip_buf_sz,
                           uint16_t *port);
 
 /* Format a sockaddr_in as "ip:port" string.
  * Returns bytes written (excluding NUL), or -1 on error. */
-int nfs_sockaddr_format(const struct nfs_sockaddr_in *sa,
-                        char *out, size_t out_sz);
+int nfs_sockaddr_format(const struct nfs_sockaddr_in *sa, char *out, size_t out_sz);
 
 /* Extract the port (host byte order) from a sockaddr_in. */
 uint16_t nfs_sockaddr_port(const struct nfs_sockaddr_in *sa);

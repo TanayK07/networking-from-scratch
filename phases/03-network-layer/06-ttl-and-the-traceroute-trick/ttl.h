@@ -14,20 +14,19 @@
 
 /* IPv4 header (20 bytes, no options) -- packed for wire format */
 struct nfs_ipv4_hdr {
-    uint8_t  ver_ihl;      /* Version (4 bits) + IHL (4 bits) */
-    uint8_t  tos;          /* Type of Service                  */
-    uint16_t total_len;    /* Total length                     */
-    uint16_t id;           /* Identification                   */
-    uint16_t flags_frag;   /* Flags (3 bits) + Fragment Offset */
-    uint8_t  ttl;          /* Time To Live                     */
-    uint8_t  protocol;     /* Protocol                         */
-    uint16_t checksum;     /* Header checksum                  */
-    uint32_t src_addr;     /* Source address                   */
-    uint32_t dst_addr;     /* Destination address              */
+    uint8_t ver_ihl;     /* Version (4 bits) + IHL (4 bits) */
+    uint8_t tos;         /* Type of Service                  */
+    uint16_t total_len;  /* Total length                     */
+    uint16_t id;         /* Identification                   */
+    uint16_t flags_frag; /* Flags (3 bits) + Fragment Offset */
+    uint8_t ttl;         /* Time To Live                     */
+    uint8_t protocol;    /* Protocol                         */
+    uint16_t checksum;   /* Header checksum                  */
+    uint32_t src_addr;   /* Source address                   */
+    uint32_t dst_addr;   /* Destination address              */
 } __attribute__((packed));
 
-_Static_assert(sizeof(struct nfs_ipv4_hdr) == 20,
-               "IPv4 header must be exactly 20 bytes");
+_Static_assert(sizeof(struct nfs_ipv4_hdr) == 20, "IPv4 header must be exactly 20 bytes");
 
 /*
  * Decrement the TTL field in the IPv4 header.
@@ -53,9 +52,9 @@ uint8_t nfs_ttl_get(const struct nfs_ipv4_hdr *hdr);
  * A single hop in a traceroute result.
  */
 struct nfs_traceroute_hop {
-    int      hop_num;       /* 1-based hop number              */
-    uint32_t responder_ip;  /* IP of the router that responded */
-    int      reached_dest;  /* 1 if this hop is the destination */
+    int hop_num;           /* 1-based hop number              */
+    uint32_t responder_ip; /* IP of the router that responded */
+    int reached_dest;      /* 1 if this hop is the destination */
 };
 
 /*
@@ -73,9 +72,7 @@ struct nfs_traceroute_hop {
  * Results are written to `results` (up to `max_results` entries).
  * Returns the number of hops recorded.
  */
-int nfs_traceroute_sim(uint32_t src, uint32_t dst,
-                       const uint32_t *hops, size_t nhops,
-                       struct nfs_traceroute_hop *results,
-                       size_t max_results);
+int nfs_traceroute_sim(uint32_t src, uint32_t dst, const uint32_t *hops, size_t nhops,
+                       struct nfs_traceroute_hop *results, size_t max_results);
 
 #endif /* NFS_TTL_H */

@@ -20,15 +20,15 @@
  * --------------------------------------------------------------- */
 
 struct nfs_cubic {
-    uint32_t cwnd;        /* congestion window (bytes)          */
-    uint32_t ssthresh;    /* slow-start threshold               */
-    uint32_t mss;         /* maximum segment size               */
-    double   wmax;        /* W_max: cwnd at last loss event     */
-    double   K;           /* time to reach Wmax from epoch      */
-    double   epoch_start; /* timestamp of last loss / epoch     */
-    double   last_time;   /* timestamp of last on_ack call      */
-    double   C;           /* CUBIC scaling constant (0.4)       */
-    double   beta;        /* multiplicative decrease factor     */
+    uint32_t cwnd;      /* congestion window (bytes)          */
+    uint32_t ssthresh;  /* slow-start threshold               */
+    uint32_t mss;       /* maximum segment size               */
+    double wmax;        /* W_max: cwnd at last loss event     */
+    double K;           /* time to reach Wmax from epoch      */
+    double epoch_start; /* timestamp of last loss / epoch     */
+    double last_time;   /* timestamp of last on_ack call      */
+    double C;           /* CUBIC scaling constant (0.4)       */
+    double beta;        /* multiplicative decrease factor     */
 };
 
 /* Initialise CUBIC: cwnd=mss, ssthresh=65535, C=0.4, beta=0.7. */

@@ -6,15 +6,13 @@
 #define MAX_INPUT  4096
 #define MAX_OUTPUT 32768
 
-static void usage(const char *prog)
-{
+static void usage(const char *prog) {
     fprintf(stderr, "Usage: %s [hex-string]\n", prog);
     fprintf(stderr, "  Reads hex from argument or stdin, prints canonical hex dump.\n");
     fprintf(stderr, "  Example: %s \"45 00 00 3c 1c 46 40 00 40 06 a6 ec 0a 00 02 0f\"\n", prog);
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     char input[MAX_INPUT];
     uint8_t raw[MAX_INPUT / 2];
     char output[MAX_OUTPUT];

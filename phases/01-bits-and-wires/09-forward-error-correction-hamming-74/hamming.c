@@ -21,14 +21,12 @@
 
 /* Helper: get bit at 1-indexed position from codeword stored in lower 7 bits.
  * Position 1 is bit 0, position 7 is bit 6. */
-static inline int get_pos(uint8_t cw, int pos)
-{
+static inline int get_pos(uint8_t cw, int pos) {
     return (cw >> (pos - 1)) & 1;
 }
 
 /* Helper: set bit at 1-indexed position */
-static inline uint8_t set_pos(uint8_t cw, int pos, int val)
-{
+static inline uint8_t set_pos(uint8_t cw, int pos, int val) {
     if (val)
         return cw | (uint8_t)(1 << (pos - 1));
     else
@@ -36,23 +34,21 @@ static inline uint8_t set_pos(uint8_t cw, int pos, int val)
 }
 
 /* Helper: flip bit at 1-indexed position */
-static inline uint8_t flip_pos(uint8_t cw, int pos)
-{
+static inline uint8_t flip_pos(uint8_t cw, int pos) {
     return cw ^ (uint8_t)(1 << (pos - 1));
 }
 
-uint8_t nfs_hamming74_encode(uint8_t data)
-{
+uint8_t nfs_hamming74_encode(uint8_t data) {
     /* Extract 4 data bits */
-    int d1 = (data >> 3) & 1;  /* nibble MSB → position 3 */
-    int d2 = (data >> 2) & 1;  /* → position 5 */
-    int d3 = (data >> 1) & 1;  /* → position 6 */
-    int d4 = (data >> 0) & 1;  /* → position 7 */
+    int d1 = (data >> 3) & 1; /* nibble MSB → position 3 */
+    int d2 = (data >> 2) & 1; /* → position 5 */
+    int d3 = (data >> 1) & 1; /* → position 6 */
+    int d4 = (data >> 0) & 1; /* → position 7 */
 
     /* Compute parity bits (even parity) */
-    int p1 = d1 ^ d2 ^ d4;    /* covers positions 1,3,5,7 */
-    int p2 = d1 ^ d3 ^ d4;    /* covers positions 2,3,6,7 */
-    int p3 = d2 ^ d3 ^ d4;    /* covers positions 4,5,6,7 */
+    int p1 = d1 ^ d2 ^ d4; /* covers positions 1,3,5,7 */
+    int p2 = d1 ^ d3 ^ d4; /* covers positions 2,3,6,7 */
+    int p3 = d2 ^ d3 ^ d4; /* covers positions 4,5,6,7 */
 
     /* Assemble codeword */
     uint8_t cw = 0;
@@ -67,25 +63,23 @@ uint8_t nfs_hamming74_encode(uint8_t data)
     return cw;
 }
 
-uint8_t nfs_hamming74_syndrome(uint8_t codeword)
-{
+uint8_t nfs_hamming74_syndrome(uint8_t codeword) {
     /* Syndrome bit s1: XOR of positions 1,3,5,7 */
-    int s1 = get_pos(codeword, 1) ^ get_pos(codeword, 3) ^
-             get_pos(codeword, 5) ^ get_pos(codeword, 7);
+    int s1 =
+        get_pos(codeword, 1) ^ get_pos(codeword, 3) ^ get_pos(codeword, 5) ^ get_pos(codeword, 7);
 
     /* Syndrome bit s2: XOR of positions 2,3,6,7 */
-    int s2 = get_pos(codeword, 2) ^ get_pos(codeword, 3) ^
-             get_pos(codeword, 6) ^ get_pos(codeword, 7);
+    int s2 =
+        get_pos(codeword, 2) ^ get_pos(codeword, 3) ^ get_pos(codeword, 6) ^ get_pos(codeword, 7);
 
     /* Syndrome bit s3: XOR of positions 4,5,6,7 */
-    int s3 = get_pos(codeword, 4) ^ get_pos(codeword, 5) ^
-             get_pos(codeword, 6) ^ get_pos(codeword, 7);
+    int s3 =
+        get_pos(codeword, 4) ^ get_pos(codeword, 5) ^ get_pos(codeword, 6) ^ get_pos(codeword, 7);
 
     return (uint8_t)((s3 << 2) | (s2 << 1) | s1);
 }
 
-int nfs_hamming74_decode(uint8_t codeword, uint8_t *data_out)
-{
+int nfs_hamming74_decode(uint8_t codeword, uint8_t *data_out) {
     if (!data_out)
         return -1;
 
@@ -95,7 +89,7 @@ int nfs_hamming74_decode(uint8_t codeword, uint8_t *data_out)
     if (syndrome != 0) {
         /* Syndrome gives the 1-indexed position of the error */
         if (syndrome > 7)
-            return -1;  /* shouldn't happen with 7-bit codeword */
+            return -1; /* shouldn't happen with 7-bit codeword */
         codeword = flip_pos(codeword, syndrome);
         corrected = 1;
     }
@@ -110,13 +104,11 @@ int nfs_hamming74_decode(uint8_t codeword, uint8_t *data_out)
     return corrected;
 }
 
-size_t nfs_hamming_encode_buf(const uint8_t *data, size_t len,
-                              uint8_t *out, size_t out_sz)
-{
+size_t nfs_hamming_encode_buf(const uint8_t *data, size_t len, uint8_t *out, size_t out_sz) {
     if (!data || !out)
         return 0;
 
-    size_t needed = len * 2;  /* 2 codewords per byte */
+    size_t needed = len * 2; /* 2 codewords per byte */
     if (out_sz < needed)
         return 0;
 
@@ -130,9 +122,7 @@ size_t nfs_hamming_encode_buf(const uint8_t *data, size_t len,
     return idx;
 }
 
-int nfs_hamming_decode_buf(const uint8_t *codes, size_t code_len,
-                           uint8_t *out, size_t out_sz)
-{
+int nfs_hamming_decode_buf(const uint8_t *codes, size_t code_len, uint8_t *out, size_t out_sz) {
     if (!codes || !out)
         return -1;
 

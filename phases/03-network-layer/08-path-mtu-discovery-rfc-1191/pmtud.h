@@ -26,9 +26,9 @@
 
 /* A single cache entry mapping a destination to its discovered PMTU. */
 struct nfs_pmtu_entry {
-    uint32_t dest;         /* destination IP (network byte order) */
-    uint32_t pmtu;         /* discovered path MTU in bytes        */
-    double   last_updated; /* timestamp of last update (seconds)  */
+    uint32_t dest;       /* destination IP (network byte order) */
+    uint32_t pmtu;       /* discovered path MTU in bytes        */
+    double last_updated; /* timestamp of last update (seconds)  */
 };
 
 /* Cache of PMTU entries, one per destination. */
@@ -45,12 +45,10 @@ void nfs_pmtu_cache_init(struct nfs_pmtu_cache *c, size_t capacity);
 void nfs_pmtu_cache_free(struct nfs_pmtu_cache *c);
 
 /* Insert or update a PMTU entry.  Returns 0 on success, -1 if full. */
-int nfs_pmtu_cache_update(struct nfs_pmtu_cache *c, uint32_t dest,
-                          uint32_t new_mtu, double now);
+int nfs_pmtu_cache_update(struct nfs_pmtu_cache *c, uint32_t dest, uint32_t new_mtu, double now);
 
 /* Look up the cached PMTU for a destination.  Returns 0 if unknown. */
-uint32_t nfs_pmtu_cache_lookup(const struct nfs_pmtu_cache *c,
-                               uint32_t dest);
+uint32_t nfs_pmtu_cache_lookup(const struct nfs_pmtu_cache *c, uint32_t dest);
 
 /* RFC 1191 plateau table: return the next lower MTU value.
  * The plateau table is: {65535,32000,17914,8166,4352,2002,1492,1006,
@@ -61,8 +59,7 @@ uint32_t nfs_pmtu_next_lower(uint32_t current_mtu);
 
 /* Return 1 if enough time has elapsed since the last PMTU update
  * to warrant probing a larger MTU again (RFC 1191 recommends 10 min). */
-int nfs_pmtu_should_probe(const struct nfs_pmtu_entry *e, double now,
-                          double probe_interval);
+int nfs_pmtu_should_probe(const struct nfs_pmtu_entry *e, double now, double probe_interval);
 
 /* Format the PMTU cache into a human-readable string. */
 void nfs_pmtu_format(const struct nfs_pmtu_cache *c, char *buf, size_t sz);

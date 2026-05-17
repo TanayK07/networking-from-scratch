@@ -4,23 +4,26 @@
 #include <stdio.h>
 #include <string.h>
 
-static void print_hex(const uint8_t *data, size_t len)
-{
+static void print_hex(const uint8_t *data, size_t len) {
     for (size_t i = 0; i < len; i++) {
         printf("%02x ", data[i]);
-        if ((i + 1) % 16 == 0) printf("\n");
+        if ((i + 1) % 16 == 0)
+            printf("\n");
     }
-    if (len % 16 != 0) printf("\n");
+    if (len % 16 != 0)
+        printf("\n");
 }
 
-int main(void)
-{
+int main(void) {
     /* Create a fake DNS message (just header for demo) */
     uint8_t dns_msg[20];
     memset(dns_msg, 0, sizeof(dns_msg));
-    dns_msg[0] = 0x12; dns_msg[1] = 0x34; /* ID */
-    dns_msg[2] = 0x01; dns_msg[3] = 0x00; /* Flags: RD=1 */
-    dns_msg[4] = 0x00; dns_msg[5] = 0x01; /* QDCOUNT=1 */
+    dns_msg[0] = 0x12;
+    dns_msg[1] = 0x34; /* ID */
+    dns_msg[2] = 0x01;
+    dns_msg[3] = 0x00; /* Flags: RD=1 */
+    dns_msg[4] = 0x00;
+    dns_msg[5] = 0x01; /* QDCOUNT=1 */
 
     printf("=== Original DNS message (%zu bytes) ===\n", sizeof(dns_msg));
     print_hex(dns_msg, sizeof(dns_msg));
@@ -28,8 +31,7 @@ int main(void)
     /* TCP framing */
     printf("\n=== TCP Framing ===\n");
     uint8_t framed[256];
-    int flen = nfs_dns_tcp_frame(dns_msg, (uint16_t)sizeof(dns_msg),
-                                  framed, sizeof(framed));
+    int flen = nfs_dns_tcp_frame(dns_msg, (uint16_t)sizeof(dns_msg), framed, sizeof(framed));
     printf("Framed (%d bytes):\n", flen);
     print_hex(framed, (size_t)flen);
 

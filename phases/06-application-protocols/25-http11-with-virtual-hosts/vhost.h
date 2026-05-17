@@ -34,15 +34,15 @@ struct nfs_vhost {
     char hostname[NFS_VHOST_MAX_HOSTNAME];
     char docroot[NFS_VHOST_MAX_DOCROOT];
     char aliases[NFS_VHOST_MAX_ALIASES][NFS_VHOST_MAX_HOSTNAME];
-    int  alias_count;
-    int  active;
+    int alias_count;
+    int active;
 };
 
 /* Virtual host table */
 struct nfs_vhost_table {
     struct nfs_vhost hosts[NFS_VHOST_MAX_HOSTS];
-    int              count;
-    int              default_idx;  /* index of default host, -1 if none */
+    int count;
+    int default_idx; /* index of default host, -1 if none */
 };
 
 /* Parsed HTTP request (minimal, for Host extraction) */
@@ -65,27 +65,22 @@ void nfs_vhost_table_init(struct nfs_vhost_table *table);
 /* Add a virtual host with the given hostname and document root.
  * If `is_default` is non-zero, this becomes the default host.
  * Returns the host index, or -1 on error. */
-int nfs_vhost_add(struct nfs_vhost_table *table,
-                  const char *hostname, const char *docroot,
+int nfs_vhost_add(struct nfs_vhost_table *table, const char *hostname, const char *docroot,
                   int is_default);
 
 /* Add an alias hostname for an existing virtual host.
  * Returns 0 on success, -1 on error. */
-int nfs_vhost_add_alias(struct nfs_vhost_table *table,
-                        int host_idx, const char *alias);
+int nfs_vhost_add_alias(struct nfs_vhost_table *table, int host_idx, const char *alias);
 
 /* Look up a virtual host by hostname (case-insensitive).
  * Checks primary hostname and aliases.
  * Falls back to default host if no match.
  * Returns pointer to the vhost, or NULL if no default. */
-const struct nfs_vhost *nfs_vhost_lookup(
-    const struct nfs_vhost_table *table,
-    const char *hostname);
+const struct nfs_vhost *nfs_vhost_lookup(const struct nfs_vhost_table *table, const char *hostname);
 
 /* Get the default virtual host.
  * Returns pointer or NULL if no default set. */
-const struct nfs_vhost *nfs_vhost_get_default(
-    const struct nfs_vhost_table *table);
+const struct nfs_vhost *nfs_vhost_get_default(const struct nfs_vhost_table *table);
 
 /* Get the number of configured virtual hosts. */
 int nfs_vhost_count(const struct nfs_vhost_table *table);
@@ -95,14 +90,13 @@ int nfs_vhost_count(const struct nfs_vhost_table *table);
 /* Extract the Host header from a raw HTTP request.
  * Writes the hostname (without port) to `host_out`.
  * Returns 0 on success, -1 if Host header not found. */
-int nfs_vhost_extract_host(const char *request, size_t request_len,
-                           char *host_out, size_t host_out_sz);
+int nfs_vhost_extract_host(const char *request, size_t request_len, char *host_out,
+                           size_t host_out_sz);
 
 /* Parse a Host header value, stripping the port if present.
  * "example.com:8080" -> "example.com"
  * Returns 0 on success, -1 on error. */
-int nfs_vhost_parse_host_value(const char *value,
-                               char *hostname, size_t hostname_sz,
+int nfs_vhost_parse_host_value(const char *value, char *hostname, size_t hostname_sz,
                                uint16_t *port);
 
 /* --- Request routing -------------------------------------------- */
@@ -111,9 +105,8 @@ int nfs_vhost_parse_host_value(const char *value,
  * Parses the Host header, looks up the vhost, returns it.
  * Returns NULL if Host is missing (HTTP/1.1 violation) and
  * no default host is configured. */
-const struct nfs_vhost *nfs_vhost_route(
-    const struct nfs_vhost_table *table,
-    const char *request, size_t request_len);
+const struct nfs_vhost *nfs_vhost_route(const struct nfs_vhost_table *table, const char *request,
+                                        size_t request_len);
 
 /* Validate that an HTTP/1.1 request has a Host header.
  * Returns 0 if valid (Host present), -1 if missing. */

@@ -10,22 +10,19 @@
  * Init
  * --------------------------------------------------------------- */
 
-void nfs_conn_init(struct nfs_tcp_conn *c, uint32_t local_seq,
-                   uint32_t remote_seq, double msl)
-{
-    c->state           = NFS_TCP_ST_ESTABLISHED;
-    c->local_seq       = local_seq;
-    c->remote_seq      = remote_seq;
+void nfs_conn_init(struct nfs_tcp_conn *c, uint32_t local_seq, uint32_t remote_seq, double msl) {
+    c->state = NFS_TCP_ST_ESTABLISHED;
+    c->local_seq = local_seq;
+    c->remote_seq = remote_seq;
     c->time_wait_start = 0.0;
-    c->msl             = msl;
+    c->msl = msl;
 }
 
 /* ---------------------------------------------------------------
  * Close (active close — send FIN)
  * --------------------------------------------------------------- */
 
-int nfs_conn_close(struct nfs_tcp_conn *c)
-{
+int nfs_conn_close(struct nfs_tcp_conn *c) {
     switch (c->state) {
     case NFS_TCP_ST_ESTABLISHED:
         /* Application initiates close. Send FIN, transition to FIN_WAIT_1.
@@ -42,7 +39,7 @@ int nfs_conn_close(struct nfs_tcp_conn *c)
         return 0;
 
     default:
-        return -1;  /* invalid state for close */
+        return -1; /* invalid state for close */
     }
 }
 
@@ -50,8 +47,7 @@ int nfs_conn_close(struct nfs_tcp_conn *c)
  * Receive FIN
  * --------------------------------------------------------------- */
 
-int nfs_conn_recv_fin(struct nfs_tcp_conn *c)
-{
+int nfs_conn_recv_fin(struct nfs_tcp_conn *c) {
     switch (c->state) {
     case NFS_TCP_ST_ESTABLISHED:
         /* Passive close: peer initiated teardown.
@@ -75,11 +71,11 @@ int nfs_conn_recv_fin(struct nfs_tcp_conn *c)
         /* time_wait_start will be set by the caller using a real clock.
          * For testability, we set it to 0.0 and let the caller
          * drive the timer via nfs_conn_time_wait_expired(). */
-        c->time_wait_start = 0.0;  /* caller should set this */
+        c->time_wait_start = 0.0; /* caller should set this */
         return 0;
 
     default:
-        return -1;  /* invalid state for receiving FIN */
+        return -1; /* invalid state for receiving FIN */
     }
 }
 
@@ -87,8 +83,7 @@ int nfs_conn_recv_fin(struct nfs_tcp_conn *c)
  * Receive ACK
  * --------------------------------------------------------------- */
 
-int nfs_conn_recv_ack(struct nfs_tcp_conn *c)
-{
+int nfs_conn_recv_ack(struct nfs_tcp_conn *c) {
     switch (c->state) {
     case NFS_TCP_ST_FIN_WAIT_1:
         /* Our FIN was acknowledged. If we haven't received peer's
@@ -100,7 +95,7 @@ int nfs_conn_recv_ack(struct nfs_tcp_conn *c)
         /* Simultaneous close: our FIN was acknowledged.
          * Enter TIME_WAIT. */
         c->state = NFS_TCP_ST_TIME_WAIT;
-        c->time_wait_start = 0.0;  /* caller should set this */
+        c->time_wait_start = 0.0; /* caller should set this */
         return 0;
 
     case NFS_TCP_ST_LAST_ACK:
@@ -110,7 +105,7 @@ int nfs_conn_recv_ack(struct nfs_tcp_conn *c)
         return 0;
 
     default:
-        return -1;  /* no ACK-driven transition from this state */
+        return -1; /* no ACK-driven transition from this state */
     }
 }
 
@@ -118,8 +113,7 @@ int nfs_conn_recv_ack(struct nfs_tcp_conn *c)
  * TIME_WAIT expiry check
  * --------------------------------------------------------------- */
 
-int nfs_conn_time_wait_expired(struct nfs_tcp_conn *c, double now)
-{
+int nfs_conn_time_wait_expired(struct nfs_tcp_conn *c, double now) {
     if (c->state != NFS_TCP_ST_TIME_WAIT)
         return -1;
 
@@ -138,17 +132,25 @@ int nfs_conn_time_wait_expired(struct nfs_tcp_conn *c, double now)
  * State name
  * --------------------------------------------------------------- */
 
-const char *nfs_conn_state_name(int state)
-{
+const char *nfs_conn_state_name(int state) {
     switch (state) {
-    case NFS_TCP_ST_ESTABLISHED: return "ESTABLISHED";
-    case NFS_TCP_ST_FIN_WAIT_1:  return "FIN_WAIT_1";
-    case NFS_TCP_ST_FIN_WAIT_2:  return "FIN_WAIT_2";
-    case NFS_TCP_ST_CLOSING:     return "CLOSING";
-    case NFS_TCP_ST_TIME_WAIT:   return "TIME_WAIT";
-    case NFS_TCP_ST_CLOSE_WAIT:  return "CLOSE_WAIT";
-    case NFS_TCP_ST_LAST_ACK:    return "LAST_ACK";
-    case NFS_TCP_ST_CLOSED:      return "CLOSED";
-    default:                     return "UNKNOWN";
+    case NFS_TCP_ST_ESTABLISHED:
+        return "ESTABLISHED";
+    case NFS_TCP_ST_FIN_WAIT_1:
+        return "FIN_WAIT_1";
+    case NFS_TCP_ST_FIN_WAIT_2:
+        return "FIN_WAIT_2";
+    case NFS_TCP_ST_CLOSING:
+        return "CLOSING";
+    case NFS_TCP_ST_TIME_WAIT:
+        return "TIME_WAIT";
+    case NFS_TCP_ST_CLOSE_WAIT:
+        return "CLOSE_WAIT";
+    case NFS_TCP_ST_LAST_ACK:
+        return "LAST_ACK";
+    case NFS_TCP_ST_CLOSED:
+        return "CLOSED";
+    default:
+        return "UNKNOWN";
     }
 }

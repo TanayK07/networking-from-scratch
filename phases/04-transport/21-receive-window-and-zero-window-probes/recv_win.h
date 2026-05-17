@@ -14,10 +14,10 @@
  * --------------------------------------------------------------- */
 
 struct nfs_recv_window {
-    uint8_t  *buffer;     /* receive buffer */
-    size_t    capacity;   /* total buffer size */
-    size_t    used;       /* bytes currently in buffer */
-    uint32_t  rcv_nxt;    /* next expected sequence number */
+    uint8_t *buffer;  /* receive buffer */
+    size_t capacity;  /* total buffer size */
+    size_t used;      /* bytes currently in buffer */
+    uint32_t rcv_nxt; /* next expected sequence number */
 };
 
 /* Initialise receive window with given capacity. */
@@ -32,13 +32,12 @@ uint32_t nfs_recv_window_advertised(const struct nfs_recv_window *w);
 /* Receive data from the network.  Data is accepted only if
  * seq == rcv_nxt and there is space.
  * Return: bytes accepted (>= 0), or -1 if seq is wrong. */
-int nfs_recv_window_receive(struct nfs_recv_window *w, uint32_t seq,
-                            const uint8_t *data, size_t len);
+int nfs_recv_window_receive(struct nfs_recv_window *w, uint32_t seq, const uint8_t *data,
+                            size_t len);
 
 /* Application reads data from the buffer (frees space).
  * Return bytes actually read. */
-size_t nfs_recv_window_read(struct nfs_recv_window *w, uint8_t *out,
-                            size_t max);
+size_t nfs_recv_window_read(struct nfs_recv_window *w, uint8_t *out, size_t max);
 
 /* Return 1 if advertised window is zero. */
 int nfs_recv_window_is_zero(const struct nfs_recv_window *w);
@@ -51,10 +50,10 @@ int nfs_recv_window_is_zero(const struct nfs_recv_window *w);
  * --------------------------------------------------------------- */
 
 struct nfs_zwp {
-    int    active;          /* probing is active */
+    int active;             /* probing is active */
     double interval;        /* probe interval in seconds */
     double last_probe_time; /* timestamp of last probe sent */
-    int    probe_count;     /* number of probes sent */
+    int probe_count;        /* number of probes sent */
 };
 
 /* Initialise ZWP timer with the given probe interval. */

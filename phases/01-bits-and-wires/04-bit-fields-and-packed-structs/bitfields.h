@@ -26,27 +26,26 @@
  * --------------------------------------------------------------- */
 
 struct nfs_ipv4_hdr {
-    uint8_t  ver_ihl;       /* version (4) + IHL (4) */
-    uint8_t  tos;           /* DSCP (6) + ECN (2) */
-    uint16_t total_len;     /* total length (network order) */
-    uint16_t ident;         /* identification (network order) */
-    uint16_t flags_frag;    /* flags (3) + fragment offset (13), network order */
-    uint8_t  ttl;           /* time to live */
-    uint8_t  protocol;      /* protocol number */
-    uint16_t checksum;      /* header checksum (network order) */
-    uint32_t src_addr;      /* source IP (network order) */
-    uint32_t dst_addr;      /* destination IP (network order) */
+    uint8_t ver_ihl;     /* version (4) + IHL (4) */
+    uint8_t tos;         /* DSCP (6) + ECN (2) */
+    uint16_t total_len;  /* total length (network order) */
+    uint16_t ident;      /* identification (network order) */
+    uint16_t flags_frag; /* flags (3) + fragment offset (13), network order */
+    uint8_t ttl;         /* time to live */
+    uint8_t protocol;    /* protocol number */
+    uint16_t checksum;   /* header checksum (network order) */
+    uint32_t src_addr;   /* source IP (network order) */
+    uint32_t dst_addr;   /* destination IP (network order) */
 } __attribute__((packed));
 
-_Static_assert(sizeof(struct nfs_ipv4_hdr) == 20,
-               "IPv4 header must be exactly 20 bytes");
+_Static_assert(sizeof(struct nfs_ipv4_hdr) == 20, "IPv4 header must be exactly 20 bytes");
 
 /* ---- Field extraction (from network-order header) ---- */
 
-uint8_t  nfs_ipv4_version(const struct nfs_ipv4_hdr *h);
-uint8_t  nfs_ipv4_ihl(const struct nfs_ipv4_hdr *h);
-uint8_t  nfs_ipv4_dscp(const struct nfs_ipv4_hdr *h);
-uint8_t  nfs_ipv4_ecn(const struct nfs_ipv4_hdr *h);
+uint8_t nfs_ipv4_version(const struct nfs_ipv4_hdr *h);
+uint8_t nfs_ipv4_ihl(const struct nfs_ipv4_hdr *h);
+uint8_t nfs_ipv4_dscp(const struct nfs_ipv4_hdr *h);
+uint8_t nfs_ipv4_ecn(const struct nfs_ipv4_hdr *h);
 uint16_t nfs_ipv4_flags(const struct nfs_ipv4_hdr *h);
 uint16_t nfs_ipv4_frag_offset(const struct nfs_ipv4_hdr *h);
 

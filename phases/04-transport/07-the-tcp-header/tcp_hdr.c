@@ -18,8 +18,7 @@ static uint16_t rd16(const uint8_t *p) {
 }
 
 static uint32_t rd32(const uint8_t *p) {
-    return ((uint32_t)p[0] << 24) | ((uint32_t)p[1] << 16) |
-           ((uint32_t)p[2] << 8)  |  (uint32_t)p[3];
+    return ((uint32_t)p[0] << 24) | ((uint32_t)p[1] << 16) | ((uint32_t)p[2] << 8) | (uint32_t)p[3];
 }
 
 static void wr16(uint8_t *p, uint16_t v) {
@@ -61,14 +60,14 @@ int nfs_tcp_parse(const uint8_t *data, size_t len, struct nfs_tcp_hdr *hdr) {
     if (!data || !hdr || len < NFS_TCP_HDR_MIN_LEN)
         return -1;
 
-    hdr->src_port       = rd16(data + 0);
-    hdr->dst_port       = rd16(data + 2);
-    hdr->seq            = rd32(data + 4);
-    hdr->ack            = rd32(data + 8);
+    hdr->src_port = rd16(data + 0);
+    hdr->dst_port = rd16(data + 2);
+    hdr->seq = rd32(data + 4);
+    hdr->ack = rd32(data + 8);
     hdr->data_off_flags = rd16(data + 12);
-    hdr->window         = rd16(data + 14);
-    hdr->checksum       = rd16(data + 16);
-    hdr->urgent         = rd16(data + 18);
+    hdr->window = rd16(data + 14);
+    hdr->checksum = rd16(data + 16);
+    hdr->urgent = rd16(data + 18);
 
     /* Validate: data offset >= 5 (minimum 20 bytes). */
     uint8_t doff = nfs_tcp_data_offset(hdr);
@@ -86,9 +85,8 @@ int nfs_tcp_parse(const uint8_t *data, size_t len, struct nfs_tcp_hdr *hdr) {
 /*  Build                                                              */
 /* ------------------------------------------------------------------ */
 
-int nfs_tcp_build(uint16_t src_port, uint16_t dst_port, uint32_t seq,
-                  uint32_t ack, uint16_t flags, uint16_t window,
-                  uint8_t *out, size_t out_sz) {
+int nfs_tcp_build(uint16_t src_port, uint16_t dst_port, uint32_t seq, uint32_t ack, uint16_t flags,
+                  uint16_t window, uint8_t *out, size_t out_sz) {
     if (!out || out_sz < NFS_TCP_HDR_MIN_LEN)
         return -1;
 
@@ -121,15 +119,12 @@ const char *nfs_tcp_flag_str(uint16_t flags) {
     buf[0] = '\0';
     size_t pos = 0;
 
-    struct { uint16_t mask; const char *name; } flag_table[] = {
-        { NFS_TCP_CWR, "CWR" },
-        { NFS_TCP_ECE, "ECE" },
-        { NFS_TCP_URG, "URG" },
-        { NFS_TCP_ACK, "ACK" },
-        { NFS_TCP_PSH, "PSH" },
-        { NFS_TCP_RST, "RST" },
-        { NFS_TCP_SYN, "SYN" },
-        { NFS_TCP_FIN, "FIN" },
+    struct {
+        uint16_t mask;
+        const char *name;
+    } flag_table[] = {
+        {NFS_TCP_CWR, "CWR"}, {NFS_TCP_ECE, "ECE"}, {NFS_TCP_URG, "URG"}, {NFS_TCP_ACK, "ACK"},
+        {NFS_TCP_PSH, "PSH"}, {NFS_TCP_RST, "RST"}, {NFS_TCP_SYN, "SYN"}, {NFS_TCP_FIN, "FIN"},
     };
 
     for (size_t i = 0; i < sizeof(flag_table) / sizeof(flag_table[0]); i++) {
@@ -158,6 +153,6 @@ void nfs_tcp_format(const struct nfs_tcp_hdr *h, char *buf, size_t sz) {
         return;
 
     const char *fstr = nfs_tcp_flag_str(nfs_tcp_flags(h));
-    snprintf(buf, sz, "%u\xe2\x86\x92%u seq=%u ack=%u [%s] win=%u",
-             h->src_port, h->dst_port, h->seq, h->ack, fstr, h->window);
+    snprintf(buf, sz, "%u\xe2\x86\x92%u seq=%u ack=%u [%s] win=%u", h->src_port, h->dst_port,
+             h->seq, h->ack, fstr, h->window);
 }

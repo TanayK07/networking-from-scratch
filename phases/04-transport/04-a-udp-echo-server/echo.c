@@ -9,9 +9,9 @@
 #include "echo.h"
 #include <string.h>
 
-int nfs_echo_init(struct nfs_echo_server *srv, uint16_t max_payload)
-{
-    if (!srv) return -1;
+int nfs_echo_init(struct nfs_echo_server *srv, uint16_t max_payload) {
+    if (!srv)
+        return -1;
 
     memset(srv, 0, sizeof(*srv));
     srv->max_payload = max_payload ? max_payload : NFS_ECHO_MAX_PAYLOAD;
@@ -19,11 +19,10 @@ int nfs_echo_init(struct nfs_echo_server *srv, uint16_t max_payload)
     return 0;
 }
 
-int nfs_echo_process(struct nfs_echo_server *srv,
-                     const uint8_t *in, size_t in_len,
-                     uint8_t *out, size_t out_max, size_t *out_len)
-{
-    if (!srv || !srv->running) return -1;
+int nfs_echo_process(struct nfs_echo_server *srv, const uint8_t *in, size_t in_len, uint8_t *out,
+                     size_t out_max, size_t *out_len) {
+    if (!srv || !srv->running)
+        return -1;
 
     /* NULL input pointer with non-zero length is an error */
     if (!in && in_len > 0) {
@@ -60,24 +59,23 @@ int nfs_echo_process(struct nfs_echo_server *srv,
     return 0;
 }
 
-int nfs_echo_stats(const struct nfs_echo_server *srv,
-                   struct nfs_echo_stats *out)
-{
-    if (!srv || !out) return -1;
+int nfs_echo_stats(const struct nfs_echo_server *srv, struct nfs_echo_stats *out) {
+    if (!srv || !out)
+        return -1;
     *out = srv->stats;
     return 0;
 }
 
-int nfs_echo_reset_stats(struct nfs_echo_server *srv)
-{
-    if (!srv) return -1;
+int nfs_echo_reset_stats(struct nfs_echo_server *srv) {
+    if (!srv)
+        return -1;
     memset(&srv->stats, 0, sizeof(srv->stats));
     return 0;
 }
 
-int nfs_echo_shutdown(struct nfs_echo_server *srv)
-{
-    if (!srv) return -1;
+int nfs_echo_shutdown(struct nfs_echo_server *srv) {
+    if (!srv)
+        return -1;
     srv->running = 0;
     return 0;
 }

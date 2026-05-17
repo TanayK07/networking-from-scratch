@@ -2,13 +2,12 @@
  * tunnel.c -- IP-in-IP and GRE tunneling implementation
  */
 #include "tunnel.h"
-#include <string.h>
 #include <arpa/inet.h>
+#include <string.h>
 
 /* ---- IP checksum (one's complement) ---- */
 
-uint16_t nfs_ip_checksum(const void *data, size_t len)
-{
+uint16_t nfs_ip_checksum(const void *data, size_t len) {
     const uint8_t *p = (const uint8_t *)data;
     uint32_t sum = 0;
 
@@ -25,30 +24,29 @@ uint16_t nfs_ip_checksum(const void *data, size_t len)
 
 /* ---- IP-in-IP ---- */
 
-int nfs_ipip_encapsulate(uint32_t outer_src, uint32_t outer_dst,
-                         uint8_t ttl,
-                         const uint8_t *inner, size_t inner_len,
-                         uint8_t *out, size_t out_sz)
-{
-    if (!out || (!inner && inner_len > 0)) return -1;
+int nfs_ipip_encapsulate(uint32_t outer_src, uint32_t outer_dst, uint8_t ttl, const uint8_t *inner,
+                         size_t inner_len, uint8_t *out, size_t out_sz) {
+    if (!out || (!inner && inner_len > 0))
+        return -1;
 
     size_t total = sizeof(struct nfs_ipv4_hdr) + inner_len;
-    if (total > out_sz || total > 65535) return -1;
+    if (total > out_sz || total > 65535)
+        return -1;
 
     struct nfs_ipv4_hdr *hdr = (struct nfs_ipv4_hdr *)out;
     memset(hdr, 0, sizeof(*hdr));
 
-    hdr->ver_ihl   = 0x45;  /* IPv4, IHL=5 (20 bytes) */
-    hdr->tos       = 0;
+    hdr->ver_ihl = 0x45; /* IPv4, IHL=5 (20 bytes) */
+    hdr->tos = 0;
     hdr->total_len = htons((uint16_t)total);
-    hdr->id        = 0;
-    hdr->flags_frag = htons(0x4000);  /* Don't Fragment */
-    hdr->ttl       = ttl;
-    hdr->protocol  = NFS_IPPROTO_IPIP;
-    hdr->src_addr  = outer_src;  /* Already in network byte order */
-    hdr->dst_addr  = outer_dst;
-    hdr->checksum  = 0;
-    hdr->checksum  = nfs_ip_checksum(hdr, sizeof(*hdr));
+    hdr->id = 0;
+    hdr->flags_frag = htons(0x4000); /* Don't Fragment */
+    hdr->ttl = ttl;
+    hdr->protocol = NFS_IPPROTO_IPIP;
+    hdr->src_addr = outer_src; /* Already in network byte order */
+    hdr->dst_addr = outer_dst;
+    hdr->checksum = 0;
+    hdr->checksum = nfs_ip_checksum(hdr, sizeof(*hdr));
 
     if (inner && inner_len > 0)
         memcpy(out + sizeof(struct nfs_ipv4_hdr), inner, inner_len);
@@ -56,27 +54,31 @@ int nfs_ipip_encapsulate(uint32_t outer_src, uint32_t outer_dst,
     return (int)total;
 }
 
-const uint8_t *nfs_ipip_decapsulate(const uint8_t *pkt, size_t pkt_len,
-                                     size_t *inner_len)
-{
-    if (!pkt || !inner_len) return NULL;
-    if (pkt_len < sizeof(struct nfs_ipv4_hdr)) return NULL;
+const uint8_t *nfs_ipip_decapsulate(const uint8_t *pkt, size_t pkt_len, size_t *inner_len) {
+    if (!pkt || !inner_len)
+        return NULL;
+    if (pkt_len < sizeof(struct nfs_ipv4_hdr))
+        return NULL;
 
     const struct nfs_ipv4_hdr *hdr = (const struct nfs_ipv4_hdr *)pkt;
 
     /* Check version */
-    if ((hdr->ver_ihl >> 4) != 4) return NULL;
+    if ((hdr->ver_ihl >> 4) != 4)
+        return NULL;
 
     /* Get IHL */
     size_t ihl = (size_t)(hdr->ver_ihl & 0x0F) * 4;
-    if (ihl < 20 || ihl > pkt_len) return NULL;
+    if (ihl < 20 || ihl > pkt_len)
+        return NULL;
 
     /* Check protocol */
-    if (hdr->protocol != NFS_IPPROTO_IPIP) return NULL;
+    if (hdr->protocol != NFS_IPPROTO_IPIP)
+        return NULL;
 
     /* Check total length */
     uint16_t total = ntohs(hdr->total_len);
-    if (total > pkt_len || total < ihl) return NULL;
+    if (total > pkt_len || total < ihl)
+        return NULL;
 
     *inner_len = total - ihl;
     return pkt + ihl;
@@ -84,21 +86,23 @@ const uint8_t *nfs_ipip_decapsulate(const uint8_t *pkt, size_t pkt_len,
 
 /* ---- GRE ---- */
 
-int nfs_gre_encapsulate(uint16_t flags, uint16_t protocol,
-                        uint32_t key, uint32_t seq,
-                        const uint8_t *payload, size_t payload_len,
-                        uint8_t *out, size_t out_sz)
-{
-    if (!out || (!payload && payload_len > 0)) return -1;
+int nfs_gre_encapsulate(uint16_t flags, uint16_t protocol, uint32_t key, uint32_t seq,
+                        const uint8_t *payload, size_t payload_len, uint8_t *out, size_t out_sz) {
+    if (!out || (!payload && payload_len > 0))
+        return -1;
 
     /* Calculate GRE header size */
     size_t gre_hdr_len = 4; /* flags/version + protocol */
-    if (flags & NFS_GRE_FLAG_C) gre_hdr_len += 4; /* checksum + reserved */
-    if (flags & NFS_GRE_FLAG_K) gre_hdr_len += 4; /* key */
-    if (flags & NFS_GRE_FLAG_S) gre_hdr_len += 4; /* sequence */
+    if (flags & NFS_GRE_FLAG_C)
+        gre_hdr_len += 4; /* checksum + reserved */
+    if (flags & NFS_GRE_FLAG_K)
+        gre_hdr_len += 4; /* key */
+    if (flags & NFS_GRE_FLAG_S)
+        gre_hdr_len += 4; /* sequence */
 
     size_t total = gre_hdr_len + payload_len;
-    if (total > out_sz) return -1;
+    if (total > out_sz)
+        return -1;
 
     size_t pos = 0;
 
@@ -150,10 +154,11 @@ int nfs_gre_encapsulate(uint16_t flags, uint16_t protocol,
     return (int)pos;
 }
 
-int nfs_gre_parse(const uint8_t *data, size_t len, struct nfs_gre_hdr *hdr)
-{
-    if (!data || !hdr) return -1;
-    if (len < 4) return -1;
+int nfs_gre_parse(const uint8_t *data, size_t len, struct nfs_gre_hdr *hdr) {
+    if (!data || !hdr)
+        return -1;
+    if (len < 4)
+        return -1;
 
     memset(hdr, 0, sizeof(*hdr));
 
@@ -161,19 +166,22 @@ int nfs_gre_parse(const uint8_t *data, size_t len, struct nfs_gre_hdr *hdr)
     hdr->protocol = (uint16_t)((data[2] << 8) | data[3]);
 
     /* Check version (bits 13-15) must be 0 */
-    if ((hdr->flags & 0x0007) != 0) return -1;
+    if ((hdr->flags & 0x0007) != 0)
+        return -1;
 
     size_t pos = 4;
 
     if (hdr->flags & NFS_GRE_FLAG_C) {
-        if (pos + 4 > len) return -1;
+        if (pos + 4 > len)
+            return -1;
         hdr->has_checksum = 1;
         hdr->checksum = (uint16_t)((data[pos] << 8) | data[pos + 1]);
         pos += 4; /* checksum + reserved */
     }
 
     if (hdr->flags & NFS_GRE_FLAG_K) {
-        if (pos + 4 > len) return -1;
+        if (pos + 4 > len)
+            return -1;
         hdr->has_key = 1;
         memcpy(&hdr->key, data + pos, 4);
         hdr->key = ntohl(hdr->key);
@@ -181,7 +189,8 @@ int nfs_gre_parse(const uint8_t *data, size_t len, struct nfs_gre_hdr *hdr)
     }
 
     if (hdr->flags & NFS_GRE_FLAG_S) {
-        if (pos + 4 > len) return -1;
+        if (pos + 4 > len)
+            return -1;
         hdr->has_seq = 1;
         memcpy(&hdr->seq, data + pos, 4);
         hdr->seq = ntohl(hdr->seq);
@@ -202,22 +211,22 @@ int nfs_gre_parse(const uint8_t *data, size_t len, struct nfs_gre_hdr *hdr)
     return 0;
 }
 
-const uint8_t *nfs_gre_payload(const uint8_t *data, size_t len,
-                                size_t *payload_len)
-{
-    if (!data || !payload_len) return NULL;
+const uint8_t *nfs_gre_payload(const uint8_t *data, size_t len, size_t *payload_len) {
+    if (!data || !payload_len)
+        return NULL;
 
     struct nfs_gre_hdr hdr;
-    if (nfs_gre_parse(data, len, &hdr) < 0) return NULL;
+    if (nfs_gre_parse(data, len, &hdr) < 0)
+        return NULL;
 
-    if (hdr.hdr_len > len) return NULL;
+    if (hdr.hdr_len > len)
+        return NULL;
 
     *payload_len = len - hdr.hdr_len;
     return data + hdr.hdr_len;
 }
 
-uint16_t nfs_gre_checksum(const uint8_t *data, size_t len)
-{
+uint16_t nfs_gre_checksum(const uint8_t *data, size_t len) {
     uint32_t sum = 0;
     const uint8_t *p = data;
 

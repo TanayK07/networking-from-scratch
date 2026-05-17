@@ -53,18 +53,17 @@ uint16_t nfs_internet_checksum(const void *data, size_t len) {
     return checksum_fold(checksum_partial(data, len, 0));
 }
 
-uint16_t nfs_udp_checksum(uint32_t src_ip, uint32_t dst_ip,
-                          const uint8_t *udp_segment, size_t udp_len) {
+uint16_t nfs_udp_checksum(uint32_t src_ip, uint32_t dst_ip, const uint8_t *udp_segment,
+                          size_t udp_len) {
     /* Build the pseudo-header.
      * IPs are already in network byte order; udp_length must be in
      * network byte order as well. */
     struct nfs_ipv4_pseudo_hdr pseudo;
-    pseudo.src_addr  = src_ip;
-    pseudo.dst_addr  = dst_ip;
-    pseudo.zero      = 0;
-    pseudo.protocol  = 17; /* IPPROTO_UDP */
-    pseudo.udp_length = (uint16_t)(((udp_len & 0xFF) << 8) |
-                                   ((udp_len >> 8) & 0xFF));
+    pseudo.src_addr = src_ip;
+    pseudo.dst_addr = dst_ip;
+    pseudo.zero = 0;
+    pseudo.protocol = 17; /* IPPROTO_UDP */
+    pseudo.udp_length = (uint16_t)(((udp_len & 0xFF) << 8) | ((udp_len >> 8) & 0xFF));
 
     /* Accumulate: pseudo-header, then the entire UDP segment. */
     uint32_t sum = 0;
@@ -80,8 +79,8 @@ uint16_t nfs_udp_checksum(uint32_t src_ip, uint32_t dst_ip,
     return cs;
 }
 
-int nfs_udp_verify_checksum(uint32_t src_ip, uint32_t dst_ip,
-                            const uint8_t *udp_segment, size_t udp_len) {
+int nfs_udp_verify_checksum(uint32_t src_ip, uint32_t dst_ip, const uint8_t *udp_segment,
+                            size_t udp_len) {
     if (!udp_segment || udp_len < 8)
         return 0;
 
@@ -96,12 +95,11 @@ int nfs_udp_verify_checksum(uint32_t src_ip, uint32_t dst_ip,
      * (which already includes the checksum field).  If the segment
      * is intact, the result folds to 0x0000. */
     struct nfs_ipv4_pseudo_hdr pseudo;
-    pseudo.src_addr  = src_ip;
-    pseudo.dst_addr  = dst_ip;
-    pseudo.zero      = 0;
-    pseudo.protocol  = 17;
-    pseudo.udp_length = (uint16_t)(((udp_len & 0xFF) << 8) |
-                                   ((udp_len >> 8) & 0xFF));
+    pseudo.src_addr = src_ip;
+    pseudo.dst_addr = dst_ip;
+    pseudo.zero = 0;
+    pseudo.protocol = 17;
+    pseudo.udp_length = (uint16_t)(((udp_len & 0xFF) << 8) | ((udp_len >> 8) & 0xFF));
 
     uint32_t sum = 0;
     sum = checksum_partial(&pseudo, sizeof(pseudo), sum);

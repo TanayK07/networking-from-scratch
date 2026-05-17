@@ -3,30 +3,26 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX_FDB  256
+#define MAX_FDB   256
 #define NUM_PORTS 8
 
-static int parse_mac(const char *str, uint8_t mac[6])
-{
+static int parse_mac(const char *str, uint8_t mac[6]) {
     unsigned int m[6];
-    if (sscanf(str, "%x:%x:%x:%x:%x:%x",
-               &m[0], &m[1], &m[2], &m[3], &m[4], &m[5]) != 6)
+    if (sscanf(str, "%x:%x:%x:%x:%x:%x", &m[0], &m[1], &m[2], &m[3], &m[4], &m[5]) != 6)
         return -1;
     for (int i = 0; i < 6; i++)
         mac[i] = (uint8_t)m[i];
     return 0;
 }
 
-static void usage(const char *prog)
-{
+static void usage(const char *prog) {
     fprintf(stderr, "Usage:\n");
     fprintf(stderr, "  %s learn  <mac> <port>   -- learn MAC on port\n", prog);
     fprintf(stderr, "  %s lookup <mac>          -- look up MAC\n", prog);
     fprintf(stderr, "  %s demo                  -- run a demo scenario\n", prog);
 }
 
-static void demo(void)
-{
+static void demo(void) {
     struct nfs_fdb fdb;
     nfs_fdb_init(&fdb, MAX_FDB);
 
@@ -51,20 +47,21 @@ static void demo(void)
     int out[NUM_PORTS];
     int n = nfs_fdb_forward(&fdb, mac_b, 1, out, NUM_PORTS);
     printf("Forward to aa:bb:cc:00:00:02 from port 1 -> %d port(s):", n);
-    for (int i = 0; i < n; i++) printf(" %d", out[i]);
+    for (int i = 0; i < n; i++)
+        printf(" %d", out[i]);
     printf("\n");
 
     /* Forward to unknown destination */
     n = nfs_fdb_forward(&fdb, mac_unknown, 1, out, NUM_PORTS);
     printf("Forward to unknown de:ad:be:ef:00:01 from port 1 -> %d port(s):", n);
-    for (int i = 0; i < n; i++) printf(" %d", out[i]);
+    for (int i = 0; i < n; i++)
+        printf(" %d", out[i]);
     printf("\n");
 
     nfs_fdb_free(&fdb);
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     if (argc < 2) {
         usage(argv[0]);
         return 1;

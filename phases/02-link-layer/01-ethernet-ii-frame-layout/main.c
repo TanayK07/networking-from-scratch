@@ -9,8 +9,7 @@
 #include <stdio.h>
 #include <string.h>
 
-static void demo_parse(void)
-{
+static void demo_parse(void) {
     /* A fabricated 60-byte Ethernet frame carrying an IPv4 payload. */
     uint8_t frame[60];
     memset(frame, 0, sizeof(frame));
@@ -38,16 +37,14 @@ static void demo_parse(void)
     }
 }
 
-static void demo_build(void)
-{
+static void demo_build(void) {
     uint8_t dst[6] = {0xDE, 0xAD, 0xBE, 0xEF, 0x00, 0x01};
     uint8_t src[6] = {0xCA, 0xFE, 0xBA, 0xBE, 0x00, 0x02};
     uint8_t payload[] = "Hello Ethernet!";
 
     uint8_t out[1518];
-    int len = nfs_eth_build(dst, src, NFS_ETHERTYPE_IPV4,
-                            payload, sizeof(payload),
-                            out, sizeof(out));
+    int len =
+        nfs_eth_build(dst, src, NFS_ETHERTYPE_IPV4, payload, sizeof(payload), out, sizeof(out));
     if (len > 0) {
         printf("Built frame: %d bytes\n", len);
 
@@ -63,8 +60,7 @@ static void demo_build(void)
     }
 }
 
-int main(void)
-{
+int main(void) {
     printf("=== Ethernet II Frame Layout Demo ===\n\n");
     demo_parse();
     printf("\n");

@@ -14,10 +14,10 @@
  */
 
 struct nfs_route {
-    uint32_t prefix;      /* Network prefix (host byte order) */
-    uint8_t  prefix_len;  /* Prefix length in bits (0-32)     */
-    uint32_t next_hop;    /* Next-hop gateway (host byte order) */
-    int      interface_id;/* Outgoing interface identifier     */
+    uint32_t prefix;    /* Network prefix (host byte order) */
+    uint8_t prefix_len; /* Prefix length in bits (0-32)     */
+    uint32_t next_hop;  /* Next-hop gateway (host byte order) */
+    int interface_id;   /* Outgoing interface identifier     */
 };
 
 struct nfs_route_table {
@@ -42,22 +42,20 @@ void nfs_route_table_free(struct nfs_route_table *t);
  * prefix_len already exists, it is replaced (updated).
  * Returns 0 on success, -1 on error (table full or invalid args).
  */
-int nfs_route_add(struct nfs_route_table *t, uint32_t prefix,
-                  uint8_t prefix_len, uint32_t next_hop, int iface);
+int nfs_route_add(struct nfs_route_table *t, uint32_t prefix, uint8_t prefix_len, uint32_t next_hop,
+                  int iface);
 
 /*
  * Remove the route matching the given prefix and prefix_len.
  * Returns 0 on success, -1 if not found.
  */
-int nfs_route_remove(struct nfs_route_table *t, uint32_t prefix,
-                     uint8_t prefix_len);
+int nfs_route_remove(struct nfs_route_table *t, uint32_t prefix, uint8_t prefix_len);
 
 /*
  * Look up the longest matching prefix for destination `dst`.
  * Returns a pointer to the best matching route, or NULL if no match.
  */
-const struct nfs_route *nfs_route_lookup(const struct nfs_route_table *t,
-                                         uint32_t dst);
+const struct nfs_route *nfs_route_lookup(const struct nfs_route_table *t, uint32_t dst);
 
 /*
  * Format the routing table as a human-readable string into buf (up to sz bytes).
