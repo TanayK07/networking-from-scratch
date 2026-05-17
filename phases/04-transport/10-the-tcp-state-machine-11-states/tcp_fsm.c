@@ -63,8 +63,10 @@ struct transition {
     int action;
 };
 
+/* clang-format off */
 /* Sentinel for invalid transitions. */
 #define INVALID {-1, NFS_TCP_ACT_NONE}
+/* clang-format on */
 
 /*
  * Transition table indexed by [current_state][event].
