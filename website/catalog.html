@@ -55,7 +55,7 @@
 }
 </script>
 <script>
-if(localStorage.getItem('nfs_theme')==='dark'||(!localStorage.getItem('nfs_theme')&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark');
+if(localStorage.getItem('nfs_theme')==='dark'||(!localStorage.getItem('nfs_theme')&&matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.classList.add('dark');document.addEventListener('DOMContentLoaded',function(){var t=document.querySelector('.theme-toggle');if(t){t.textContent='☀';t.title='Switch to light mode'}})}
 </script>
 </head>
 <body>
@@ -68,7 +68,7 @@ if(localStorage.getItem('nfs_theme')==='dark'||(!localStorage.getItem('nfs_theme
     <a href="roadmap.html">Roadmap</a>
     <a href="glossary.html">Glossary</a>
     <a href="https://github.com/TanayK07/networking-from-scratch" class="gh-link">GitHub <span class="gh-stars" style="display:none"></span></a>
-    <button class="theme-toggle" aria-label="Toggle theme">N</button>
+    <button class="theme-toggle" aria-label="Toggle theme">☾</button>
   </div>
 </nav>
 

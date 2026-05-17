@@ -13,11 +13,13 @@ window.NFS = window.NFS || {};
       toggle.addEventListener('click', function() {
         var isDark = document.documentElement.classList.toggle('dark');
         localStorage.setItem(NFS.darkMode._key, isDark ? 'dark' : 'light');
-        toggle.textContent = isDark ? 'D' : 'N';
-        toggle.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+        toggle.textContent = isDark ? '☀' : '☾';
+        toggle.title = isDark ? 'Switch to light mode' : 'Switch to dark mode';
+        toggle.setAttribute('aria-label', toggle.title);
       });
       var isDark = document.documentElement.classList.contains('dark');
-      toggle.textContent = isDark ? 'D' : 'N';
+      toggle.textContent = isDark ? '☀' : '☾';
+      toggle.title = isDark ? 'Switch to light mode' : 'Switch to dark mode';
     }
   };
 
