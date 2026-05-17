@@ -1,5 +1,0 @@
-{
-  "buildCommand": "node scripts/build-lessons.mjs",
-  "outputDirectory": "website",
-  "trailingSlash": true
-}
