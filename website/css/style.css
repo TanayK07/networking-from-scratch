@@ -1687,7 +1687,7 @@ small {
    20. Forms
    ========================================================================== */
 
-input,
+input:not([type="checkbox"]):not([type="radio"]),
 select,
 textarea {
   font-family: var(--font-mono);
@@ -1699,6 +1699,31 @@ textarea {
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
   -webkit-appearance: none;
   appearance: none;
+}
+
+input[type="checkbox"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--muted);
+  background: transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+  position: relative;
+  vertical-align: middle;
+}
+input[type="checkbox"]:checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+input[type="checkbox"]:checked::after {
+  content: '✓';
+  position: absolute;
+  top: -2px;
+  left: 1px;
+  font-size: 13px;
+  color: #fff;
 }
 
 input:focus,
@@ -2400,9 +2425,8 @@ select.control-input option { background: var(--bg-surface); color: var(--fg); }
 
 .lesson-completion { margin-top: 32px; padding: 16px; background: var(--bg-surface); border: 1px solid var(--line-soft); }
 .complete-toggle { display: flex; align-items: center; gap: 10px; cursor: pointer; font-family: var(--font-mono); font-size: 0.85rem; }
-.complete-toggle input[type="checkbox"] { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border: 2px solid var(--muted); background: transparent; cursor: pointer; flex-shrink: 0; position: relative; }
-.complete-toggle input[type="checkbox"]:checked { background: var(--accent); border-color: var(--accent); }
-.complete-toggle input[type="checkbox"]:checked::after { content: '✓'; position: absolute; top: -1px; left: 2px; font-size: 14px; color: #fff; }
+.complete-toggle input[type="checkbox"] { width: 18px; height: 18px; }
+.complete-toggle input[type="checkbox"]:checked::after { top: -1px; left: 2px; font-size: 14px; }
 
 .lesson-error { text-align: center; padding: 80px 24px; }
 .lesson-error h2 { font-family: var(--font-display); margin-bottom: 16px; }
