@@ -90,9 +90,13 @@ phases/06-application-protocols/28-cookies-and-session-management/cookie
 phases/07-tls/07-the-tls-record-layer/tls_record
 phases/07-tls/08-tls-13-clienthello-byte-by-byte/tls_clienthello
 
-# Compiled test binaries
+# Compiled test binaries (but keep source files)
 phases/*/tests/test_*
 phases/*/*/tests/test_*
+!phases/*/tests/test_*.c
+!phases/*/*/tests/test_*.c
+!phases/*/tests/test_*.h
+!phases/*/*/tests/test_*.h
 
 # Python
 __pycache__/
