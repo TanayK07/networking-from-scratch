@@ -60,6 +60,11 @@ window.NFS = window.NFS || {};
 
   // --- Lesson URL builder ---
   NFS.lessonUrl = function(phaseIdx, lessonIdx) {
+    if (NFS.PHASES && NFS.PHASES[phaseIdx]) {
+      var phase = NFS.PHASES[phaseIdx];
+      var lesson = phase.lessons[lessonIdx];
+      if (lesson) return '/lessons/' + phase.slug + '/' + lesson[3] + '/';
+    }
     return 'lesson.html?p=' + phaseIdx + '&l=' + lessonIdx;
   };
 

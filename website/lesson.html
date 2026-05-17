@@ -2,99 +2,23 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lesson — Networking from Scratch</title>
-<meta name="description" content="Learn networking from raw bytes. Implementation-heavy lessons in C and Python.">
-<meta property="og:title" content="Lesson — Networking from Scratch">
-<meta property="og:description" content="Build the network stack from raw bytes. 289 hands-on lessons in C and Python.">
-<meta property="og:type" content="article">
-<meta property="og:url" content="https://networkingfromscratch.vercel.app/lesson.html">
-<meta property="og:image" content="https://networkingfromscratch.vercel.app/og.png">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Lesson — Networking from Scratch">
-<meta name="twitter:description" content="Build the network stack from raw bytes. 289 hands-on lessons in C and Python.">
-<meta name="twitter:image" content="https://networkingfromscratch.vercel.app/og.png">
-<meta name="theme-color" content="#00897B">
-<meta name="google-site-verification" content="0wstVvV2yfk22BVUKDKAiLU3llaYtNL0mdeo5vN2gPo">
-<meta name="robots" content="index, follow">
-<meta property="og:site_name" content="Networking from Scratch">
-<meta property="og:locale" content="en_US">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌐</text></svg>">
-<link rel="canonical" href="https://networkingfromscratch.vercel.app/lesson.html">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preconnect" href="https://api.github.com">
-<link rel="preconnect" href="https://raw.githubusercontent.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=VT323&family=Source+Serif+4:ital,wght@0,300..900;1,300..900&family=JetBrains+Mono:wght@400;500;600&display=swap">
-<link rel="stylesheet" href="css/style.css">
-<script>
-if(localStorage.getItem('nfs_theme')==='dark'||(!localStorage.getItem('nfs_theme')&&matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.classList.add('dark');document.addEventListener('DOMContentLoaded',function(){var t=document.querySelector('.theme-toggle');if(t){t.textContent='☀';t.title='Switch to light mode'}})}
-</script>
-</head>
-<body>
-
-<div id="scroll-progress" class="scroll-progress"></div>
-
-<nav class="topnav">
-  <a href="index.html" class="brand">NETWORKING / FROM SCRATCH</a>
-  <div class="links">
-    <a href="index.html">Contents</a>
-    <a href="catalog.html">Catalog</a>
-    <a href="roadmap.html">Roadmap</a>
-    <a href="glossary.html">Glossary</a>
-    <a href="https://github.com/TanayK07/networking-from-scratch" class="gh-link">GitHub <span class="gh-stars" style="display:none"></span></a>
-    <button class="theme-toggle" aria-label="Toggle theme">☾</button>
-  </div>
-</nav>
-
-<div class="lesson-layout">
-  <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle sidebar">&#9776;</button>
-
-  <aside id="sidebar" class="lesson-sidebar">
-    <div class="sidebar-header">
-      <h3 id="sidebar-phase-title"></h3>
-    </div>
-    <div id="sidebar-lessons" class="sidebar-lessons"></div>
-  </aside>
-
-  <main class="lesson-main">
-    <div id="breadcrumb" class="breadcrumb"></div>
-    <div id="lesson-content" class="lesson-content"></div>
-    <div id="share-bar" class="share-bar" style="display:none">
-      <span class="share-bar-label">SHARE</span>
-      <a id="share-twitter" class="share-btn" target="_blank" rel="noopener">Twitter/X</a>
-      <a id="share-reddit" class="share-btn" target="_blank" rel="noopener">Reddit</a>
-      <button id="share-copy" class="share-btn">Copy link</button>
-    </div>
-    <div id="completion" class="lesson-completion"></div>
-    <div id="prev-next" class="lesson-nav"></div>
-  </main>
-</div>
-
-<noscript>
-<div style="max-width:720px;margin:80px auto;padding:0 24px;font-family:serif;">
-  <h1>Networking from Scratch</h1>
-  <p>This lesson requires JavaScript to render content from GitHub. Please enable JavaScript or <a href="https://github.com/TanayK07/networking-from-scratch/tree/main/phases">browse lessons directly on GitHub</a>.</p>
-  <p><a href="catalog.html">View all 289 lessons in the catalog</a></p>
-</div>
-</noscript>
-
-<footer>
-  <span><a href="https://github.com/TanayK07/networking-from-scratch">GitHub</a> &middot; open source &middot; free forever</span>
-  <div class="footer-links">
-    <a href="index.html">Home</a>
-    <a href="catalog.html">Catalog</a>
-    <a href="glossary.html">Glossary</a>
-    <a href="https://github.com/TanayK07/networking-from-scratch/discussions">Discussions</a>
-  </div>
-</footer>
-
+<title>Redirecting… — Networking from Scratch</title>
 <script src="js/data.js"></script>
-<script src="js/progress.js"></script>
-<script src="js/header.js"></script>
-<script src="js/app.js"></script>
-<script src="js/vendor/marked.min.js"></script>
-<script src="js/lesson.js"></script>
-
-</body>
+<script>
+(function() {
+  var params = new URLSearchParams(window.location.search);
+  var p = parseInt(params.get('p'), 10);
+  var l = parseInt(params.get('l'), 10);
+  if (!isNaN(p) && !isNaN(l) && NFS.PHASES && NFS.PHASES[p] && NFS.PHASES[p].lessons[l]) {
+    var phase = NFS.PHASES[p];
+    var lesson = phase.lessons[l];
+    window.location.replace('/lessons/' + phase.slug + '/' + lesson[3] + '/');
+  } else {
+    window.location.replace('/catalog.html');
+  }
+})();
+</script>
+<noscript><meta http-equiv="refresh" content="0;url=/catalog.html"></noscript>
+</head>
+<body><p>Redirecting…</p></body>
 </html>

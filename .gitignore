@@ -1,4 +1,6 @@
 # Build artifacts
+website/lessons/
+node_modules/
 *.o
 *.so
 *.a

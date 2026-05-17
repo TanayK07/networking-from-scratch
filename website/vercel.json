@@ -1,0 +1,6 @@
+{
+  "installCommand": "cd .. && npm install",
+  "buildCommand": "cd .. && node scripts/build-lessons.mjs",
+  "outputDirectory": ".",
+  "trailingSlash": true
+}
