@@ -94,7 +94,7 @@ static inline void set_bit(uint8_t *data, size_t n, int val) {
     if (val)
         data[byte_idx] |= (uint8_t)(1 << bit_idx);
     else
-        data[byte_idx] &= (uint8_t)~(1 << bit_idx);
+        data[byte_idx] &= (uint8_t) ~(1 << bit_idx);
 }
 
 int nfs_bit_stuff(const uint8_t *data, size_t nbits, uint8_t *out, size_t out_sz) {

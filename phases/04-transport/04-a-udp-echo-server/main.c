@@ -15,10 +15,7 @@ int main(void) {
 
     /* Simulate echoing several datagrams */
     const char *messages[] = {
-        "Hello, World!",
-        "UDP Echo (RFC 862)",
-        "Networking from scratch",
-        "", /* empty datagram */
+        "Hello, World!", "UDP Echo (RFC 862)", "Networking from scratch", "", /* empty datagram */
     };
 
     uint8_t response[1500];

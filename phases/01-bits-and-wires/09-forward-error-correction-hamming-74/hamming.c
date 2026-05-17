@@ -30,7 +30,7 @@ static inline uint8_t set_pos(uint8_t cw, int pos, int val) {
     if (val)
         return cw | (uint8_t)(1 << (pos - 1));
     else
-        return cw & (uint8_t)~(1 << (pos - 1));
+        return cw & (uint8_t) ~(1 << (pos - 1));
 }
 
 /* Helper: flip bit at 1-indexed position */
